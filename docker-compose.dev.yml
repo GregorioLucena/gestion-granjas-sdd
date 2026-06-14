@@ -1,0 +1,86 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: gestion-granjas-postgres
+    restart: unless-stopped
+    env_file:
+      - .env.development
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-gestion_granjas}
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-postgres}']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - gestion-granjas-dev-network
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: gestion-granjas-api-dev
+    restart: unless-stopped
+    command: pnpm --filter @gestion-granjas/api exec nest start --watch
+    env_file:
+      - .env.development
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-gestion_granjas}
+      PORT: 3001
+      NODE_ENV: development
+      CHOKIDAR_USEPOLLING: 'true'
+    ports:
+      - '${API_PORT:-3001}:3001'
+    volumes:
+      - .:/app
+      - dev_root_node_modules:/app/node_modules
+      - dev_api_node_modules:/app/apps/api/node_modules
+      - dev_api_dist:/app/apps/api/dist
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - gestion-granjas-dev-network
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: gestion-granjas-web-dev
+    restart: unless-stopped
+    command: pnpm --filter @gestion-granjas/web dev
+    env_file:
+      - .env.development
+    environment:
+      NODE_ENV: development
+      WATCHPACK_POLLING: 'true'
+    ports:
+      - '${WEB_PORT:-3000}:3000'
+    volumes:
+      - .:/app
+      - dev_root_node_modules:/app/node_modules
+      - dev_web_node_modules:/app/apps/web/node_modules
+      - dev_web_next:/app/apps/web/.next
+    depends_on:
+      api:
+        condition: service_started
+    networks:
+      - gestion-granjas-dev-network
+
+volumes:
+  postgres_data:
+  dev_root_node_modules:
+  dev_api_node_modules:
+  dev_api_dist:
+  dev_web_node_modules:
+  dev_web_next:
+
+networks:
+  gestion-granjas-dev-network:
+    name: gestion-granjas-dev-network

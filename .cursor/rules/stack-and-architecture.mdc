@@ -1,0 +1,55 @@
+---
+description: Stack, arquitectura y capas del proyecto
+alwaysApply: true
+---
+
+# Stack y arquitectura
+
+Ver detalle en `docs/decisions/0006-stack-tecnologico.md` y `docs/07-diseno-tecnico-inicial.md`.
+
+## Stack MVP v1
+
+- **Monorepo:** pnpm workspaces (`apps/api`, `apps/web`, `packages/*`)
+- **Backend:** NestJS + TypeORM + PostgreSQL
+- **Frontend:** Next.js + Tailwind + shadcn/ui
+- **Infra local:** Docker Compose (ver `docs/14-infraestructura-docker.md`)
+- **Validacion:** Zod + React Hook Form
+- **Datos cliente:** TanStack Query
+
+## Capas
+
+```text
+apps/web (Next.js) → apps/api (NestJS) → packages/database → PostgreSQL
+packages/shared ← tipos, Zod, errores
+```
+
+## Docker
+
+Desarrollo local con Docker Compose. Ver `docs/14-infraestructura-docker.md`.
+
+## Reglas arquitectonicas
+
+1. **Sin logica de negocio en componentes React.**
+2. **Route Handlers:** validar, autorizar, delegar a servicios.
+3. **Toda consulta productiva filtra** por `companiaId` y granjas permitidas.
+4. **Transacciones TypeORM** para operaciones multi-tabla (consumo + inventario, etc.).
+5. **TypeORM:** `synchronize: false`; migraciones en `packages/database/src/migrations/`.
+6. **Paquetes internos:** `database` y `shared` compilan a `dist/`; `apps/api` los importa via `exports` del workspace (sin path aliases a fuentes).
+
+## Multi-tenancy
+
+- Usuario pertenece a una compania (`Usuario.companiaId`).
+- Acceso a granjas via `UsuarioGranja`.
+- Permisos via perfiles globales.
+- Nunca confiar en IDs del cliente sin validar tenant.
+
+## Estructura de modulo
+
+```text
+src/modules/<dominio>/
+├── <dominio>.service.ts
+├── <dominio>.rules.ts
+├── <dominio>.schemas.ts
+├── <dominio>.permissions.ts
+└── index.ts
+```

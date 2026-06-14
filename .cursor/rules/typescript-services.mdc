@@ -1,0 +1,57 @@
+---
+description: Servicios TypeScript, permisos, errores y validacion
+globs: "**/*.ts"
+alwaysApply: false
+---
+
+# Servicios y TypeScript
+
+Ver `docs/08-convenciones-implementacion.md` y `docs/09-catalogo-errores.md`.
+
+## Nomenclatura
+
+- Codigo en ingles: `crearLote`, `TenantContext`, `PERMISOS.LOTES_CREAR`.
+- UI y mensajes al usuario en espanol.
+- Errores internos: `SCREAMING_SNAKE_CASE` (`LOTE_CODIGO_DUPLICADO`).
+
+## Orden en servicios
+
+1. `requirePermission(ctx, codigo)`
+2. `requireGranjaAccess(ctx, granjaId)` si aplica
+3. Validar con Zod (`*.schemas.ts`)
+4. Validar pertenencia al tenant
+5. Reglas de negocio en `*.rules.ts` (funciones puras, testeables)
+6. Persistir (transaccion si hay multiples escrituras)
+
+## Errores
+
+Usar clases de `AppError`, nunca `Error` generico en servicios:
+
+```typescript
+throw new ConflictError('LOTE_CODIGO_DUPLICADO', 'Ya existe un lote con ese codigo en la granja.');
+throw new BusinessRuleError('INVENTARIO_STOCK_INSUFICIENTE', 'No hay existencia suficiente en el almacen.');
+```
+
+Catalogo completo en `docs/09-catalogo-errores.md`.
+
+## Permisos
+
+- Constantes en `<modulo>.permissions.ts`.
+- Formato: `lotes.crear`, `inventario.movimientos.crear`.
+- No hardcodear strings de permiso en servicios.
+
+## Validacion Zod
+
+- Un schema por operacion: `crearLoteSchema`, `anularConsumoSchema`.
+- Exportar tipo: `type CrearLoteInput = z.infer<typeof crearLoteSchema>`.
+- Reutilizar schemas en API y formularios.
+
+## Auditoria
+
+- ABM: `createdById`, `updatedById`, `estadoRegistro`.
+- Eventos: `createdById`, `anulado`, `anuladoById`, `motivoAnulacion`.
+- No DELETE fisico en eventos productivos.
+
+## Tests prioritarios (Vitest)
+
+Reglas puras en `*.rules.test.ts`: stock no negativo, cantidad lote, un engorde en curso.

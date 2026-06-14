@@ -1,0 +1,53 @@
+---
+description: Ramas, commits y calidad de codigo en Git
+alwaysApply: true
+---
+
+# Git y calidad
+
+Ver detalle en `docs/12-convenciones-git-y-calidad.md`.
+
+## Ramas base
+
+| Rama | Uso |
+|------|-----|
+| `master` | Produccion |
+| `testing` | Integracion y entorno de pruebas (base para ramas de trabajo) |
+
+Flujo: `feature/*` → `testing` → `master`. No trabajar directo en `master` ni `testing`.
+
+## Prefijos de rama
+
+| Prefijo | Uso |
+|---------|-----|
+| `feature/` | Nueva funcionalidad |
+| `bugfix/` | Correccion no urgente |
+| `hotfix/` | Correccion urgente en produccion |
+| `chore/` | Mantenimiento, config |
+| `docs/` | Documentacion |
+| `refactor/` | Refactor sin cambio funcional |
+| `test/` | Pruebas |
+| `ui/` | Cambios visuales |
+
+Formato: `<prefijo>/<descripcion-kebab-case>` — ej. `feature/lotes-abm`, `ui/dashboard-mobile`.
+
+## Commits
+
+Estilo Conventional Commits (espanol o ingles, consistente):
+
+```text
+feat(lotes): crear formulario de registro
+fix(inventario): bloquear consumo sin stock
+docs(ux): agregar guia visual mobile-first
+```
+
+- Commits pequenos y con una intencion clara.
+- No commitear `.env`, credenciales ni secretos.
+- No crear commits salvo que el usuario lo pida explicitamente.
+
+## Calidad
+
+- TypeScript `strict: true`; evitar `any`.
+- ESLint + Prettier cuando esten configurados.
+- Imports con alias `@/lib`, `@/modules`, `@/components`, `@/database`.
+- No dejar `console.log` en codigo final salvo logs de servidor controlados.

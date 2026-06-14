@@ -1,0 +1,32 @@
+{
+  "name": "gestion-granjas",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@9.15.9",
+  "scripts": {
+    "predev": "pnpm run docker:db",
+    "dev": "dotenv -e .env.development -- pnpm --parallel --filter @gestion-granjas/api --filter @gestion-granjas/web run dev",
+    "dev:api": "dotenv -e .env.development -- pnpm --filter @gestion-granjas/api dev",
+    "dev:web": "dotenv -e .env.development -- pnpm --filter @gestion-granjas/web dev",
+    "build": "pnpm run build:packages && pnpm --filter @gestion-granjas/api build && pnpm --filter @gestion-granjas/web build",
+    "build:packages": "pnpm --filter @gestion-granjas/database build && pnpm --filter @gestion-granjas/shared build",
+    "lint": "pnpm --filter @gestion-granjas/web lint",
+    "format": "prettier --write \"apps/**/*.{ts,tsx}\" \"packages/**/*.ts\"",
+    "typecheck": "pnpm --filter @gestion-granjas/database typecheck && pnpm --filter @gestion-granjas/shared typecheck && pnpm --filter @gestion-granjas/api typecheck && pnpm --filter @gestion-granjas/web typecheck",
+    "db:migrate": "dotenv -e .env.development -- pnpm --filter @gestion-granjas/database db:migration:run",
+    "db:migration:generate": "dotenv -e .env.development -- pnpm --filter @gestion-granjas/database db:migration:generate",
+    "db:migration:revert": "dotenv -e .env.development -- pnpm --filter @gestion-granjas/database db:migration:revert",
+    "db:seed": "dotenv -e .env.development -- pnpm --filter @gestion-granjas/database db:seed",
+    "docker:db": "docker compose --env-file .env.development -f docker-compose.dev.yml up -d postgres",
+    "docker:db:down": "docker compose --env-file .env.development -f docker-compose.dev.yml down",
+    "docker:dev": "docker compose --env-file .env.development -f docker-compose.dev.yml up --build",
+    "docker:dev:detached": "docker compose --env-file .env.development -f docker-compose.dev.yml up --build -d",
+    "docker:down": "docker compose --env-file .env.development -f docker-compose.dev.yml down",
+    "docker:logs": "docker compose --env-file .env.development -f docker-compose.dev.yml logs -f"
+  },
+  "devDependencies": {
+    "dotenv-cli": "^8.0.0",
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.2"
+  }
+}

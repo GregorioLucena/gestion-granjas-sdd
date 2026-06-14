@@ -1,0 +1,35 @@
+# Dependencias (se instalan en la imagen Linux; nunca copiar desde el host Windows)
+node_modules
+**/node_modules
+.pnpm-store
+
+# Builds locales
+dist
+**/dist
+.next
+**/.next
+apps/**/.next
+out
+**/out
+
+# Git / IDE
+.git
+.gitignore
+.cursor
+.vscode
+
+# Docs y env local
+*.md
+docs
+.env
+.env.*
+!.env.development.example
+
+# Misc
+coverage
+.turbo
+*.log
+npm-debug.log*
+.pnpm-debug.log*
+.DS_Store
+Thumbs.db

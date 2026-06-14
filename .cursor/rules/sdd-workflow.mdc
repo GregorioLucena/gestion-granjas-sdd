@@ -1,0 +1,38 @@
+---
+description: Flujo SDD — specs como fuente de verdad antes de implementar
+alwaysApply: true
+---
+
+# Flujo SDD
+
+Este proyecto usa Specification-Driven Development. La documentacion en `docs/` es la fuente de verdad del producto.
+
+## Antes de implementar
+
+1. Leer la spec funcional en `docs/specs/` del modulo.
+2. Revisar decisiones transversales en `docs/decisions/` si aplican.
+3. Consultar `docs/05-mvp-tecnico.md` para confirmar alcance MVP v1.
+4. Implementar solo lo especificado; no agregar funcionalidad fuera de alcance.
+
+## Documentos clave
+
+| Tema | Documento |
+|------|-----------|
+| Vision y MVP | `docs/00-vision.md`, `docs/05-mvp-tecnico.md` |
+| Diseno tecnico | `docs/07-diseno-tecnico-inicial.md` |
+| Convenciones codigo | `docs/08-convenciones-implementacion.md` |
+| Errores | `docs/09-catalogo-errores.md` |
+| UX/UI | `docs/11-guia-ux-ui.md` |
+| Git y calidad | `docs/12-convenciones-git-y-calidad.md` |
+
+## Reglas
+
+- Si el codigo contradice una spec, el codigo esta mal.
+- Eventos productivos no se eliminan fisicamente; se anulan con motivo (`docs/decisions/0005-auditoria-y-trazabilidad.md`).
+- Separar estado de registro (ABM) vs estado operativo (`docs/decisions/0004-estado-registro-vs-estado-operativo.md`).
+- Verificar criterios de aceptacion de la spec al terminar.
+
+## Respuestas al usuario
+
+- Responder en espanol.
+- No crear commits salvo que el usuario lo pida explicitamente.

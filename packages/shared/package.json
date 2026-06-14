@@ -1,0 +1,41 @@
+{
+  "name": "@gestion-granjas/shared",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": ["dist"],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./errors": {
+      "types": "./dist/errors/index.d.ts",
+      "default": "./dist/errors/index.js"
+    },
+    "./types": {
+      "types": "./dist/types/tenant.d.ts",
+      "default": "./dist/types/tenant.js"
+    },
+    "./permissions": {
+      "types": "./dist/permissions/index.d.ts",
+      "default": "./dist/permissions/index.js"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "errors": ["dist/errors/index.d.ts"],
+      "types": ["dist/types/tenant.d.ts"],
+      "permissions": ["dist/permissions/index.d.ts"]
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "tsc -p tsconfig.build.json --watch --preserveWatchOutput",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2"
+  }
+}
