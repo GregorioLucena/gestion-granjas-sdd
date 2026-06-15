@@ -46,7 +46,7 @@ Representa la especie o categoria productiva general configurada en las maestras
 
 Ejemplos:
 
-- Cerdo
+- Porcino
 - Bovino
 - Caprino
 - Ave

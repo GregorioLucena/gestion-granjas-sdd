@@ -3,5 +3,5 @@
   "compilerOptions": {
     "noEmit": false
   },
-  "exclude": ["node_modules", "dist", "src/seeds/**", "src/typeorm-cli.ts"]
+  "exclude": ["node_modules", "dist", "src/typeorm-cli.ts"]
 }

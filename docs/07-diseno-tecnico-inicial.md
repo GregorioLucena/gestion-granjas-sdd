@@ -307,7 +307,7 @@ erDiagram
 
 | Entidad | Alcance | Ejemplos |
 |---------|---------|----------|
-| `TipoAnimal` | Compania | Cerdo, Ave |
+| `TipoAnimal` | Compania | Porcino, Aviar |
 | `Raza` | Compania | Yorkshire, Duroc |
 | `FinalidadProductiva` | Compania | Engorde, Reproduccion |
 | `TipoUbicacion` | Compania | Galpon, Corral |

@@ -1,11 +1,13 @@
 import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { AppExceptionFilter } from './common/filters/app-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.setGlobalPrefix('api');
+  app.useGlobalFilters(new AppExceptionFilter());
 
   const corsOrigin = process.env.CORS_ORIGIN ?? 'http://localhost:3000';
   app.enableCors({ origin: corsOrigin, credentials: true });
