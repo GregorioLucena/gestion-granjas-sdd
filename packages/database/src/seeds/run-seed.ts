@@ -34,6 +34,84 @@ const PERMISOS_CONFIG = [
     modulo: 'maestras',
     accion: 'administrar',
   },
+  { codigo: 'usuarios.ver', nombre: 'Ver usuarios', modulo: 'usuarios', accion: 'ver' },
+  { codigo: 'usuarios.crear', nombre: 'Crear usuarios', modulo: 'usuarios', accion: 'crear' },
+  { codigo: 'usuarios.editar', nombre: 'Editar usuarios', modulo: 'usuarios', accion: 'editar' },
+  {
+    codigo: 'perfiles.administrar',
+    nombre: 'Administrar perfiles',
+    modulo: 'perfiles',
+    accion: 'administrar',
+  },
+  { codigo: 'lotes.ver', nombre: 'Ver lotes', modulo: 'lotes', accion: 'ver' },
+  { codigo: 'lotes.crear', nombre: 'Crear lotes', modulo: 'lotes', accion: 'crear' },
+  { codigo: 'lotes.editar', nombre: 'Editar lotes', modulo: 'lotes', accion: 'editar' },
+  { codigo: 'inventario.ver', nombre: 'Ver inventario', modulo: 'inventario', accion: 'ver' },
+  {
+    codigo: 'inventario.movimientos.crear',
+    nombre: 'Crear movimientos de inventario',
+    modulo: 'inventario',
+    accion: 'movimientos.crear',
+  },
+  {
+    codigo: 'alimentacion.consumo.ver',
+    nombre: 'Ver consumo de alimento',
+    modulo: 'alimentacion',
+    accion: 'consumo.ver',
+  },
+  {
+    codigo: 'alimentacion.consumo.crear',
+    nombre: 'Registrar consumo de alimento',
+    modulo: 'alimentacion',
+    accion: 'consumo.crear',
+  },
+  { codigo: 'engorde.ver', nombre: 'Ver engorde', modulo: 'engorde', accion: 'ver' },
+  { codigo: 'engorde.iniciar', nombre: 'Iniciar engorde', modulo: 'engorde', accion: 'iniciar' },
+  { codigo: 'pesos.ver', nombre: 'Ver controles de peso', modulo: 'pesos', accion: 'ver' },
+  { codigo: 'pesos.crear', nombre: 'Registrar controles de peso', modulo: 'pesos', accion: 'crear' },
+  {
+    codigo: 'reportes.alimentacion.ver',
+    nombre: 'Ver reportes de alimentacion',
+    modulo: 'reportes',
+    accion: 'alimentacion.ver',
+  },
+  {
+    codigo: 'reportes.engorde.ver',
+    nombre: 'Ver reportes de engorde',
+    modulo: 'reportes',
+    accion: 'engorde.ver',
+  },
+];
+
+const PERFIL_ADMIN_SISTEMA = PERMISOS_CONFIG.map((p) => p.codigo);
+
+const PERFIL_ADMIN_COMPANIA = [
+  'granjas.ver',
+  'granjas.crear',
+  'granjas.editar',
+  'maestras.administrar',
+  'usuarios.ver',
+  'usuarios.crear',
+  'usuarios.editar',
+  'perfiles.administrar',
+];
+
+const PERFIL_OPERADOR_GRANJA = [
+  'granjas.ver',
+  'maestras.administrar',
+  'lotes.ver',
+  'lotes.crear',
+  'lotes.editar',
+  'inventario.ver',
+  'inventario.movimientos.crear',
+  'alimentacion.consumo.ver',
+  'alimentacion.consumo.crear',
+  'engorde.ver',
+  'engorde.iniciar',
+  'pesos.ver',
+  'pesos.crear',
+  'reportes.alimentacion.ver',
+  'reportes.engorde.ver',
 ];
 
 const ANIMALES_SEED: Array<{
@@ -113,23 +191,51 @@ async function runSeed() {
     perfil = await perfilRepo.save(
       perfilRepo.create({
         nombre: 'Administrador Sistema',
-        descripcion: 'Acceso completo a configuracion base MVP',
+        descripcion: 'Acceso completo al sistema',
         estadoRegistro: EstadoRegistro.ACTIVO,
       }),
     );
   }
 
-  for (const permiso of permisos) {
-    const link = await AppDataSource.getRepository(PerfilPermiso).findOne({
-      where: { perfilId: perfil.id, permisoId: permiso.id },
-    });
-    if (!link) {
-      await AppDataSource.getRepository(PerfilPermiso).save({
-        perfilId: perfil.id,
-        permisoId: permiso.id,
+  async function linkPerfilPermisos(perfilId: string, codigos: string[]) {
+    for (const codigo of codigos) {
+      const permiso = permisos.find((p) => p.codigo === codigo);
+      if (!permiso) continue;
+
+      const link = await AppDataSource.getRepository(PerfilPermiso).findOne({
+        where: { perfilId, permisoId: permiso.id },
       });
+      if (!link) {
+        await AppDataSource.getRepository(PerfilPermiso).save({ perfilId, permisoId: permiso.id });
+      }
     }
   }
+
+  await linkPerfilPermisos(perfil.id, PERFIL_ADMIN_SISTEMA);
+
+  let perfilAdminCompania = await perfilRepo.findOne({ where: { nombre: 'Administrador Compania' } });
+  if (!perfilAdminCompania) {
+    perfilAdminCompania = await perfilRepo.save(
+      perfilRepo.create({
+        nombre: 'Administrador Compania',
+        descripcion: 'Gestion de usuarios, granjas y maestras dentro de su compania',
+        estadoRegistro: EstadoRegistro.ACTIVO,
+      }),
+    );
+  }
+  await linkPerfilPermisos(perfilAdminCompania.id, PERFIL_ADMIN_COMPANIA);
+
+  let perfilOperador = await perfilRepo.findOne({ where: { nombre: 'Operador Granja' } });
+  if (!perfilOperador) {
+    perfilOperador = await perfilRepo.save(
+      perfilRepo.create({
+        nombre: 'Operador Granja',
+        descripcion: 'Operaciones productivas MVP dentro de granjas asignadas',
+        estadoRegistro: EstadoRegistro.ACTIVO,
+      }),
+    );
+  }
+  await linkPerfilPermisos(perfilOperador.id, PERFIL_OPERADOR_GRANJA);
 
   const unidadRepo = AppDataSource.getRepository(UnidadMedida);
   const unidades = [

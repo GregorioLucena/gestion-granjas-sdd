@@ -64,6 +64,9 @@ Este documento define codigos de error estables, mensajes al usuario y mapeo HTT
 | `AUTH_USER_INACTIVE` | 403 | Su usuario esta inactivo. Contacte al administrador. |
 | `AUTH_USER_BLOCKED` | 403 | Su usuario esta bloqueado. Contacte al administrador. |
 | `AUTH_GRANJA_REQUIRED` | 400 | Debe seleccionar una granja para continuar. |
+| `AUTH_TOKEN_EXPIRED` | 401 | Su sesion expiro. Vuelva a iniciar sesion. |
+| `AUTH_TOKEN_INVALID` | 401 | Sesion no valida. Vuelva a iniciar sesion. |
+| `AUTH_REFRESH_INVALID` | 401 | Sesion no valida. Vuelva a iniciar sesion. |
 
 ## Compania y granja
 
@@ -83,6 +86,7 @@ Este documento define codigos de error estables, mensajes al usuario y mapeo HTT
 | `USUARIO_SIN_PERFIL` | 422 | El usuario debe tener al menos un perfil activo. |
 | `USUARIO_SIN_GRANJA` | 422 | El usuario debe tener acceso a al menos una granja. |
 | `USUARIO_GRANJA_EXTERNA` | 422 | No puede asignar una granja de otra compania. |
+| `USUARIO_CONTRASENA_DEBIL` | 422 | La contrasena debe tener al menos 8 caracteres, una mayuscula, un numero y un caracter especial. |
 | `PERFIL_INACTIVO` | 409 | El perfil esta inactivo. |
 | `PERFIL_NOMBRE_DUPLICADO` | 409 | Ya existe un perfil con ese nombre. |
 

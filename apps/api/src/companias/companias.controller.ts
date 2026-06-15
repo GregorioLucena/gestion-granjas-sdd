@@ -1,12 +1,10 @@
-import { Controller, Get, Patch, Post, Body, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Patch, Post, Body, Param, Query } from '@nestjs/common';
 import { CompaniasService } from './companias.service';
 import { TenantCtx } from '../common/tenant/tenant-context.decorator';
-import { TenantGuard } from '../common/tenant/tenant.guard';
 import { parseListQuery } from '../common/pagination/paginate';
 import type { TenantContext } from '@gestion-granjas/shared';
 
 @Controller('companias')
-@UseGuards(TenantGuard)
 export class CompaniasController {
   constructor(private readonly companiasService: CompaniasService) {}
 

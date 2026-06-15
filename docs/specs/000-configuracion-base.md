@@ -422,8 +422,8 @@ Dado un formulario ABM de configuracion base, cuando se muestran campos requerid
 
 ### Dependencias temporales (no bloquean cierre de spec)
 
-- **Autenticacion:** desarrollo local usa header `X-Dev-User-Email`; login real en spec `001-usuarios-perfiles.md`.
 - **Almacenes:** fuera de alcance; implementar con spec `005-inventario-alimentos.md`.
+- **Autenticacion:** login JWT en spec `001-usuarios-perfiles.md` (reemplaza el bypass `X-Dev-User-Email` usado durante spec `000`).
 
 ### Mejoras opcionales pospuestas
 
