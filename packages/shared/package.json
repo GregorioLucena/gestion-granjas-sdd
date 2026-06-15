@@ -33,6 +33,10 @@
     "./schemas/pagination.schemas": {
       "types": "./dist/schemas/pagination.schemas.d.ts",
       "default": "./dist/schemas/pagination.schemas.js"
+    },
+    "./schemas/seguridad.schemas": {
+      "types": "./dist/schemas/seguridad.schemas.d.ts",
+      "default": "./dist/schemas/seguridad.schemas.js"
     }
   },
   "typesVersions": {
@@ -41,7 +45,8 @@
       "types": ["dist/types/tenant.d.ts"],
       "permissions": ["dist/permissions/index.d.ts"],
       "schemas/configuracion.schemas": ["dist/schemas/configuracion.schemas.d.ts"],
-      "schemas/pagination.schemas": ["dist/schemas/pagination.schemas.d.ts"]
+      "schemas/pagination.schemas": ["dist/schemas/pagination.schemas.d.ts"],
+      "schemas/seguridad.schemas": ["dist/schemas/seguridad.schemas.d.ts"]
     }
   },
   "scripts": {

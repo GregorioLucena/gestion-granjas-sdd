@@ -11,6 +11,7 @@ type UsePaginatedListOptions = {
   apiPath: string;
   extraParams?: Record<string, string | undefined>;
   limit?: number;
+  estadoParam?: 'estadoRegistro' | 'estado';
 };
 
 export function usePaginatedList<T>({
@@ -18,6 +19,7 @@ export function usePaginatedList<T>({
   apiPath,
   extraParams,
   limit = LIST_PAGE_SIZE,
+  estadoParam = 'estadoRegistro',
 }: UsePaginatedListOptions) {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
@@ -36,13 +38,13 @@ export function usePaginatedList<T>({
   }, [debouncedSearch, filtro, extraParamsKey]);
 
   const query = useQuery({
-    queryKey: [...queryKey, page, debouncedSearch, filtro, extraParamsKey, limit],
+    queryKey: [...queryKey, page, debouncedSearch, filtro, extraParamsKey, limit, estadoParam],
     queryFn: () =>
       apiFetchPaginated<T>(apiPath, {
         page,
         limit,
         search: debouncedSearch || undefined,
-        estadoRegistro: filtro,
+        [estadoParam]: filtro,
         ...extraParams,
       }),
   });

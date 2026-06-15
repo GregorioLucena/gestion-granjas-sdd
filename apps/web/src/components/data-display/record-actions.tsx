@@ -1,7 +1,7 @@
 'use client';
 
 type RecordActionsProps = {
-  onEdit: () => void;
+  onEdit?: () => void;
   onInactivate?: () => void;
   inactivateLabel?: string;
 };
@@ -11,15 +11,21 @@ export function RecordActions({
   onInactivate,
   inactivateLabel = 'Inactivar',
 }: RecordActionsProps) {
+  if (!onEdit && !onInactivate) {
+    return null;
+  }
+
   return (
     <div className="flex shrink-0 items-center gap-1">
-      <button
-        type="button"
-        onClick={onEdit}
-        className="min-h-10 cursor-pointer rounded-lg px-2.5 text-sm font-medium text-primary hover:bg-primary/5"
-      >
-        Editar
-      </button>
+      {onEdit ? (
+        <button
+          type="button"
+          onClick={onEdit}
+          className="min-h-10 cursor-pointer rounded-lg px-2.5 text-sm font-medium text-primary hover:bg-primary/5"
+        >
+          Editar
+        </button>
+      ) : null}
       {onInactivate ? (
         <button
           type="button"

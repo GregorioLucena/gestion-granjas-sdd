@@ -1,3 +1,5 @@
+import { PASSWORD_POLICY_MESSAGE, passwordSchema } from '@gestion-granjas/shared/schemas/seguridad.schemas';
+
 export const REQUIRED_FIELD_MESSAGE = 'Este campo es obligatorio.';
 
 export type FieldErrors = Record<string, string>;
@@ -24,6 +26,14 @@ export function clearFieldError(
     delete next[field];
     return next;
   });
+}
+
+export function getPasswordFieldError(value: string): string | undefined {
+  const trimmed = value;
+  if (!trimmed.trim()) return REQUIRED_FIELD_MESSAGE;
+
+  const result = passwordSchema.safeParse(trimmed);
+  return result.success ? undefined : PASSWORD_POLICY_MESSAGE;
 }
 
 export function buildOptionalStringFields(

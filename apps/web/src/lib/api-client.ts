@@ -1,8 +1,8 @@
 import type { PaginatedResponse } from '@gestion-granjas/shared/schemas/pagination.schemas';
 import { toListQueryString } from '@/lib/list-query';
+import { clearAccessToken, getAccessToken, setAccessToken } from '@/lib/auth-storage';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api';
-const DEV_USER_EMAIL = process.env.NEXT_PUBLIC_DEV_USER_EMAIL ?? 'admin@demo.local';
 
 export type ApiErrorBody = {
   error?: {
@@ -14,13 +14,21 @@ export type ApiErrorBody = {
   message?: string;
 };
 
-export async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
+type ApiFetchOptions = RequestInit & {
+  skipAuth?: boolean;
+};
+
+export async function apiFetch<T>(path: string, options?: ApiFetchOptions): Promise<T> {
+  const { skipAuth, ...requestOptions } = options ?? {};
+  const token = skipAuth ? null : getAccessToken();
+
   const res = await fetch(`${API_URL}${path}`, {
-    ...options,
+    ...requestOptions,
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
-      'X-Dev-User-Email': DEV_USER_EMAIL,
-      ...options?.headers,
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...requestOptions.headers,
     },
   });
 
@@ -68,4 +76,4 @@ export function getApiErrorCode(error: unknown): string | undefined {
   return body.error?.code ?? body.code;
 }
 
-export { API_URL };
+export { API_URL, clearAccessToken, getAccessToken, setAccessToken };

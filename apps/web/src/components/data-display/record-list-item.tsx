@@ -13,7 +13,7 @@ type RecordListItemProps = {
   details?: RecordDetail[];
   extra?: string | null;
   estado: 'ACTIVO' | 'INACTIVO';
-  onEdit: () => void;
+  onEdit?: () => void;
   onInactivate?: () => void;
 };
 

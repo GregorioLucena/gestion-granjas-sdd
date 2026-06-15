@@ -4,4 +4,5 @@ export type TenantContext = {
   granjaIds: string[];
   permisos: string[];
   granjaActivaId?: string;
+  sessionId?: string;
 };
