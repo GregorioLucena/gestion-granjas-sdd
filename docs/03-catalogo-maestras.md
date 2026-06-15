@@ -15,6 +15,10 @@ Ejemplos:
 - `Enfermedad` es maestra.
 - `Diagnostico de neumonia en LOT-001` es evento sanitario.
 
+## Operaciones ABM sobre maestras
+
+Las maestras administrables en configuracion base siguen el patron **alta, edicion e inactivacion** (sin borrado fisico). Detalle funcional, campos editables y criterios de aceptacion: `docs/specs/000-configuracion-base.md`.
+
 ## Alcance de las maestras
 
 Las maestras pueden tener distintos alcances:
@@ -191,15 +195,15 @@ Alcance recomendado: global del sistema.
 
 ### Tipo de animal
 
-Especie o categoria productiva general.
+Especie o categoria productiva general. Usar nombre de categoria (ej. `Porcino`, `Bovino`, `Cunicula`), no el animal individual (ej. `Cerdo`).
 
 Ejemplos:
 
-- Cerdo.
+- Porcino.
 - Bovino.
 - Caprino.
-- Ave.
-- Conejo.
+- Aviar.
+- Cunicula.
 
 Alcance recomendado: global del sistema, con posibilidad futura de extension por compania.
 

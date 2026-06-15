@@ -25,6 +25,8 @@ Este proyecto usa Specification-Driven Development. La documentacion en `docs/` 
 | UX/UI | `docs/11-guia-ux-ui.md` |
 | Git y calidad | `docs/12-convenciones-git-y-calidad.md` |
 
+Reglas Cursor relacionadas (siempre activas): `.cursor/rules/sdd-workflow.mdc`, `.cursor/rules/ui-ux.mdc`, `.cursor/rules/stack-and-architecture.mdc`.
+
 ## Reglas
 
 - Si el codigo contradice una spec, el codigo esta mal.

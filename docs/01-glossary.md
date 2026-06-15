@@ -60,7 +60,9 @@ Ser vivo registrado individualmente en la granja. Puede pertenecer a cualquier t
 
 ## Tipo de animal
 
-Categoria general de especie o grupo productivo. Ejemplos: cerdo, vaca, cabra, gallina, conejo.
+Categoria general de especie o grupo productivo. En maestras se nombra por categoria (ej. `Porcino`, `Bovino`), no por el individuo (ej. un **cerdo** pertenece al tipo **Porcino**; un **conejo** al tipo **Cunicula**).
+
+Ejemplos de tipos: Porcino, Bovino, Caprino, Aviar, Cunicula.
 
 ## Raza
 

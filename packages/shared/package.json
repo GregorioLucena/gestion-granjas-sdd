@@ -18,22 +18,39 @@
       "types": "./dist/types/tenant.d.ts",
       "default": "./dist/types/tenant.js"
     },
+    "./types/tenant": {
+      "types": "./dist/types/tenant.d.ts",
+      "default": "./dist/types/tenant.js"
+    },
     "./permissions": {
       "types": "./dist/permissions/index.d.ts",
       "default": "./dist/permissions/index.js"
+    },
+    "./schemas/configuracion.schemas": {
+      "types": "./dist/schemas/configuracion.schemas.d.ts",
+      "default": "./dist/schemas/configuracion.schemas.js"
+    },
+    "./schemas/pagination.schemas": {
+      "types": "./dist/schemas/pagination.schemas.d.ts",
+      "default": "./dist/schemas/pagination.schemas.js"
     }
   },
   "typesVersions": {
     "*": {
       "errors": ["dist/errors/index.d.ts"],
       "types": ["dist/types/tenant.d.ts"],
-      "permissions": ["dist/permissions/index.d.ts"]
+      "permissions": ["dist/permissions/index.d.ts"],
+      "schemas/configuracion.schemas": ["dist/schemas/configuracion.schemas.d.ts"],
+      "schemas/pagination.schemas": ["dist/schemas/pagination.schemas.d.ts"]
     }
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "dev": "tsc -p tsconfig.build.json --watch --preserveWatchOutput",
     "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "typescript": "^5.9.2"

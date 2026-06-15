@@ -1,48 +1,56 @@
 ---
-description: UX/UI mobile-first elegante, divertida y llamativa
-globs: "**/*.tsx"
-alwaysApply: false
+description: UX/UI mobile-first — specs SDD + guia visual obligatoria
+alwaysApply: true
 ---
 
 # UX/UI
 
-Ver detalle en `docs/11-guia-ux-ui.md`.
+Ver detalle en `docs/11-guia-ux-ui.md`. Para ABM de configuracion ver tambien `docs/specs/000-configuracion-base.md` (seccion UX).
+
+## Antes de tocar UI
+
+1. Leer la spec funcional del modulo en `docs/specs/`.
+2. Aplicar `docs/11-guia-ux-ui.md` (mobile-first, copy, estados).
+3. No apilar varios ABM en una sola pantalla; usar hub + pantalla por catalogo.
 
 ## Principios
 
-- **Mobile-first:** disenar primero para 375px; probar en viewport movil.
-- **Elegante, divertida, llamativa** sin sacrificar claridad operativa.
-- **Contexto visible:** granja activa siempre visible en pantallas operativas.
-- **Acciones rapidas:** pocos toques para consumo, peso, bajas.
+- **Mobile-first:** disenar primero para 375px.
+- **Elegante, fresca, llamativa** sin perder claridad operativa.
+- **Contexto visible:** granja activa en pantallas operativas.
+- **Acciones rapidas:** pocos toques; formularios cortos.
+
+## Patron ABM (configuracion y maestras)
+
+- Hub de navegacion con tarjetas e iconos.
+- **Un catalogo = una pantalla.**
+- Listado con busqueda + filtros `Todos | Activos | Inactivos`.
+- Crear con boton principal; formulario colapsable.
+- **Editar** por registro (formulario precargado); guardar con toast de exito o error.
+- Inactivar siempre con **confirmacion** y **toast** de exito o error.
+- Estados: loading, empty, error, success (toast en mutaciones).
+- Formularios ABM: campos obligatorios con `*` y mensaje inline `Este campo es obligatorio.` si estan vacios al guardar (ver `docs/11-guia-ux-ui.md`).
+
+## Feedback
+
+- Mutaciones ABM (crear, inactivar, etc.): **toast** via `useToast()`.
+- Errores API: mostrar `error.message` del backend en toast rojo.
+- Listados: errores de carga inline; no toast.
 
 ## Visual
 
-- Paleta: verde profundo primario, amarillo/maiz secundario, coral acento.
-- Tarjetas con bordes redondeados, sombras suaves.
-- Badges claros para estados: activo, cerrado, anulado, bajo stock.
-- Tipografia legible; inputs min 16px en movil (evita zoom iOS).
-
-## Patrones
-
-| Pantalla | Movil | Desktop |
-|----------|-------|---------|
-| Listado | Cards apiladas | Tabla |
-| Formulario | Una columna, boton sticky abajo | Columnas si cabe |
-| Dashboard | Metric cards + accesos rapidos | Columnas multiples |
-
-## Componentes
-
-- shadcn/ui en `src/components/ui/`.
-- Especificos de modulo en `src/modules/<dominio>/components/`.
-- Reutilizables generales en `src/components/`.
-- Botones min 44px altura en movil.
+- Paleta tokens en `globals.css` (primary, secondary, accent).
+- Tarjetas redondeadas, badges de estado con texto (no solo color).
+- Botones min 44px; inputs min 16px en movil.
 
 ## Copy
 
-- Espanol claro y cercano al usuario.
-- Evitar jerga tecnica visible (`tenant`, `payload`, `FK`).
-- CTAs accionables: "Crear primer lote", no "No hay datos".
+- Espanol claro y cercano.
+- Sin jerga tecnica visible al usuario.
+- CTAs accionables: `Crear primer lote`, `Agregar raza`.
 
-## Acciones destructivas
+## Componentes web
 
-Anular, cerrar engorde o registrar bajas requieren confirmacion + motivo.
+- Reutilizables: `src/components/` (layout, forms, data-display, feedback).
+- Logica de pantalla: `src/modules/<dominio>/` (hooks, componentes de modulo).
+- Sin logica de negocio en componentes presentacionales.

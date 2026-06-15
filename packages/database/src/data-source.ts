@@ -30,5 +30,3 @@ export async function getDataSource(): Promise<DataSource> {
   dataSource = AppDataSource;
   return dataSource;
 }
-
-export default AppDataSource;

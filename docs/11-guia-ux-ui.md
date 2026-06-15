@@ -108,6 +108,9 @@ La paleta final se implementara como variables CSS/Tailwind durante el scaffold.
 
 - Una columna en movil.
 - Labels arriba del campo.
+- **Campos obligatorios:** marcar con asterisco rojo (`*`) en el label; mostrar leyenda `Los campos marcados con * son obligatorios` al inicio del formulario.
+- **Validacion en cliente:** si el usuario intenta guardar con un obligatorio vacio, resaltar el campo (borde rojo) y mostrar el mensaje `Este campo es obligatorio.` debajo del input; no enviar la peticion hasta corregir.
+- Campos opcionales no llevan asterisco ni texto `(opcional)` en el label; su opcionalidad se infiere de la spec funcional.
 - Agrupar campos por secciones cortas.
 - Boton principal sticky abajo en formularios largos.
 - Confirmaciones para cerrar, anular o registrar bajas.
@@ -155,6 +158,45 @@ Debe ser visual y motivador:
 - Listas simples en movil.
 - Tablas solo en desktop.
 - Evitar graficos complejos en MVP v1.
+
+### Configuracion y catalogos maestros
+
+Patron obligatorio para spec `000-configuracion-base.md` y futuros ABM de maestras:
+
+```text
+Configuracion
+  ├── Companias / Granjas (pantalla propia)
+  └── Catalogos maestros (hub)
+        └── Un catalogo = una pantalla ABM
+```
+
+Cada pantalla ABM debe incluir:
+
+| Elemento | Regla |
+|----------|-------|
+| Navegacion | Hub → catalogo → listado; volver atras visible |
+| Creacion | Boton principal; formulario no permanente en pantalla |
+| Edicion | Boton `Editar` por registro; formulario precargado; `Guardar cambios` / `Cancelar` |
+| Listado | Tarjetas en movil; busqueda por nombre |
+| Filtros | Chips `Todos` / `Activos` / `Inactivos` |
+| Inactivar | Confirmacion + toast de exito o error |
+| Vacio | CTA humano (`Crear primer registro`) |
+
+No apilar multiples catalogos con formularios en una sola pantalla.
+
+## Feedback y toasts
+
+Para **mensajes interactivos** tras acciones del usuario (guardar, inactivar, errores de negocio, conflictos), usar **toast** como patron estandar:
+
+| Situacion | Patron |
+|-----------|--------|
+| Exito | Toast verde, mensaje breve, auto-cierre (~5 s) + boton Cerrar |
+| Error de negocio / validacion | Toast rojo con `message` de la API (ej. `MAESTRA_EN_USO`) |
+| Errores de carga de listado | Texto inline en la pantalla (no toast) |
+
+Implementacion web: `ToastProvider` + `useToast()` en `apps/web/src/components/feedback/toast.tsx`.
+
+No usar banners estaticos como unico feedback de mutaciones ABM cuando el usuario espera respuesta inmediata tras confirmar un dialogo.
 
 ## Microinteracciones
 
@@ -219,6 +261,9 @@ Evitar lenguaje tecnico visible al usuario como `tenant`, `FK`, `constraint`, `p
 - [ ] Registrar peso y baja se puede hacer desde detalle de lote/engorde.
 - [ ] Reportes basicos se leen bien en telefono.
 - [ ] Estados y errores son entendibles sin explicacion tecnica.
+- [ ] Configuracion usa hub de catalogos y una pantalla por maestra.
+- [ ] Listados de configuracion permiten buscar y filtrar por estado.
+- [ ] Inactivar registros de configuracion pide confirmacion.
 
 ## Decision
 
