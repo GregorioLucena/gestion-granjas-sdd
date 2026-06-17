@@ -4,7 +4,9 @@
   "private": true,
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -30,6 +32,10 @@
       "types": "./dist/schemas/configuracion.schemas.d.ts",
       "default": "./dist/schemas/configuracion.schemas.js"
     },
+    "./schemas/lotes.schemas": {
+      "types": "./dist/schemas/lotes.schemas.d.ts",
+      "default": "./dist/schemas/lotes.schemas.js"
+    },
     "./schemas/pagination.schemas": {
       "types": "./dist/schemas/pagination.schemas.d.ts",
       "default": "./dist/schemas/pagination.schemas.js"
@@ -41,12 +47,27 @@
   },
   "typesVersions": {
     "*": {
-      "errors": ["dist/errors/index.d.ts"],
-      "types": ["dist/types/tenant.d.ts"],
-      "permissions": ["dist/permissions/index.d.ts"],
-      "schemas/configuracion.schemas": ["dist/schemas/configuracion.schemas.d.ts"],
-      "schemas/pagination.schemas": ["dist/schemas/pagination.schemas.d.ts"],
-      "schemas/seguridad.schemas": ["dist/schemas/seguridad.schemas.d.ts"]
+      "errors": [
+        "dist/errors/index.d.ts"
+      ],
+      "types": [
+        "dist/types/tenant.d.ts"
+      ],
+      "permissions": [
+        "dist/permissions/index.d.ts"
+      ],
+      "schemas/configuracion.schemas": [
+        "dist/schemas/configuracion.schemas.d.ts"
+      ],
+      "schemas/lotes.schemas": [
+        "dist/schemas/lotes.schemas.d.ts"
+      ],
+      "schemas/pagination.schemas": [
+        "dist/schemas/pagination.schemas.d.ts"
+      ],
+      "schemas/seguridad.schemas": [
+        "dist/schemas/seguridad.schemas.d.ts"
+      ]
     }
   },
   "scripts": {

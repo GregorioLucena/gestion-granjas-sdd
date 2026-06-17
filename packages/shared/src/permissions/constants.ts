@@ -10,6 +10,9 @@ export const PERMISOS = {
   USUARIOS_CREAR: 'usuarios.crear',
   USUARIOS_EDITAR: 'usuarios.editar',
   PERFILES_ADMINISTRAR: 'perfiles.administrar',
+  LOTES_VER: 'lotes.ver',
+  LOTES_CREAR: 'lotes.crear',
+  LOTES_EDITAR: 'lotes.editar',
 } as const;
 
 export type PermisoCodigo = (typeof PERMISOS)[keyof typeof PERMISOS];
