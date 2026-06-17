@@ -2,7 +2,7 @@
 
 ## Estado
 
-Borrador inicial
+Implementado MVP v1 (2026-06-17)
 
 ## Objetivo
 
@@ -107,12 +107,71 @@ Dado un lote activo, cuando el usuario cambia su estado a cerrado o cancelado, e
 
 Dado un usuario sin acceso a una granja, cuando intenta consultar o modificar lotes de esa granja, entonces el sistema debe impedir la accion.
 
+## Cierre de implementacion MVP v1
+
+**Fecha de cierre:** 2026-06-17  
+**Rama de trabajo:** `feature/lotes-gestion`
+
+### Entregables implementados
+
+| Capa | Alcance |
+|------|---------|
+| API (`apps/api`) | Modulo `/lotes`: listar (por granja activa o `granjaId`), crear, actualizar; permisos `lotes.ver`, `lotes.crear`, `lotes.editar`; validacion tenant y acceso por granja; codigo unico por granja; maestras activas; ubicacion opcional de la misma granja |
+| Web (`apps/web`) | Pantalla `/lotes` con ABM, filtros por estado de registro y estado operativo, busqueda por codigo, paginacion, toasts, confirmacion de inactivacion, campos obligatorios; usa granja activa del header |
+| Datos | Entidad `Lote` en migracion inicial (`estadoOperativo`, `estadoRegistro`, auditoria basica) |
+| Shared | Schemas Zod `crearLoteSchema` / `actualizarLoteSchema`; permisos en `PERMISOS` |
+
+### Pantallas web
+
+- `/lotes` — listado por granja activa, crear lote, editar, inactivar registro, cambiar estado operativo (`ACTIVO` / `CERRADO` / `CANCELADO`)
+
+### Verificacion de criterios de aceptacion
+
+| ID | Estado | Notas |
+|----|--------|-------|
+| CA-001 | OK | Alta con granja, tipo de animal y finalidad activos; `estadoOperativo` inicial `ACTIVO` |
+| CA-002 | OK | Unicidad `(granjaId, codigo)`; error `LOTE_CODIGO_DUPLICADO` |
+| CA-003 | OK | `cantidadInicial` > 0 en API y validacion cliente |
+| CA-004 | OK | Ficha basica en tarjeta de listado y formulario de edicion (codigo, tipo, finalidad, fecha, cantidad, ubicacion, estados, observaciones) |
+| CA-005 | OK | Cambio de `estadoOperativo` a `CERRADO` o `CANCELADO` desde edicion; bloqueo de nuevos eventos productivos se aplicara al integrar consumo, engorde y pesos |
+| CA-006 | OK | `requireGranjaAccess` en listado y mutaciones; sin acceso a granja ajena |
+
+### Verificacion tecnica
+
+- [x] `pnpm run typecheck`
+- [x] Prueba manual funcional (usuario con permisos de lotes)
+
+### Dependencias para modulos siguientes (no bloquean cierre de spec)
+
+- **Cantidad actual:** no se muestra ni calcula en esta version; queda para `012-engorde-lotes.md` (bajas) y modulos de movimiento.
+- **Bloqueo operativo en API:** lotes `CERRADO` / `CANCELADO` rechazaran nuevos consumos, pesos o engordes cuando existan esos modulos.
+- **Movimientos de ubicacion:** cambio de ubicacion con historial en `006-movimientos-ubicacion.md` (hoy solo asignacion directa opcional al crear/editar).
+
+### Mejoras opcionales pospuestas
+
+- Endpoint `GET /lotes/:id` dedicado para ficha detallada.
+- Generacion automatica de codigo de lote.
+- Tarjeta resumen en dashboard con conteo de lotes activos (hoy placeholder).
+- Tests automatizados de reglas en `lotes.rules.ts`.
+
 ## Preguntas abiertas
 
-- La identificacion del lote sera manual, automatica o ambas?
-- La cantidad actual se calculara por movimientos o se editara manualmente en el MVP?
-- Se permitiran traslados de animales entre lotes?
-- Un lote podra dividirse o fusionarse con otro lote?
+Resueltas para MVP v1 (ver tambien `docs/06-cierre-sdd.md`):
+
+- Identificacion del lote manual, automatica o ambas → **Manual en v1.** El modelo permite codigo automatico en el futuro.
+- Cantidad actual calculada o manual → **Calculada** a partir de bajas de engorde (`012`); **no editable manualmente.** En v1 solo se persiste y muestra `cantidadInicial` hasta implementar engorde.
+- Traslados entre lotes → **No en v1.**
+- Division o fusion de lotes → **No en v1.**
+
+## Decisiones tomadas
+
+- Codigo de lote **manual** y unico por granja.
+- Separacion **estado de registro** (`ACTIVO` / `INACTIVO`, ABM) y **estado operativo** (`ACTIVO` / `CERRADO` / `CANCELADO`, productivo), segun `docs/decisions/0004-estado-registro-vs-estado-operativo.md`.
+- Los lotes se registran sobre la **granja activa** del usuario en la UI; la API valida acceso por `granjaId`.
+- Ubicacion interna **opcional**; si se informa, debe pertenecer a la misma granja y estar activa.
+- Inactivacion de registro (`estadoRegistro = INACTIVO`) con confirmacion y toast; reactivacion desde edicion.
+- Permisos: `lotes.ver`, `lotes.crear`, `lotes.editar` (seed y constantes shared).
+- Patron ABM, paginacion, toasts y campos obligatorios alineados con specs `000` y `001`.
 
 ## Notas para futuras specs
 
