@@ -1,17 +1,18 @@
-function PlaceholderPage({ title, description }: { title: string; description: string }) {
-  return (
-    <div className="space-y-3 rounded-2xl bg-surface p-6 shadow-sm ring-1 ring-black/5">
-      <h1 className="text-2xl font-bold">{title}</h1>
-      <p className="text-sm text-muted">{description}</p>
-    </div>
-  );
-}
+import { PackageOpen } from 'lucide-react';
+import { ModulePlaceholder } from '@/components/layout/module-placeholder';
 
 export default function InventarioPage() {
   return (
-    <PlaceholderPage
+    <ModulePlaceholder
       title="Inventario"
-      description="Modulo de inventario pendiente segun docs/specs/005-inventario-alimentos.md."
+      description="Control de alimentos, proveedores, almacenes, movimientos y existencias disponibles por granja."
+      specPath="docs/specs/005-inventario-alimentos.md"
+      icon={PackageOpen}
+      nextSteps={[
+        'Completar maestras necesarias: alimentos, unidades, presentaciones, proveedores y almacenes.',
+        'Implementar movimientos de entrada, salida y ajuste con costo manual cuando aplique.',
+        'Bloquear inventario negativo y mostrar bajo stock como estado visual prioritario.',
+      ]}
     />
   );
 }

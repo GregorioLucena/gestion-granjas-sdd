@@ -21,7 +21,7 @@ export function RecordActions({
         <button
           type="button"
           onClick={onEdit}
-          className="min-h-10 cursor-pointer rounded-lg px-2.5 text-sm font-medium text-primary hover:bg-primary/5"
+          className="min-h-10 cursor-pointer rounded-lg px-2.5 text-sm font-semibold text-primary transition hover:bg-primary/10"
         >
           Editar
         </button>
@@ -30,7 +30,7 @@ export function RecordActions({
         <button
           type="button"
           onClick={onInactivate}
-          className="min-h-10 cursor-pointer rounded-lg px-2.5 text-sm font-medium text-warning hover:bg-warning/10"
+          className="min-h-10 cursor-pointer rounded-lg px-2.5 text-sm font-semibold text-warning transition hover:bg-warning/10"
         >
           {inactivateLabel}
         </button>

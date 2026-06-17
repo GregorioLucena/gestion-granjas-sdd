@@ -20,19 +20,20 @@ export function ConfigNavCard({
   return (
     <Link
       href={href}
-      className="group flex min-h-[72px] items-center gap-3 rounded-2xl bg-surface p-4 shadow-sm ring-1 ring-black/5 transition hover:-translate-y-0.5 hover:ring-primary/25"
+      className="group relative flex min-h-20 items-center gap-3 overflow-hidden rounded-2xl bg-surface p-4 shadow-sm ring-1 ring-black/5 transition hover:-translate-y-0.5 hover:shadow-md hover:shadow-primary/10 hover:ring-primary/25"
     >
+      <span className="absolute inset-y-0 left-0 w-1 bg-primary/50 opacity-0 transition group-hover:opacity-100" />
       <span
-        className={`flex size-11 shrink-0 items-center justify-center rounded-xl ${accentClass}`}
+        className={`flex size-11 shrink-0 items-center justify-center rounded-xl ring-1 ring-black/5 ${accentClass}`}
       >
         <Icon className="size-5" aria-hidden />
       </span>
       <span className="min-w-0 flex-1">
         <span className="block font-semibold text-foreground">{title}</span>
-        <span className="block text-sm text-muted">{description}</span>
+        <span className="mt-0.5 block text-sm leading-5 text-muted">{description}</span>
       </span>
       <ChevronRight
-        className="size-5 shrink-0 text-muted transition group-hover:text-primary"
+        className="size-5 shrink-0 text-muted transition group-hover:translate-x-0.5 group-hover:text-primary"
         aria-hidden
       />
     </Link>

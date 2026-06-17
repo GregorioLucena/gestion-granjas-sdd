@@ -1,17 +1,18 @@
-function PlaceholderPage({ title, description }: { title: string; description: string }) {
-  return (
-    <div className="space-y-3 rounded-2xl bg-surface p-6 shadow-sm ring-1 ring-black/5">
-      <h1 className="text-2xl font-bold">{title}</h1>
-      <p className="text-sm text-muted">{description}</p>
-    </div>
-  );
-}
+import { Layers3 } from 'lucide-react';
+import { ModulePlaceholder } from '@/components/layout/module-placeholder';
 
 export default function LotesPage() {
   return (
-    <PlaceholderPage
+    <ModulePlaceholder
       title="Lotes"
-      description="Modulo de lotes pendiente de implementacion segun docs/specs/003-gestion-lotes.md."
+      description="Gestion de grupos productivos por granja: codigo, tipo de animal, finalidad, cantidad inicial, ubicacion y estado."
+      specPath="docs/specs/003-gestion-lotes.md"
+      icon={Layers3}
+      nextSteps={[
+        'Crear el ABM de lotes con cards moviles y filtros por estado.',
+        'Validar codigo unico por granja, cantidad inicial mayor que cero y acceso del usuario a la granja.',
+        'Preparar la ficha basica del lote para conectar luego movimientos, consumo y peso.',
+      ]}
     />
   );
 }

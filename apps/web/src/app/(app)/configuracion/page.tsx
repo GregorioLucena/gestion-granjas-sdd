@@ -13,9 +13,14 @@ export default function ConfiguracionPage() {
       />
 
       {configuracionGroups.map((group) => (
-        <section key={group.title} className="space-y-3">
+        <section
+          key={group.title}
+          className="space-y-3 rounded-3xl bg-white/55 p-3 ring-1 ring-primary/5"
+        >
           <div>
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-primary">{group.title}</h2>
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-primary">
+              {group.title}
+            </h2>
             <p className="text-sm text-muted">{group.description}</p>
           </div>
           <div className="grid gap-3">

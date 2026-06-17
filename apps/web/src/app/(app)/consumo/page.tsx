@@ -1,17 +1,18 @@
-function PlaceholderPage({ title, description }: { title: string; description: string }) {
-  return (
-    <div className="space-y-3 rounded-2xl bg-surface p-6 shadow-sm ring-1 ring-black/5">
-      <h1 className="text-2xl font-bold">{title}</h1>
-      <p className="text-sm text-muted">{description}</p>
-    </div>
-  );
-}
+import { Wheat } from 'lucide-react';
+import { ModulePlaceholder } from '@/components/layout/module-placeholder';
 
 export default function ConsumoPage() {
   return (
-    <PlaceholderPage
+    <ModulePlaceholder
       title="Consumo"
-      description="Modulo de consumo pendiente segun docs/specs/007-consumo-alimento.md."
+      description="Registro rapido de alimento consumido por lote, descontando inventario desde el almacen origen."
+      specPath="docs/specs/007-consumo-alimento.md"
+      icon={Wheat}
+      nextSteps={[
+        'Diseñar el flujo en pocos pasos: lote, alimento, cantidad, stock disponible y confirmacion.',
+        'Crear el consumo y el movimiento de inventario en una transaccion.',
+        'Permitir historial por lote y anulacion con motivo cuando corresponda.',
+      ]}
     />
   );
 }

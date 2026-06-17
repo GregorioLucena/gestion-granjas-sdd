@@ -33,7 +33,7 @@ export function RecordListItem({
   const extraLine = extra?.trim() || null;
 
   return (
-    <article className="flex items-start justify-between gap-3 rounded-2xl bg-surface p-4 ring-1 ring-black/5 transition hover:ring-primary/15">
+    <article className="flex items-start justify-between gap-3 rounded-2xl bg-surface p-4 shadow-sm ring-1 ring-black/5 transition hover:-translate-y-0.5 hover:shadow-md hover:shadow-primary/10 hover:ring-primary/15">
       <div className="min-w-0 flex-1 space-y-1">
         <p className="font-semibold leading-snug">{title}</p>
 
