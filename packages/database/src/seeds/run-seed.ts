@@ -2,13 +2,19 @@ import 'reflect-metadata';
 import bcrypt from 'bcryptjs';
 import { AppDataSource } from '../data-source';
 import {
+  Alimento,
+  Almacen,
   Compania,
   FinalidadProductiva,
   Granja,
+  MovimientoInventario,
   Perfil,
   PerfilPermiso,
   Permiso,
+  PresentacionAlimento,
+  Proveedor,
   Raza,
+  TipoAlimento,
   TipoAnimal,
   TipoControlPeso,
   TipoMovimientoInventario,
@@ -48,10 +54,40 @@ const PERMISOS_CONFIG = [
   { codigo: 'lotes.editar', nombre: 'Editar lotes', modulo: 'lotes', accion: 'editar' },
   { codigo: 'inventario.ver', nombre: 'Ver inventario', modulo: 'inventario', accion: 'ver' },
   {
+    codigo: 'inventario.alimentos.crear',
+    nombre: 'Crear alimentos',
+    modulo: 'inventario',
+    accion: 'alimentos.crear',
+  },
+  {
+    codigo: 'inventario.alimentos.editar',
+    nombre: 'Editar alimentos',
+    modulo: 'inventario',
+    accion: 'alimentos.editar',
+  },
+  {
+    codigo: 'inventario.proveedores.administrar',
+    nombre: 'Administrar proveedores',
+    modulo: 'inventario',
+    accion: 'proveedores.administrar',
+  },
+  {
+    codigo: 'inventario.almacenes.administrar',
+    nombre: 'Administrar almacenes',
+    modulo: 'inventario',
+    accion: 'almacenes.administrar',
+  },
+  {
     codigo: 'inventario.movimientos.crear',
     nombre: 'Crear movimientos de inventario',
     modulo: 'inventario',
     accion: 'movimientos.crear',
+  },
+  {
+    codigo: 'inventario.ajustes.crear',
+    nombre: 'Crear ajustes de inventario',
+    modulo: 'inventario',
+    accion: 'ajustes.crear',
   },
   {
     codigo: 'alimentacion.consumo.ver',
@@ -94,6 +130,13 @@ const PERFIL_ADMIN_COMPANIA = [
   'usuarios.crear',
   'usuarios.editar',
   'perfiles.administrar',
+  'inventario.ver',
+  'inventario.alimentos.crear',
+  'inventario.alimentos.editar',
+  'inventario.proveedores.administrar',
+  'inventario.almacenes.administrar',
+  'inventario.movimientos.crear',
+  'inventario.ajustes.crear',
 ];
 
 const PERFIL_OPERADOR_GRANJA = [
@@ -103,7 +146,12 @@ const PERFIL_OPERADOR_GRANJA = [
   'lotes.crear',
   'lotes.editar',
   'inventario.ver',
+  'inventario.alimentos.crear',
+  'inventario.alimentos.editar',
+  'inventario.proveedores.administrar',
+  'inventario.almacenes.administrar',
   'inventario.movimientos.crear',
+  'inventario.ajustes.crear',
   'alimentacion.consumo.ver',
   'alimentacion.consumo.crear',
   'engorde.ver',
@@ -161,6 +209,36 @@ const ANIMALES_SEED: Array<{
     requiereRaza: true,
     duracionGestacionDias: 31,
     razas: ['Californiano', 'Nueva Zelanda', 'Gigante de Flandes', 'Rex', 'Belier'],
+  },
+];
+
+const TIPOS_ALIMENTO_SEED = ['Iniciador', 'Engorde', 'Gestacion', 'Lactancia'];
+const PRESENTACIONES_ALIMENTO_SEED = ['Saco 40 kg', 'Granel', 'Bolsa 25 kg'];
+const PROVEEDORES_SEED = [
+  { nombre: 'Nutripec', telefono: '+54 11 4000-1000', correo: 'ventas@nutripec.demo' },
+  { nombre: 'Alimentos del Valle', telefono: '+54 351 400-2000', correo: 'pedidos@valle.demo' },
+];
+const ALIMENTOS_SEED = [
+  {
+    nombre: 'Alimento iniciador porcino',
+    tipo: 'Iniciador',
+    presentacion: 'Saco 40 kg',
+    factorConversion: '40',
+    costoReferencia: '18500',
+  },
+  {
+    nombre: 'Alimento engorde 18%',
+    tipo: 'Engorde',
+    presentacion: 'Saco 40 kg',
+    factorConversion: '40',
+    costoReferencia: '16200',
+  },
+  {
+    nombre: 'Alimento gestacion',
+    tipo: 'Gestacion',
+    presentacion: 'Bolsa 25 kg',
+    factorConversion: '25',
+    costoReferencia: '12800',
   },
 ];
 
@@ -253,6 +331,8 @@ async function runSeed() {
   const tipoMovRepo = AppDataSource.getRepository(TipoMovimientoInventario);
   const tiposMov = [
     { codigo: 'ENTRADA_COMPRA', nombre: 'Entrada por compra', signo: SignoMovimiento.ENTRADA, esAjuste: false },
+    { codigo: 'ENTRADA_MANUAL', nombre: 'Entrada manual', signo: SignoMovimiento.ENTRADA, esAjuste: false },
+    { codigo: 'SALIDA_MANUAL', nombre: 'Salida manual', signo: SignoMovimiento.SALIDA, esAjuste: false },
     { codigo: 'SALIDA_CONSUMO', nombre: 'Salida por consumo', signo: SignoMovimiento.SALIDA, esAjuste: false },
     { codigo: 'AJUSTE_POSITIVO', nombre: 'Ajuste positivo', signo: SignoMovimiento.ENTRADA, esAjuste: true },
     { codigo: 'AJUSTE_NEGATIVO', nombre: 'Ajuste negativo', signo: SignoMovimiento.SALIDA, esAjuste: true },
@@ -460,11 +540,173 @@ async function runSeed() {
     await usuarioGranjaRepo.save({ usuarioId: usuario.id, granjaId: granja.id });
   }
 
+  const tipoAlimentoRepo = AppDataSource.getRepository(TipoAlimento);
+  const presentacionRepo = AppDataSource.getRepository(PresentacionAlimento);
+  const proveedorRepo = AppDataSource.getRepository(Proveedor);
+  const almacenRepo = AppDataSource.getRepository(Almacen);
+  const alimentoRepo = AppDataSource.getRepository(Alimento);
+  const movimientoRepo = AppDataSource.getRepository(MovimientoInventario);
+
+  const tiposAlimento: Record<string, TipoAlimento> = {};
+  for (const nombre of TIPOS_ALIMENTO_SEED) {
+    let tipo = await tipoAlimentoRepo.findOne({ where: { companiaId: compania.id, nombre } });
+    if (!tipo) {
+      tipo = await tipoAlimentoRepo.save(
+        tipoAlimentoRepo.create({
+          companiaId: compania.id,
+          nombre,
+          estadoRegistro: EstadoRegistro.ACTIVO,
+        }),
+      );
+    }
+    tiposAlimento[nombre] = tipo;
+  }
+
+  const presentaciones: Record<string, PresentacionAlimento> = {};
+  for (const nombre of PRESENTACIONES_ALIMENTO_SEED) {
+    let presentacion = await presentacionRepo.findOne({
+      where: { companiaId: compania.id, nombre },
+    });
+    if (!presentacion) {
+      presentacion = await presentacionRepo.save(
+        presentacionRepo.create({
+          companiaId: compania.id,
+          nombre,
+          estadoRegistro: EstadoRegistro.ACTIVO,
+        }),
+      );
+    }
+    presentaciones[nombre] = presentacion;
+  }
+
+  const unidadKg = await unidadRepo.findOne({ where: { codigo: 'KG' } });
+  if (!unidadKg) {
+    throw new Error('Unidad KG no encontrada en seed.');
+  }
+
+  const proveedores: Proveedor[] = [];
+  for (const item of PROVEEDORES_SEED) {
+    let proveedor = await proveedorRepo.findOne({
+      where: { companiaId: compania.id, nombre: item.nombre },
+    });
+    if (!proveedor) {
+      proveedor = await proveedorRepo.save(
+        proveedorRepo.create({
+          companiaId: compania.id,
+          nombre: item.nombre,
+          telefono: item.telefono,
+          correo: item.correo,
+          estadoRegistro: EstadoRegistro.ACTIVO,
+          createdById: usuario.id,
+        }),
+      );
+    }
+    proveedores.push(proveedor);
+  }
+
+  const ubicacionBodega = await ubicacionRepo.findOne({
+    where: { granjaId: granja.id, nombre: 'Bodega alimento' },
+  });
+
+  let almacen = await almacenRepo.findOne({
+    where: { granjaId: granja.id, nombre: 'Deposito principal' },
+  });
+  if (!almacen) {
+    almacen = await almacenRepo.save(
+      almacenRepo.create({
+        companiaId: compania.id,
+        granjaId: granja.id,
+        nombre: 'Deposito principal',
+        codigo: 'DEP-01',
+        ubicacionId: ubicacionBodega?.id,
+        observaciones: 'Almacen demo para pruebas de inventario',
+        estadoRegistro: EstadoRegistro.ACTIVO,
+        createdById: usuario.id,
+      }),
+    );
+  }
+
+  const alimentosCreados: Alimento[] = [];
+  for (const item of ALIMENTOS_SEED) {
+    let alimento = await alimentoRepo.findOne({
+      where: { companiaId: compania.id, nombre: item.nombre },
+    });
+    if (!alimento) {
+      alimento = await alimentoRepo.save(
+        alimentoRepo.create({
+          companiaId: compania.id,
+          nombre: item.nombre,
+          tipoAlimentoId: tiposAlimento[item.tipo].id,
+          presentacionId: presentaciones[item.presentacion].id,
+          unidadMedidaId: unidadKg.id,
+          factorConversion: item.factorConversion,
+          costoReferencia: item.costoReferencia,
+          estadoRegistro: EstadoRegistro.ACTIVO,
+          createdById: usuario.id,
+        }),
+      );
+    }
+    alimentosCreados.push(alimento);
+  }
+
+  const tipoEntradaCompra = await tipoMovRepo.findOne({ where: { codigo: 'ENTRADA_COMPRA' } });
+  if (!tipoEntradaCompra) {
+    throw new Error('Tipo de movimiento ENTRADA_COMPRA no encontrado en seed.');
+  }
+
+  let movimientosNuevos = 0;
+  const hoy = new Date().toISOString().slice(0, 10);
+  const entradasDemo = [
+    { alimento: alimentosCreados[0], cantidad: '800', costoUnitario: '462.5' },
+    { alimento: alimentosCreados[1], cantidad: '1200', costoUnitario: '405' },
+    { alimento: alimentosCreados[2], cantidad: '500', costoUnitario: '512' },
+  ];
+
+  for (const entrada of entradasDemo) {
+    if (!entrada.alimento) continue;
+
+    const exists = await movimientoRepo.findOne({
+      where: {
+        companiaId: compania.id,
+        alimentoId: entrada.alimento.id,
+        referencia: 'SEED-DEMO-001',
+      },
+    });
+
+    if (!exists) {
+      const cantidad = Number(entrada.cantidad);
+      const costoUnitario = Number(entrada.costoUnitario);
+      await movimientoRepo.save(
+        movimientoRepo.create({
+          companiaId: compania.id,
+          granjaId: granja.id,
+          almacenId: almacen.id,
+          alimentoId: entrada.alimento.id,
+          tipoMovimientoId: tipoEntradaCompra.id,
+          fecha: hoy,
+          cantidad: entrada.cantidad,
+          unidadMedidaId: unidadKg.id,
+          costoUnitario: entrada.costoUnitario,
+          costoTotal: String(cantidad * costoUnitario),
+          proveedorId: proveedores[0]?.id,
+          referencia: 'SEED-DEMO-001',
+          observaciones: 'Entrada inicial demo para pruebas de inventario',
+          anulado: false,
+          createdById: usuario.id,
+        }),
+      );
+      movimientosNuevos += 1;
+    }
+  }
+
   console.log('Seed completado.');
   console.log(`Compania demo: ${compania.nombre} (${compania.id})`);
   console.log(`Granja demo: ${granja.nombre} (${granja.id})`);
   console.log(`Tipos animal: ${tiposAnimalCount} | Razas nuevas en esta ejecucion: ${totalRazas}`);
   console.log(`Tipos ubicacion: ${tiposUbicacionSeed.length} | Ubicaciones demo: ${ubicacionesSeed.length}`);
+  console.log(
+    `Inventario demo: ${TIPOS_ALIMENTO_SEED.length} tipos, ${PRESENTACIONES_ALIMENTO_SEED.length} presentaciones, ${proveedores.length} proveedores, 1 almacen, ${alimentosCreados.length} alimentos, ${movimientosNuevos} entradas nuevas`,
+  );
   console.log(`Usuario dev: ${adminEmail} / ${adminPassword}`);
 
   await AppDataSource.destroy();

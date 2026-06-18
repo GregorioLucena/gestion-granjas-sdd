@@ -11,6 +11,7 @@ import { UsuariosModule } from './usuarios/usuarios.module';
 import { PerfilesModule } from './perfiles/perfiles.module';
 import { PermisosModule } from './permisos/permisos.module';
 import { LotesModule } from './lotes/lotes.module';
+import { InventarioModule } from './inventario/inventario.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { LotesModule } from './lotes/lotes.module';
     PerfilesModule,
     PermisosModule,
     LotesModule,
+    InventarioModule,
   ],
 })
 export class AppModule {}

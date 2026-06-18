@@ -2,7 +2,7 @@
 
 ## Estado
 
-Borrador inicial
+Implementado MVP v1 (2026-06-17)
 
 ## Objetivo
 
@@ -182,6 +182,29 @@ Costo por unidad base o presentacion usada para valorar movimientos y consumos.
 - `inventario.movimientos.crear`: registrar movimientos.
 - `inventario.ajustes.crear`: registrar ajustes.
 
+## UX / pantallas web (MVP v1)
+
+Patron hub + una pantalla por catalogo (ver `docs/11-guia-ux-ui.md`):
+
+| Ruta | Contenido |
+|------|-----------|
+| `/inventario` | Hub con tarjetas de navegacion |
+| `/inventario/existencias` | Consulta principal por granja activa; cantidad por almacen y alimento |
+| `/inventario/movimientos` | Historial y registro de entradas, salidas y ajustes |
+| `/inventario/alimentos` | ABM de alimentos |
+| `/inventario/proveedores` | ABM de proveedores |
+| `/inventario/almacenes` | ABM de almacenes por granja activa |
+| `/inventario/tipos-alimento` | Catalogo de tipos de alimento (prerequisito) |
+| `/inventario/presentaciones` | Catalogo de presentaciones (prerequisito) |
+
+- Contexto visible: granja activa en pantallas operativas (almacenes, movimientos, existencias).
+- Unidades de medida: catalogo global de solo lectura (seed); se elige al crear alimento.
+- Tipos de movimiento: catalogo global de solo lectura (seed).
+- Mutaciones con toast de exito o error (`error.message` del backend).
+- Campos obligatorios con `*` y mensaje inline al guardar.
+- Inactivacion de maestras con confirmacion y toast.
+- Existencias en cero no se muestran en el listado principal (solo combinaciones con stock > 0).
+
 ## Criterios de aceptacion
 
 ### CA-001: Registrar alimento
@@ -228,13 +251,87 @@ Dado un usuario sin acceso a una granja, cuando intenta consultar o registrar mo
 
 Dado un alimento registrado, cuando el usuario consulta su historial, entonces el sistema muestra entradas, salidas, ajustes, fechas, cantidades, costos y referencias.
 
+## Cierre de implementacion MVP v1
+
+**Fecha de cierre:** 2026-06-17  
+**Rama de trabajo:** `feature/inventario-alimentos`
+
+### Entregables implementados
+
+| Capa | Alcance |
+|------|---------|
+| API (`apps/api`) | Modulo `inventario`: tipos/presentaciones alimento, proveedores, almacenes, alimentos, movimientos, existencias, unidades y tipos de movimiento (lectura); permisos granulares; stock no negativo; anulacion con motivo; validacion tenant y granja |
+| Web (`apps/web`) | Hub `/inventario` + 7 pantallas (existencias, movimientos, alimentos, proveedores, almacenes, tipos-alimento, presentaciones); patron ABM mobile-first; toasts y confirmaciones |
+| Datos | Entidades `Alimento`, `Almacen`, `Proveedor`, `MovimientoInventario`, maestras `TipoAlimento`, `PresentacionAlimento`; seed demo con catalogos, almacen, alimentos y entradas iniciales |
+| Shared | Schemas Zod en `inventario.schemas.ts`; permisos `INVENTARIO_*` en `PERMISOS` |
+
+### Pantallas web
+
+- `/inventario` — hub de navegacion
+- `/inventario/existencias` — stock por granja activa, almacen y alimento
+- `/inventario/movimientos` — historial; entradas, salidas manuales y ajustes; anulacion con motivo
+- `/inventario/alimentos` — ABM con tipo, presentacion, unidad base y factor de conversion
+- `/inventario/proveedores` — ABM de proveedores
+- `/inventario/almacenes` — ABM por granja activa
+- `/inventario/tipos-alimento` y `/inventario/presentaciones` — catalogos prerequisito
+
+### Verificacion de criterios de aceptacion
+
+| ID | Estado | Notas |
+|----|--------|-------|
+| CA-001 | OK | Alta con maestras activas; unicidad por nombre en compania |
+| CA-002 | OK | ABM proveedores con permiso `inventario.proveedores.administrar` |
+| CA-003 | OK | Almacen asociado a granja activa; ubicacion interna opcional |
+| CA-004 | OK | Entradas `ENTRADA_COMPRA` / `ENTRADA_MANUAL` aumentan existencia |
+| CA-005 | OK | Salida manual `SALIDA_MANUAL` disminuye existencia |
+| CA-006 | OK | Error `INVENTARIO_STOCK_INSUFICIENTE` si no hay stock |
+| CA-007 | OK | Ajuste positivo con permiso `inventario.ajustes.crear` |
+| CA-008 | OK | Ajuste negativo valida stock suficiente |
+| CA-009 | OK | `GET /existencias-inventario` agrupa por granja, almacen y alimento (stock > 0) |
+| CA-010 | OK | `requireGranjaAccess` en operaciones por granja |
+| CA-011 | OK | Listado paginado de movimientos con tipo, fechas, cantidades y costos |
+
+### Verificacion tecnica
+
+- [x] `pnpm run typecheck`
+- [x] Prueba manual funcional (usuario con permisos de inventario; requiere reiniciar API tras agregar el modulo)
+
+### Dependencias para modulos siguientes (no bloquean cierre de spec)
+
+- **Consumo (`007`):** usara `SALIDA_CONSUMO` y descontara desde almacen origen en transaccion.
+- **Reportes (`015`):** reutilizaran existencias y movimientos ya persistidos.
+- **Destino productivo en alimento:** campo no modelado en v1; queda para fase posterior si se requiere.
+- **Conversion en movimiento:** cantidad siempre en unidad base del alimento; el factor documenta presentacion vs base.
+
+### Mejoras opcionales pospuestas
+
+- Alertas de stock bajo en dashboard (hoy metrica placeholder).
+- Filtros avanzados en existencias (por almacen o alimento).
+- Endpoint `GET /alimentos/:id` para ficha detallada.
+- Tests automatizados de reglas en `inventario.rules.ts`.
+- ABM de unidades de medida (hoy solo lectura desde seed global).
+
 ## Preguntas abiertas
 
-- El MVP permitira inventario negativo o siempre lo bloqueara?
-- El costo se manejara como ultimo costo, costo promedio ponderado o costo manual por movimiento?
-- Se necesitara controlar fecha de vencimiento desde el MVP?
-- Los alimentos podran manejar conversion entre presentacion y unidad base, por ejemplo saco de 40 kg?
-- Se registraran mezclas de alimentos en el MVP o quedaran para una fase posterior?
+Resueltas para MVP v1 (ver `docs/06-cierre-sdd.md`):
+
+| Pregunta | Decision MVP v1 |
+|----------|-----------------|
+| Inventario negativo? | No permitido. |
+| Metodo de costo? | Costo manual por movimiento. Promedio ponderado en fase posterior. |
+| Control de vencimiento? | No en v1. |
+| Conversion presentacion/unidad base? | Si. Campo `factorConversion` en alimento (ej. 1 saco = 40 kg). |
+| Mezclas de alimentos? | No en v1. |
+
+Tipos de movimiento usados en v1 (seed global):
+
+| Codigo | Uso en UI |
+|--------|-----------|
+| `ENTRADA_COMPRA` | Entrada con proveedor opcional |
+| `ENTRADA_MANUAL` | Entrada sin compra formal |
+| `SALIDA_MANUAL` | Salida manual de inventario |
+| `AJUSTE_POSITIVO` / `AJUSTE_NEGATIVO` | Ajustes con motivo obligatorio |
+| `SALIDA_CONSUMO` | Reservado para `007-consumo-alimento.md` (no en pantalla de inventario) |
 
 ## Decisiones tomadas
 
@@ -244,3 +341,7 @@ Dado un alimento registrado, cuando el usuario consulta su historial, entonces e
 - La existencia se controla por compania, granja, almacen y alimento.
 - En el MVP no se permitira salida que deje existencia negativa.
 - El inventario de medicamentos queda fuera de esta especificacion.
+- Cantidad de movimientos siempre en unidad base del alimento (`unidadMedidaId` del alimento).
+- Anulacion de movimientos con motivo; no borrado fisico (`docs/decisions/0005-auditoria-y-trazabilidad.md`).
+- Tipos de alimento y presentaciones se administran desde inventario (no desde configuracion general).
+- Permisos alineados con seed y `packages/shared/src/permissions/constants.ts`.

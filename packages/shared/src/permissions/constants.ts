@@ -13,6 +13,13 @@ export const PERMISOS = {
   LOTES_VER: 'lotes.ver',
   LOTES_CREAR: 'lotes.crear',
   LOTES_EDITAR: 'lotes.editar',
+  INVENTARIO_VER: 'inventario.ver',
+  INVENTARIO_ALIMENTOS_CREAR: 'inventario.alimentos.crear',
+  INVENTARIO_ALIMENTOS_EDITAR: 'inventario.alimentos.editar',
+  INVENTARIO_PROVEEDORES_ADMINISTRAR: 'inventario.proveedores.administrar',
+  INVENTARIO_ALMACENES_ADMINISTRAR: 'inventario.almacenes.administrar',
+  INVENTARIO_MOVIMIENTOS_CREAR: 'inventario.movimientos.crear',
+  INVENTARIO_AJUSTES_CREAR: 'inventario.ajustes.crear',
 } as const;
 
 export type PermisoCodigo = (typeof PERMISOS)[keyof typeof PERMISOS];

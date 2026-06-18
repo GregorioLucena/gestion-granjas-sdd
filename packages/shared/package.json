@@ -32,6 +32,10 @@
       "types": "./dist/schemas/configuracion.schemas.d.ts",
       "default": "./dist/schemas/configuracion.schemas.js"
     },
+    "./schemas/inventario.schemas": {
+      "types": "./dist/schemas/inventario.schemas.d.ts",
+      "default": "./dist/schemas/inventario.schemas.js"
+    },
     "./schemas/lotes.schemas": {
       "types": "./dist/schemas/lotes.schemas.d.ts",
       "default": "./dist/schemas/lotes.schemas.js"
@@ -58,6 +62,9 @@
       ],
       "schemas/configuracion.schemas": [
         "dist/schemas/configuracion.schemas.d.ts"
+      ],
+      "schemas/inventario.schemas": [
+        "dist/schemas/inventario.schemas.d.ts"
       ],
       "schemas/lotes.schemas": [
         "dist/schemas/lotes.schemas.d.ts"
