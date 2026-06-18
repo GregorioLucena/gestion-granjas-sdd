@@ -11,17 +11,17 @@ Este roadmap define el orden recomendado para especificar e implementar el siste
 
 Objetivo: crear las entidades centrales sobre las que dependeran los demas modulos.
 
-- `000-configuracion-base.md`: companias, granjas y administracion de maestras base.
-- `001-usuarios-perfiles.md`: usuarios, perfiles, permisos y acceso por granja.
+- `000-configuracion-base.md`: companias, granjas y administracion de maestras base. **Implementado MVP v1 (2026-06-14).**
+- `001-usuarios-perfiles.md`: usuarios, perfiles, permisos y acceso por granja. **Implementado MVP v1 (2026-06-14).**
 - `002-gestion-animales.md`: animales individuales asociados a compania, granja, especie, finalidad, raza y ubicacion.
-- `003-gestion-lotes.md`: lotes productivos, cantidades, fechas y estados.
+- `003-gestion-lotes.md`: lotes productivos, cantidades, fechas y estados. **Implementado MVP v1 (2026-06-17).**
 - `004-sanidad-animal.md`: veterinario tratante, vacunaciones, enfermedades, tratamientos y controles sanitarios.
 
 ## Fase 2: Alimentacion e inventario
 
 Objetivo: controlar alimentos disponibles.
 
-- `005-inventario-alimentos.md`: tipos de alimento, entradas, costos y existencias.
+- `005-inventario-alimentos.md`: tipos de alimento, entradas, costos y existencias. **Implementado MVP v1 (2026-06-17).**
 
 ## Fase 3: Trazabilidad interna
 
