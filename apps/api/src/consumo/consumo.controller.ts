@@ -1,0 +1,46 @@
+import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import type { TenantContext } from '@gestion-granjas/shared';
+import { TenantCtx } from '../common/tenant/tenant-context.decorator';
+import { parseListQuery } from '../common/pagination/paginate';
+import { ConsumoService } from './consumo.service';
+
+@Controller('consumos-alimento')
+export class ConsumoController {
+  constructor(private readonly consumoService: ConsumoService) {}
+
+  @Get()
+  async listar(
+    @TenantCtx() ctx: TenantContext,
+    @Query() query: Record<string, unknown>,
+    @Query('granjaId') granjaId?: string,
+    @Query('loteId') loteId?: string,
+    @Query('alimentoId') alimentoId?: string,
+    @Query('incluirAnulados') incluirAnulados?: string,
+  ) {
+    const data = await this.consumoService.listar(
+      ctx,
+      parseListQuery(query),
+      granjaId,
+      loteId,
+      alimentoId,
+      incluirAnulados,
+    );
+    return { data };
+  }
+
+  @Post()
+  async crear(@TenantCtx() ctx: TenantContext, @Body() body: unknown) {
+    const data = await this.consumoService.crear(ctx, body as never);
+    return { data };
+  }
+
+  @Patch(':id/anular')
+  async anular(
+    @TenantCtx() ctx: TenantContext,
+    @Param('id') id: string,
+    @Body() body: unknown,
+  ) {
+    const data = await this.consumoService.anular(ctx, id, body as never);
+    return { data };
+  }
+}

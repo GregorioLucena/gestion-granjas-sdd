@@ -1,4 +1,5 @@
 export * from './configuracion.schemas';
+export * from './consumo.schemas';
 export * from './inventario.schemas';
 export * from './lotes.schemas';
 export * from './pagination.schemas';

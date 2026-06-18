@@ -2,7 +2,7 @@
 
 ## Estado
 
-Borrador inicial
+Implementado MVP v1 (2026-06-17)
 
 ## Objetivo
 
@@ -40,6 +40,7 @@ Incluye:
 
 No incluye en esta version:
 
+- Consumo por animal individual (fuera de MVP v1; ver `002-gestion-animales.md`).
 - Formulacion de raciones.
 - Recetas o mezclas automaticas de alimento.
 - Planificacion automatica de alimentacion.
@@ -164,13 +165,81 @@ Dado un consumo registrado por error, cuando un usuario con permiso lo anula ind
 
 Dado un consumo que genero movimiento de inventario, cuando el consumo se anula, entonces el sistema debe anular o compensar el movimiento de inventario relacionado.
 
+## Cierre de implementacion MVP v1
+
+**Fecha de cierre:** 2026-06-17  
+**Rama de trabajo:** `feature/consumo-alimento`
+
+### Alcance real MVP v1
+
+- Solo **consumo por lote** (no animal individual).
+- **Almacen origen obligatorio** en cada registro.
+- Sin etapa productiva en pantalla ni API v1.
+
+### Entregables implementados
+
+| Capa | Alcance |
+|------|---------|
+| API (`apps/api`) | Modulo `consumo`: listar, crear y anular; movimiento `SALIDA_CONSUMO` en transaccion; validacion de lote activo, stock y tenant/granja; permisos `alimentacion.consumo.*` |
+| Web (`apps/web`) | Pantalla `/consumo`: registro rapido, stock visible, historial con filtro por lote, anulacion con motivo |
+| Datos | Entidad `ConsumoAlimento` (migracion inicial); seed con permiso `alimentacion.consumo.anular` en perfiles demo |
+| Shared | Schemas Zod en `consumo.schemas.ts`; permisos en `PERMISOS` |
+
+### Pantallas web
+
+- `/consumo` — registro por lote, almacen, alimento y cantidad; historial paginado; anulacion inline con confirmacion y motivo
+
+### Verificacion de criterios de aceptacion
+
+| ID | Estado | Notas |
+|----|--------|-------|
+| CA-001 | N/A v1 | Consumo por animal individual pospuesto (`002`) |
+| CA-002 | OK | Registro por lote activo con cantidad > 0 |
+| CA-003 | OK | Crea `SALIDA_CONSUMO` y descuenta existencia en transaccion |
+| CA-004 | OK | Error `CONSUMO_STOCK_INSUFICIENTE` |
+| CA-005 | OK | Lote debe pertenecer a la granja del consumo |
+| CA-006 | OK | `requireGranjaAccess` en listar, crear y anular |
+| CA-007 | N/A v1 | Historial por animal pospuesto |
+| CA-008 | OK | Historial por lote con fecha, alimento, cantidad, unidad y almacen |
+| CA-009 | OK | Anulacion con motivo; registro conservado |
+| CA-010 | OK | Anula tambien el `MovimientoInventario` vinculado |
+
+### Verificacion tecnica
+
+- [x] `pnpm run typecheck`
+- [x] Prueba manual funcional (reiniciar API tras agregar `ConsumoModule`; re-login tras seed si faltan permisos)
+
+### Dependencias para modulos siguientes (no bloquean cierre de spec)
+
+- **Reportes (`015`):** consumiran `consumos_alimento` y movimientos asociados.
+- **Engorde (`012`):** lotes en engorde podran seguir consumiendo mientras `estadoOperativo = ACTIVO`.
+- **Etapa productiva:** campo no modelado en v1.
+
+### Mejoras opcionales pospuestas
+
+- Consumo por animal individual.
+- Filtro por alimento o rango de fechas en historial.
+- Costo unitario visible en listado (desde movimiento asociado).
+- Metrica «Consumo hoy» en dashboard.
+- Tests automatizados de `consumo.rules.ts`.
+
 ## Preguntas abiertas
 
-- El consumo sin almacen origen estara permitido en el MVP o siempre debe descontar inventario?
-- Se permitira registrar consumo estimado cuando no se conozca la cantidad exacta?
-- La etapa productiva sera obligatoria para ciertos tipos de animales o finalidades?
-- El costo del consumo se calculara con costo del movimiento de inventario o con costo promedio del alimento?
-- Se permitira registrar consumo masivo para varios lotes en una fase futura?
+Resueltas para MVP v1 (ver `docs/06-cierre-sdd.md`):
+
+| Pregunta | Decision MVP v1 |
+|----------|-----------------|
+| Consumo sin almacen origen? | No. Todo consumo debe descontar inventario de un almacen. |
+| Consumo estimado? | No. Cantidad exacta requerida. |
+| Etapa productiva obligatoria? | No en v1. |
+| Costo del consumo? | Costo del movimiento de inventario asociado cuando exista. |
+| Consumo masivo por lotes? | No en v1. |
+
+Pendientes para fases posteriores:
+
+- Consumo por animal individual.
+- Etapa productiva obligatoria por tipo de animal o finalidad.
+- Costo promedio del alimento en reportes.
 
 ## Decisiones tomadas
 

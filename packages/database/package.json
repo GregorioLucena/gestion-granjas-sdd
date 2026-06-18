@@ -32,7 +32,7 @@
     "db:migration:generate": "tsx ../../node_modules/typeorm/cli.js migration:generate -d dist/cli-data-source.js",
     "db:migration:run": "tsx ../../node_modules/typeorm/cli.js migration:run -d dist/cli-data-source.js",
     "db:migration:revert": "tsx ../../node_modules/typeorm/cli.js migration:revert -d dist/cli-data-source.js",
-    "db:seed": "node dist/seeds/run-seed.js"
+    "db:seed": "pnpm build && node dist/seeds/run-seed.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",

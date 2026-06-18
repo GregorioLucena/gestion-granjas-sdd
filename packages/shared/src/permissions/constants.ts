@@ -20,6 +20,9 @@ export const PERMISOS = {
   INVENTARIO_ALMACENES_ADMINISTRAR: 'inventario.almacenes.administrar',
   INVENTARIO_MOVIMIENTOS_CREAR: 'inventario.movimientos.crear',
   INVENTARIO_AJUSTES_CREAR: 'inventario.ajustes.crear',
+  ALIMENTACION_CONSUMO_VER: 'alimentacion.consumo.ver',
+  ALIMENTACION_CONSUMO_CREAR: 'alimentacion.consumo.crear',
+  ALIMENTACION_CONSUMO_ANULAR: 'alimentacion.consumo.anular',
 } as const;
 
 export type PermisoCodigo = (typeof PERMISOS)[keyof typeof PERMISOS];
