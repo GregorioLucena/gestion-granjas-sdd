@@ -33,7 +33,7 @@ Objetivo: controlar movimientos internos antes de registrar consumos y reportes.
 
 Objetivo: controlar consumo por animal o lote.
 
-- `007-consumo-alimento.md`: consumo diario por animal o lote.
+- `007-consumo-alimento.md`: consumo diario por animal o lote. **Implementado MVP v1 (2026-06-17)** — alcance v1: solo por lote.
 
 ## Fase 5: Reproduccion
 

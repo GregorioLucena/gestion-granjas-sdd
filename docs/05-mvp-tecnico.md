@@ -214,7 +214,7 @@ No incluye en MVP v1:
 
 ## Estado de implementacion MVP v1
 
-Actualizado al cierre de `005-inventario-alimentos.md` (2026-06-17).
+Actualizado al cierre de `007-consumo-alimento.md` (2026-06-17).
 
 | Modulo | Spec | Estado |
 |--------|------|--------|
@@ -222,14 +222,14 @@ Actualizado al cierre de `005-inventario-alimentos.md` (2026-06-17).
 | Seguridad | `001` | Implementado |
 | Lotes | `003` | Implementado |
 | Inventario de alimentos | `005` | Implementado |
+| Consumo por lote | `007` | Implementado |
 | Movimientos de ubicacion | `006` | Pendiente |
-| Consumo por lote | `007` | Pendiente |
 | Engorde de lotes | `012` | Pendiente |
 | Controles de peso | `013` | Pendiente |
 | Reportes alimentacion | `015` | Pendiente |
 | Reportes engorde | `017` | Pendiente |
 
-**Siguiente paso recomendado:** `007-consumo-alimento.md` (depende de lotes e inventario ya implementados).
+**Siguiente paso recomendado:** `013-controles-peso.md` o `012-engorde-lotes.md`.
 
 ## Modulos fuera de MVP v1
 
@@ -357,15 +357,15 @@ Definido en `decisions/0006-stack-tecnologico.md`. Resumen:
 
 ## Primer backlog tecnico sugerido
 
-1. ~~Crear proyecto base.~~
-2. ~~Configurar base de datos.~~
-3. ~~Crear modelo de compania y granja.~~
-4. ~~Crear usuarios, perfiles y permisos.~~
-5. ~~Implementar login y acceso por granja.~~
-6. ~~Crear maestras base.~~
-7. ~~Crear lotes.~~
-8. ~~Crear almacenes y alimentos.~~
-9. ~~Crear movimientos de inventario.~~
+1. Crear proyecto base.
+2. Configurar base de datos.
+3. Crear modelo de compania y granja.
+4. Crear usuarios, perfiles y permisos.
+5. Implementar login y acceso por granja.
+6. Crear maestras base.
+7. Crear lotes.
+8. Crear almacenes y alimentos.
+9. Crear movimientos de inventario.
 10. Crear consumo por lote.
 11. Crear controles de peso.
 12. Crear engorde y cierre.

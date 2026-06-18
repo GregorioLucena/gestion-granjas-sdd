@@ -101,6 +101,12 @@ const PERMISOS_CONFIG = [
     modulo: 'alimentacion',
     accion: 'consumo.crear',
   },
+  {
+    codigo: 'alimentacion.consumo.anular',
+    nombre: 'Anular consumo de alimento',
+    modulo: 'alimentacion',
+    accion: 'consumo.anular',
+  },
   { codigo: 'engorde.ver', nombre: 'Ver engorde', modulo: 'engorde', accion: 'ver' },
   { codigo: 'engorde.iniciar', nombre: 'Iniciar engorde', modulo: 'engorde', accion: 'iniciar' },
   { codigo: 'pesos.ver', nombre: 'Ver controles de peso', modulo: 'pesos', accion: 'ver' },
@@ -137,6 +143,9 @@ const PERFIL_ADMIN_COMPANIA = [
   'inventario.almacenes.administrar',
   'inventario.movimientos.crear',
   'inventario.ajustes.crear',
+  'alimentacion.consumo.ver',
+  'alimentacion.consumo.crear',
+  'alimentacion.consumo.anular',
 ];
 
 const PERFIL_OPERADOR_GRANJA = [
@@ -154,6 +163,7 @@ const PERFIL_OPERADOR_GRANJA = [
   'inventario.ajustes.crear',
   'alimentacion.consumo.ver',
   'alimentacion.consumo.crear',
+  'alimentacion.consumo.anular',
   'engorde.ver',
   'engorde.iniciar',
   'pesos.ver',

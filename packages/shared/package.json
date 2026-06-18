@@ -32,6 +32,10 @@
       "types": "./dist/schemas/configuracion.schemas.d.ts",
       "default": "./dist/schemas/configuracion.schemas.js"
     },
+    "./schemas/consumo.schemas": {
+      "types": "./dist/schemas/consumo.schemas.d.ts",
+      "default": "./dist/schemas/consumo.schemas.js"
+    },
     "./schemas/inventario.schemas": {
       "types": "./dist/schemas/inventario.schemas.d.ts",
       "default": "./dist/schemas/inventario.schemas.js"
@@ -62,6 +66,9 @@
       ],
       "schemas/configuracion.schemas": [
         "dist/schemas/configuracion.schemas.d.ts"
+      ],
+      "schemas/consumo.schemas": [
+        "dist/schemas/consumo.schemas.d.ts"
       ],
       "schemas/inventario.schemas": [
         "dist/schemas/inventario.schemas.d.ts"
