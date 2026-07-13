@@ -6,7 +6,9 @@ Aceptada
 
 ## Contexto
 
-El sistema necesita controlar vacunaciones, enfermedades, diagnosticos, tratamientos y controles sanitarios de animales individuales y lotes. Tambien debe representar al veterinario como usuario del sistema y como responsable sanitario de animales, lotes o eventos.
+El sistema necesita controlar vacunaciones, diagnosticos/casos, tratamientos y controles
+sanitarios de animales individuales y lotes. Tambien debe representar al veterinario como
+usuario y responsable sanitario.
 
 ## Decision
 
@@ -23,7 +25,8 @@ La sanidad sera un modulo separado de gestion de animales y gestion de lotes. Lo
 - Ser veterinario tratante controla responsabilidad sanitaria.
 - Un animal puede tener un veterinario tratante actual.
 - Un lote puede tener un veterinario tratante actual.
-- Las vacunaciones, enfermedades, diagnosticos, tratamientos y controles quedaran como eventos sanitarios.
+- Vacunaciones, diagnosticos, tratamientos y controles quedaran como eventos sanitarios; la
+  enfermedad es maestra asociada al diagnostico.
 - Todo evento sanitario debe pertenecer a una compania y granja.
 - Todo evento sanitario debe aplicar a animal o lote.
 

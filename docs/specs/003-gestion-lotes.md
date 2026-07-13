@@ -50,7 +50,8 @@ Numero de animales con los que inicia el lote.
 
 ### Cantidad actual
 
-Numero de animales presentes en el lote despues de bajas, ventas, traslados u otros movimientos. Su calculo detallado se definira en especificaciones futuras.
+Numero de animales disponibles. En MVP v1 se calcula segun ADR `0009` como cantidad
+inicial del engorde menos bajas no anuladas; no es editable.
 
 ## Datos requeridos
 
@@ -63,7 +64,8 @@ Numero de animales presentes en el lote despues de bajas, ventas, traslados u ot
 - Finalidad productiva.
 - Fecha de inicio.
 - Cantidad inicial.
-- Ubicacion interna opcional.
+- `ubicacionInicialId` opcional e inmutable al habilitar spec `006`; `ubicacionId` conserva
+  la ubicacion actual.
 - Estado.
 - Observaciones opcionales.
 
@@ -78,8 +80,13 @@ Numero de animales presentes en el lote despues de bajas, ventas, traslados u ot
 - Todo lote debe tener una finalidad productiva.
 - La cantidad inicial debe ser mayor que cero.
 - Si se asigna ubicacion interna, la ubicacion debe pertenecer a la misma granja del lote.
+- Al implementar spec `006`, la ubicacion de alta se copia a `ubicacionInicialId` inmutable y
+  `ubicacionId` representa la actual.
 - Los estados iniciales permitidos para un lote son: activo, cerrado, cancelado.
 - Un lote cerrado no debe recibir nuevos eventos productivos, salvo que una especificacion futura indique lo contrario.
+- Cuando existe un engorde no anulado, cantidad inicial y fecha de inicio quedan bloqueadas.
+- Un lote con engorde en curso o cierre vigente no cambia estado operativo desde el ABM;
+  cierre y reapertura se gestionan desde `012-engorde-lotes.md`.
 
 ## Criterios de aceptacion
 
@@ -101,7 +108,9 @@ Dado un lote registrado, cuando el usuario consulta su ficha, entonces el sistem
 
 ### CA-005: Cambiar estado del lote
 
-Dado un lote activo, cuando el usuario cambia su estado a cerrado o cancelado, entonces el lote deja de estar disponible para nuevos eventos productivos.
+Dado un lote activo sin engorde no anulado, cuando el usuario cambia su estado a cerrado o
+cancelado, entonces el lote deja de estar disponible para nuevos eventos productivos. Si
+tiene engorde, la API rechaza el cambio y exige usar el flujo de engorde.
 
 ### CA-006: Validar acceso del usuario a la granja
 
@@ -133,7 +142,7 @@ Dado un usuario sin acceso a una granja, cuando intenta consultar o modificar lo
 | CA-002 | OK | Unicidad `(granjaId, codigo)`; error `LOTE_CODIGO_DUPLICADO` |
 | CA-003 | OK | `cantidadInicial` > 0 en API y validacion cliente |
 | CA-004 | OK | Ficha basica en tarjeta de listado y formulario de edicion (codigo, tipo, finalidad, fecha, cantidad, ubicacion, estados, observaciones) |
-| CA-005 | OK | Cambio de `estadoOperativo` a `CERRADO` o `CANCELADO` desde edicion; bloqueo de nuevos eventos productivos se aplicara al integrar consumo, engorde y pesos |
+| CA-005 | OK base | Cambio manual disponible sin engorde; `012` agregara bloqueo y gestionara cierre/reapertura cuando exista proceso |
 | CA-006 | OK | `requireGranjaAccess` en listado y mutaciones; sin acceso a granja ajena |
 
 ### Verificacion tecnica

@@ -2,172 +2,223 @@
 
 ## Estado
 
-Borrador inicial
+Lista para implementar MVP v2 (2026-07-13)
 
 ## Objetivo
 
-Permitir registrar y consultar animales individuales dentro de una granja, manteniendo una estructura preparada para distintas especies, finalidades productivas y ubicaciones internas.
-
-Esta especificacion es la base para modulos posteriores como reproduccion, gestacion, partos, alimentacion individual, historial sanitario y bajas.
+Gestionar animales identificados individualmente con ficha, origen, parentesco, estado
+operativo e historial de salida, como base de sanidad y reproduccion.
 
 ## Dependencias
 
-Esta especificacion depende de:
-
 - `000-configuracion-base.md`
 - `001-usuarios-perfiles.md`
+- `docs/decisions/0004-estado-registro-vs-estado-operativo.md`
+- `docs/decisions/0005-auditoria-y-trazabilidad.md`
 
-## Alcance
+## Alcance MVP v2
 
 Incluye:
 
-- Registro de animales individuales.
-- Consulta de ficha basica del animal.
-- Cambio de estado del animal.
-- Asignacion de animal a granja.
-- Asignacion opcional de ubicacion interna.
+- Alta, consulta y edicion de datos permitidos.
+- Identificacion manual unica para siempre por granja.
+- Fecha de nacimiento y/o ingreso.
+- Sexo y finalidad.
+- Madre y padre opcionales.
+- Ubicacion inicial opcional.
+- Eventos de venta, muerte y descarte.
+- Anulacion del ultimo evento terminal.
+- Ficha con historial.
 
-No incluye en esta version:
+No incluye:
 
-- Registro de companias, granjas o maestras base.
-- Registro de usuarios, perfiles o permisos.
-- Registro de lotes.
-- Montas, gestacion o partos.
-- Vacunaciones, enfermedades, tratamientos o veterinario tratante.
-- Consumo de alimento.
-- Inventario.
-- Reportes avanzados.
+- Identificacion automatica.
+- Movimientos historicos de ubicacion de animales.
+- Traslado entre granjas.
+- Compra/venta financiera.
+- Consumo individual.
+- Genealogia avanzada o coeficiente de consanguinidad.
 
-## Conceptos principales
+## Estados
 
-### Tipo de animal
+### Estado de registro
 
-Representa la especie o categoria productiva general configurada en las maestras.
+`ACTIVO | INACTIVO`, usado solo para disponibilidad administrativa.
 
-Ejemplos:
+### Estado operativo
 
-- Porcino
-- Bovino
-- Caprino
-- Ave
-- Conejo
+`ACTIVO | VENDIDO | MUERTO | DESCARTADO`.
 
-### Finalidad productiva
+No se usa `INACTIVO` como sinonimo de salida productiva. El estado operativo se deriva del
+ultimo evento terminal vigente.
 
-Define para que se usa un animal dentro de la granja. Se configura como maestra.
-
-Ejemplos:
-
-- Reproduccion
-- Engorde
-- Cria
-- Leche
-- Postura
-- Venta
+## Datos
 
 ### Animal
 
-Representa un animal gestionado individualmente.
+| Campo | Regla |
+|-------|-------|
+| `companiaId`, `granjaId` | Tenant y granja obligatorios |
+| `identificacion` | Manual, normalizada y unica para siempre por granja |
+| `tipoAnimalId` | Activo |
+| `sexo` | `MACHO`, `HEMBRA` o `DESCONOCIDO` |
+| `fechaNacimiento` | Opcional si existe ingreso |
+| `fechaIngreso` | Opcional si existe nacimiento |
+| `finalidadProductivaId` | Obligatoria |
+| `razaId` | Segun configuracion del tipo |
+| `madreId`, `padreId` | Opcionales |
+| `ubicacionId` | Inicial y opcional |
+| `observaciones` | Opcional |
+| `estadoRegistro` | Administrativo |
 
-Ejemplos:
+### Evento de ciclo del animal
 
-- Cerda reproductora identificada como `CER-001`.
-- Verraco reproductor identificado como `VER-001`.
-- Vaca lechera identificada como `BOV-010`.
+| Campo | Regla |
+|-------|-------|
+| `tipo` | `VENTA`, `MUERTE`, `DESCARTE` |
+| `fecha` | Obligatoria |
+| `motivoId` | Obligatorio |
+| `observaciones` | Opcional |
+| anulacion/auditoria | Obligatoria |
 
-## Datos requeridos
+Los motivos son maestras por compania, con catalogo independiente por tipo de evento.
 
-### Animal
+## Reglas
 
-- Identificacion unica.
-- Compania.
-- Granja.
-- Tipo de animal.
-- Sexo.
-- Fecha de nacimiento o fecha de ingreso.
-- Finalidad productiva.
-- Raza, obligatoria solo cuando el tipo de animal la requiere.
-- Ubicacion interna opcional.
-- Estado.
-- Observaciones opcionales.
+1. Toda operacion valida compania y granja permitida.
+2. Identificacion se recorta y compara sin distinguir mayusculas/minusculas.
+3. Nunca se reutiliza una identificacion, aunque el animal este vendido, muerto, descartado
+   o inactivo.
+4. Debe existir al menos fecha de nacimiento o de ingreso.
+5. Ninguna fecha puede ser futura.
+6. Si existen ambas, ingreso no puede preceder al nacimiento.
+7. La raza debe corresponder al tipo y es obligatoria solo si este la requiere.
+8. Ubicacion inicial debe pertenecer a la granja.
+9. Madre y padre deben pertenecer a la misma compania y tipo de animal.
+10. Madre debe ser hembra, padre macho y ambos deben haber nacido/ingresado antes.
+11. No se permiten autorreferencias ni ciclos de parentesco.
+12. Sexo desconocido es valido, pero bloquea participacion reproductiva.
+13. Partos registran automaticamente la madre y, cuando se conoce, el padre.
+14. Un animal operativo no activo no participa en nuevos eventos productivos.
+15. Venta, muerte y descarte son eventos inmutables, no ediciones directas de estado.
+16. Solo puede existir un evento terminal vigente.
+17. Solo el ultimo evento terminal vigente puede anularse con motivo; al anularlo, el animal
+    vuelve a `ACTIVO`.
+18. Venta o cualquier salida destinada a consumo se bloquea durante retiro sanitario
+    vigente. Muerte y descarte no se bloquean.
+19. Campos base no pueden alterarse si contradicen eventos posteriores; identificación y
+    granja son inmutables.
 
-## Reglas de negocio
+## Permisos
 
-- Todo animal debe pertenecer a una compania y a una granja.
-- La granja del animal debe pertenecer a la compania seleccionada.
-- El usuario debe tener permiso para registrar o modificar animales.
-- El usuario solo puede operar sobre animales de granjas a las que tiene acceso.
-- Todo animal debe tener una identificacion unica dentro de la granja.
-- En el MVP la identificacion del animal sera manual.
-- El modelo debe permitir una estrategia futura de identificacion automatica sin cambiar el concepto de identificacion unica.
-- Todo animal debe pertenecer a un tipo de animal.
-- Todo animal debe tener sexo definido como macho, hembra o desconocido.
-- Todo animal debe tener al menos una fecha de referencia: nacimiento o ingreso.
-- Un animal puede tener una finalidad productiva principal.
-- Si el tipo de animal requiere raza, el animal debe tener una raza asociada.
-- Si el tipo de animal no requiere raza, la raza puede quedar vacia.
-- La raza seleccionada debe pertenecer al tipo de animal del animal.
-- Si se asigna ubicacion interna, la ubicacion debe pertenecer a la misma granja del animal.
-- No debe permitirse registrar dos animales activos con la misma identificacion.
-- Un animal inactivo no debe usarse en nuevos eventos productivos, salvo que una especificacion futura indique lo contrario.
-- Los estados iniciales permitidos para un animal son: activo, vendido, muerto, descartado.
+- `animales.ver`
+- `animales.crear`
+- `animales.editar`
+- `animales.eventos.crear`
+- `animales.eventos.anular`
+
+## API
+
+| Metodo | Ruta |
+|--------|------|
+| `GET` | `/animales` |
+| `POST` | `/animales` |
+| `GET` | `/animales/:id` |
+| `PATCH` | `/animales/:id` |
+| `POST` | `/animales/:id/eventos-ciclo` |
+| `POST` | `/animales/:id/eventos-ciclo/:eventoId/anular` |
+
+Listado: `granjaId` obligatorio; `q?`, `tipoAnimalId?`, `sexo?`, `finalidadProductivaId?`,
+`estadoOperativo?`, `estadoRegistro?`, `page`, `limit`.
+
+Crear/editar nunca acepta compania, estado operativo ni auditoria desde cliente. La
+anulacion recibe `{ motivo }`.
+
+## UX
+
+- Hub de animales y ficha por animal.
+- Listado con busqueda, filtros y granja activa.
+- Formulario mobile-first con parentesco colapsable.
+- Ficha con datos generales, estado visible y linea de tiempo.
+- Acciones terminales separadas y confirmadas.
+- Animal no activo conserva ficha e historiales.
+- Errores de carga inline; mutaciones con toast.
 
 ## Criterios de aceptacion
 
-### CA-001: Registrar animal con identificacion manual
+### CA-001: Crear animal
 
-Dado que existe una compania activa, una granja activa, un tipo de animal activo y una finalidad productiva activa, cuando un usuario con permiso registra un animal con identificacion manual unica y datos validos, entonces el animal queda guardado en estado activo.
+Dado tenant, granja y maestras validas, cuando se crea con identificacion y al menos una
+fecha de referencia, entonces queda operativo y administrativamente activo.
 
-### CA-002: Validar granja de la compania
+### CA-002: Identificacion permanente
 
-Dado que una granja pertenece a una compania, cuando el usuario registra un animal para esa granja, entonces el animal queda asociado a la misma compania de la granja.
+Dada una identificacion usada anteriormente, cuando se intenta reutilizar en la granja,
+entonces se rechaza sin importar estados.
 
-### CA-003: Rechazar granja de otra compania
+### CA-003: Validar fechas y raza
 
-Dado que una granja pertenece a otra compania, cuando el usuario intenta asociar el animal a esa granja desde una compania distinta, entonces el sistema debe rechazarlo.
+Dadas fechas invalidas o raza incompatible, cuando se guarda, entonces se rechaza.
 
-### CA-004: Validar raza obligatoria por tipo de animal
+### CA-004: Registrar parentesco
 
-Dado que el tipo de animal seleccionado requiere raza, cuando el usuario intenta registrar un animal sin raza, entonces el sistema debe rechazarlo.
+Dados progenitores validos, cuando se asignan, entonces se guardan sin ciclos y con sexo/tipo
+compatibles.
 
-### CA-005: Permitir raza opcional por tipo de animal
+### CA-005: Bloquear reproduccion con sexo desconocido
 
-Dado que el tipo de animal seleccionado no requiere raza, cuando el usuario registra un animal sin raza, entonces el sistema debe permitirlo.
+Dado sexo desconocido, cuando se intenta usar en un evento reproductivo, entonces se exige
+definirlo.
 
-### CA-006: Evitar identificacion duplicada por granja
+### CA-006: Registrar evento terminal
 
-Dado que existe un animal con identificacion `CER-001`, cuando el usuario intenta registrar otro animal con la misma identificacion, entonces el sistema debe rechazarlo.
+Dado animal activo, cuando se registra venta, muerte o descarte, entonces cambia su estado
+derivado y deja de estar disponible para nuevos eventos.
 
-### CA-007: Consultar ficha del animal
+### CA-007: Bloquear salida para consumo por retiro
 
-Dado un animal registrado, cuando el usuario consulta su ficha, entonces el sistema muestra identificacion, compania, granja, tipo de animal, sexo, finalidad, raza, ubicacion, fechas, estado y observaciones. Si existe informacion sanitaria, podra mostrarse como resumen proveniente de `004-sanidad-animal.md`.
+Dado periodo de retiro sanitario vigente, cuando se intenta vender o enviar a consumo,
+entonces se rechaza e informa la fecha de finalizacion; muerte y descarte siguen permitidos.
 
-### CA-008: Cambiar estado del animal
+### CA-008: Anular salida
 
-Dado un animal activo, cuando el usuario cambia su estado a vendido, muerto o descartado, entonces el animal queda inactivo para nuevos eventos productivos.
+Dado el evento terminal vigente, cuando se anula con motivo, entonces el historial se
+conserva y el animal vuelve a activo.
 
-### CA-009: Asignar ubicacion interna
+### CA-009: Proteger eventos
 
-Dado que existe una ubicacion activa dentro de la granja del animal, cuando el usuario asigna esa ubicacion al animal, entonces la ficha del animal muestra su ubicacion actual. El historial de cambios posteriores se gestiona en `006-movimientos-ubicacion.md`.
+Dado un evento terminal, cuando se intenta editar o eliminar, entonces se rechaza.
 
-### CA-010: Validar permiso de usuario
+### CA-010: Respetar tenant
 
-Dado un usuario sin permiso para crear animales, cuando intenta registrar un animal, entonces el sistema debe impedir la accion.
+Dado un usuario sin acceso, cuando consulta o muta, entonces no se exponen datos.
 
-### CA-011: Validar acceso del usuario a la granja
+## Errores
 
-Dado un usuario sin acceso a una granja, cuando intenta consultar o modificar animales de esa granja, entonces el sistema debe impedir la accion.
+Agregar familia `ANIMAL_*`: identificacion duplicada, fechas, raza, parentesco, ciclo,
+estado, retiro sanitario y tenant.
+
+## Verificacion
+
+- Unitarias de normalizacion, fechas, parentesco y ciclos.
+- Integracion de eventos terminales/anulacion/retiro.
+- Multi-tenant y permisos.
+- Prueba manual mobile-first.
 
 ## Preguntas abiertas
 
-- La identificacion automatica futura usara prefijo por tipo de animal, por granja o por finalidad productiva?
-- Se permitira reutilizar una identificacion de animal vendido o muerto dentro de la misma granja?
-- La anulacion del ultimo movimiento de ubicacion recalculara la ubicacion actual o requerira correccion manual?
+No quedan preguntas que bloqueen MVP v2.
 
-## Notas para futuras specs
+Futuro:
 
-- La gestion por lotes debe definirse en una especificacion separada.
-- La reproduccion debe apoyarse en animales individuales, especialmente hembras y machos reproductores.
-- La sanidad y el veterinario tratante se gestionan en `004-sanidad-animal.md`.
-- El consumo de alimento podra registrarse por animal o por lote, pero no pertenece a esta especificacion.
-- Los movimientos entre ubicaciones se gestionan en `006-movimientos-ubicacion.md`.
+- Identificacion automatica.
+- Movimientos de ubicacion.
+- Traslados, genealogia avanzada y consumo individual.
+
+## Decisiones MVP v2
+
+- Identificacion no reutilizable.
+- Estado operativo derivado de eventos.
+- Parentesco opcional.
+- Sexo desconocido permitido, no apto para reproduccion.
+- Salidas inmutables y anulables.

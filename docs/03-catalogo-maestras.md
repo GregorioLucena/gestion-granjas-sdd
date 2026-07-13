@@ -149,31 +149,35 @@ Accion controlada por seguridad.
 
 Ejemplos:
 
-- `animales.crear`
+- `animales.ver`, `animales.crear`, `animales.editar`
+- `animales.eventos.crear`, `animales.eventos.anular`
 - `lotes.editar`
-- `sanidad.crear`
+- `sanidad.ver`, `sanidad.crear`, `sanidad.anular`
+- `sanidad.casos.seguir`, `sanidad.veterinario_asignar`
 - `inventario.ver`
 - `inventario.alimentos.crear`
 - `inventario.movimientos.crear`
 - `inventario.ajustes.crear`
 - `alimentacion.consumo.crear`
 - `alimentacion.consumo.anular`
-- `reproduccion.montas.ver`
-- `reproduccion.montas.crear`
-- `reproduccion.montas.editar`
-- `reproduccion.montas.anular`
+- `ubicaciones.movimientos.ver`
+- `ubicaciones.movimientos.crear`
+- `ubicaciones.movimientos.anular`
+- `reproduccion.servicios.ver`
+- `reproduccion.servicios.crear`
+- `reproduccion.servicios.anular`
 - `reproduccion.gestacion.ver`
-- `reproduccion.gestacion.crear`
-- `reproduccion.gestacion.editar`
+- `reproduccion.gestacion.confirmar`
 - `reproduccion.gestacion.controlar`
+- `reproduccion.gestacion.finalizar`
 - `reproduccion.gestacion.anular`
 - `reproduccion.partos.ver`
 - `reproduccion.partos.crear`
-- `reproduccion.partos.editar`
 - `reproduccion.partos.anular`
-- `reproduccion.destete.ver`
+- `reproduccion.lactancia.ver`
+- `reproduccion.lactancia.bajas_crear`
+- `reproduccion.lactancia.bajas_anular`
 - `reproduccion.destete.crear`
-- `reproduccion.destete.editar`
 - `reproduccion.destete.anular`
 - `engorde.ver`
 - `engorde.iniciar`
@@ -182,7 +186,6 @@ Ejemplos:
 - `engorde.anular`
 - `pesos.ver`
 - `pesos.crear`
-- `pesos.editar`
 - `pesos.anular`
 - `reportes.reproduccion.ver`
 - `reportes.alimentacion.ver`
@@ -205,9 +208,9 @@ Ejemplos:
 - Aviar.
 - Cunicula.
 
-Alcance recomendado: global del sistema, con posibilidad futura de extension por compania.
+Alcance: por compania, con valores iniciales sugeridos.
 
-Puede incluir configuraciones reproductivas generales, como duracion esperada de gestacion en dias cuando aplique.
+Puede incluir `duracionGestacionDias`, entero positivo y opcional.
 
 ### Raza
 
@@ -220,7 +223,7 @@ Ejemplos:
 - Landrace.
 - Holstein.
 
-Alcance recomendado: global del sistema o por compania.
+Alcance: por compania.
 
 ### Sexo
 
@@ -249,6 +252,11 @@ Ejemplos:
 
 Alcance recomendado: por compania, con valores iniciales sugeridos por el sistema.
 
+Para reglas que no deben depender del nombre visible, puede incluir `codigoSistema`
+inmutable. En MVP v1 la finalidad que habilita el proceso de engorde usa
+`codigoSistema = ENGORDE`. MVP v2 agrega `REPRODUCCION` y `CRIA`. El nombre puede editarse
+sin romper reglas.
+
 ### Etapa productiva
 
 Fase productiva de un animal o lote.
@@ -276,21 +284,21 @@ Ejemplos:
 - Muerto.
 - Descartado.
 
-Alcance recomendado: global del sistema.
+Alcance: enum global derivado de eventos de ciclo; no es ABM.
 
-### Causa de baja de animal
+### Motivos de ciclo del animal
 
-Motivo por el que un animal deja de estar activo.
+Catalogos por compania separados para venta, muerte y descarte.
 
 Ejemplos:
 
 - Venta.
 - Muerte.
 - Descarte reproductivo.
-- Traslado.
-- Robo o perdida.
+- Otro.
 
-Alcance recomendado: por compania.
+Cada motivo conserva nombre, descripcion y estado de registro. Se usa en los eventos
+terminales de `002-gestion-animales.md`.
 
 ## Maestras de lotes
 
@@ -348,21 +356,24 @@ Ejemplos:
 
 Alcance recomendado: por compania.
 
+No se usa como catalogo separado en MVP v1. `012-engorde-lotes.md` cubre estas disminuciones
+mediante `Motivo de baja de engorde`. Esta maestra general queda reservada para futuros
+movimientos de lotes fuera de un proceso de engorde.
+
 ## Maestras sanitarias
 
-### Tipo de evento sanitario
+### Tipo de evento sanitario (enum)
 
 Clasifica eventos sanitarios.
 
 Ejemplos:
 
 - Vacunacion.
-- Enfermedad.
 - Diagnostico.
 - Tratamiento.
 - Control preventivo.
 
-Alcance recomendado: global del sistema.
+Alcance: enum global fijo con `codigoSistema`; no es ABM.
 
 ### Enfermedad
 
@@ -416,6 +427,9 @@ Ejemplos:
 - Vitamina.
 
 Alcance recomendado: por compania.
+
+Debe permitir `diasRetiroDefault` opcional, entero y no negativo. El tratamiento conserva
+el valor aplicado como snapshot historico.
 
 ### Via de aplicacion
 
@@ -539,19 +553,16 @@ Ejemplos:
 
 Alcance recomendado: global del sistema.
 
-### Estado de servicio reproductivo
+### Estado de ciclo reproductivo
 
-Estado posterior a una monta o inseminacion.
+Enum global derivado de eventos, no ABM administrable:
 
-Ejemplos:
-
-- Registrado.
 - Pendiente de confirmacion.
-- Confirmado gestante.
+- Gestante.
+- En lactancia.
 - Fallido.
-- Repetido.
-
-Alcance recomendado: global del sistema.
+- Cerrado por destete.
+- Cerrado sin crias vivas.
 
 ### Metodo de confirmacion de gestacion
 
@@ -572,12 +583,11 @@ Resultado del control de gestacion.
 
 Ejemplos:
 
-- Gestante.
-- No gestante.
-- Dudoso.
-- Repetir control.
+- Positiva.
+- Negativa.
+- Dudosa.
 
-Alcance recomendado: global del sistema.
+Alcance: enum global con `codigoSistema`.
 
 ### Estado de gestacion
 
@@ -585,13 +595,11 @@ Estado operativo de una gestacion.
 
 Ejemplos:
 
-- Pendiente de confirmacion.
 - Activa.
 - Fallida.
-- Cerrada por parto.
-- Anulada.
+- Finalizada por parto.
 
-Alcance recomendado: global del sistema.
+Alcance: enum global derivado. `Anulada` es estado de auditoria, no estado operativo.
 
 ### Causa de fallo reproductivo
 
@@ -620,42 +628,15 @@ Ejemplos:
 
 Alcance recomendado: global del sistema o por compania.
 
-### Estado de parto
+### Estado de lactancia de cria
 
-Estado operativo de un parto registrado.
+Enum global derivado, separado del estado operativo del animal:
 
-Ejemplos:
-
-- Registrado.
-- Anulado.
-- Cerrado para destete.
-
-Alcance recomendado: global del sistema.
-
-### Estado de destete
-
-Estado operativo de un destete registrado.
-
-Ejemplos:
-
-- Registrado.
-- Anulado.
-
-Alcance recomendado: global del sistema.
-
-### Estado de cria
-
-Estado de una cria al nacer o durante seguimiento.
-
-Ejemplos:
-
-- Viva.
-- Muerta.
-- Debil.
-- Adoptada.
+- En lactancia.
+- Baja.
 - Destetada.
 
-Alcance recomendado: global del sistema.
+Parto y destete son eventos vigentes o anulados; no requieren maestras de estado.
 
 ### Causa de mortalidad de cria
 
@@ -779,17 +760,31 @@ Alcance recomendado: global del sistema.
 
 ## Maestras de controles de peso y engorde
 
-### Tipo de control de peso
+### Momento del control de peso
 
-Clasifica controles de peso.
+Clasifica la posicion del control dentro del ciclo de engorde.
 
 Ejemplos:
 
-- Individual.
-- Promedio de lote.
-- Muestra de lote.
+- Inicial.
+- Intermedio.
+- Final.
 
-Alcance recomendado: global del sistema.
+Alcance MVP v1: enum global del sistema; no administrable por ABM.
+
+### Modalidad del control de peso
+
+Indica si el promedio corresponde al lote completo o a una muestra.
+
+Ejemplos:
+
+- Promedio de lote.
+- Muestra.
+
+Alcance MVP v1: enum global del sistema; no administrable por ABM.
+
+Momento y modalidad son dimensiones distintas: un control inicial o final tambien puede
+provenir de una muestra.
 
 ### Metodo de pesaje
 
@@ -799,22 +794,39 @@ Ejemplos:
 
 - Bascula individual.
 - Bascula de corral.
-- Estimado visual.
-- Muestra representativa.
+- Estimacion visual.
 
 Alcance recomendado: por compania.
 
-### Motivo de cierre de lote
+En MVP v1 es obligatorio. `Muestra` no es un metodo: se representa mediante la modalidad.
 
-Motivo por el que termina un lote.
+### Motivo de cierre de engorde
+
+Motivo productivo por el que termina el proceso y se cierra el lote.
 
 Ejemplos:
 
 - Venta.
-- Traslado.
 - Sacrificio.
-- Fusion.
-- Cancelacion.
+- Fin de ciclo.
+- Otro.
+
+Alcance recomendado: por compania.
+
+### Motivo de baja de engorde
+
+Motivo por el que disminuye la cantidad actual durante el proceso.
+
+Campos adicionales:
+
+- `cuentaComoMortalidad`: booleano obligatorio usado por reportes.
+
+Ejemplos:
+
+- Muerte (`cuentaComoMortalidad = true`).
+- Descarte (`false`).
+- Venta parcial (`false`).
+- Otra salida (`false`).
 
 Alcance recomendado: por compania.
 
@@ -838,61 +850,29 @@ No son maestras:
 
 Estos son registros operativos, eventos o movimientos con fecha e historial.
 
-## Prioridad para el MVP
+## Prioridad por version
 
-### Imprescindibles
+### MVP v1
 
-- Compania.
-- Granja.
-- Perfil.
-- Permiso.
-- Estado de registro.
-- Tipo de animal.
-- Raza.
-- Sexo.
-- Finalidad productiva.
-- Tipo de ubicacion.
-- Ubicacion.
-- Estado de animal.
-- Estado de lote.
-- Tipo de evento sanitario.
-- Enfermedad.
-- Vacuna.
-- Medicamento o producto sanitario.
-- Via de aplicacion.
-- Unidad de dosis.
-- Tipo de alimento.
-- Presentacion de alimento.
-- Unidad de medida.
-- Tipo de movimiento de inventario.
-- Motivo de movimiento de ubicacion.
+- Organizacion, seguridad y estado de registro.
+- Tipo de animal, raza, sexo, finalidad, ubicacion y estado de lote.
+- Alimentos, presentaciones, unidades, proveedores, almacenes y movimientos de inventario.
+- Motivo de movimiento de ubicacion, si se implementa spec `006`.
+- Metodo, momento y modalidad de pesaje.
+- Motivos de cierre y baja de engorde.
 
-### Recomendadas para primera version productiva
+### MVP v2
 
-- Etapa productiva.
-- Causa de baja de animal.
-- Tipo de lote.
-- Causa de baja en lote.
-- Sintoma.
-- Frecuencia de tratamiento.
-- Gravedad sanitaria.
-- Estado de caso sanitario.
-- Resultado de tratamiento.
-- Motivo de control sanitario.
-- Proveedor.
-- Motivo de ajuste de inventario.
-- Tipo de servicio reproductivo.
-- Resultado de confirmacion de gestacion.
-- Tipo de parto.
-- Estado de cria.
+- Motivos de venta, muerte y descarte de animal.
+- Tipo de evento sanitario, enfermedad, vacuna y medicamento.
+- Via/unidad de dosis, gravedad, estado de caso y motivo de control.
+- Tipo de servicio, resultado/metodo de confirmacion y causa de fallo.
+- Tipo de parto, estado de lactancia y causa de mortalidad de cria.
 
 ### Posteriores
 
+- Etapa productiva y tipo de lote si aparece una regla concreta que los requiera.
+- Sintomas, frecuencia/resultado de tratamiento como catalogos separados.
 - Protocolo sanitario.
-- Metodo de confirmacion de gestacion.
-- Causa de fallo reproductivo.
-- Causa de mortalidad de cria.
-- Tipo de control de peso.
-- Metodo de pesaje.
-- Motivo de cierre de lote.
-- Moneda, si el MVP no calcula costos multi-moneda.
+- Causa general de baja en lote fuera de engorde.
+- Moneda y costeo multi-moneda.

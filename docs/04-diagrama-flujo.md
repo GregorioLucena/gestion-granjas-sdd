@@ -41,9 +41,7 @@ flowchart TD
     F --> F5[Existencias]
 
     F --> G[Consumo de alimento]
-    D1 --> G
     D2 --> G
-    G --> G1[Consumo por animal]
     G --> G2[Consumo por lote]
     G --> G3[Descuento de inventario]
 
@@ -87,21 +85,25 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    A[Animal hembra reproductora] --> B[Servicio reproductivo]
-    B --> B1[Monta natural]
-    B --> B2[Inseminacion artificial]
-    B --> C[Fecha probable de parto]
-    C --> D[Confirmacion de gestacion]
-    D -->|Gestante| E[Gestacion activa]
-    D -->|No gestante o fallo| F[Fallo reproductivo]
+    A[Animal hembra reproductora] --> B[Ciclo reproductivo]
+    B --> B1[Uno o varios servicios]
+    B1 --> B2[Monta o inseminacion]
+    B2 --> C[Fecha probable de parto]
+    C --> D[Confirmacion]
+    D -->|Dudosa| C
+    D -->|Positiva| E[Gestacion activa]
+    D -->|Negativa| F[Fallo no gestante]
     E --> G[Controles de gestacion]
+    G -->|Aborto o reabsorcion| F
     G --> H[Parto]
+    B -->|Parto no confirmado| H
     H --> H1[Nacidos vivos]
     H --> H2[Nacidos muertos]
     H --> H3[Crias debiles]
-    H --> I[Destete]
+    H1 --> I0[Bajas de lactancia]
+    H --> I[Destete total]
     I --> I1[Cantidad destetada]
-    I --> I2[Mortalidad durante lactancia]
+    I0 --> I2[Mortalidad durante lactancia]
     I --> I3[Peso al destete]
     I --> J[Historial reproductivo consolidado]
 ```
@@ -110,22 +112,27 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    A[Lote activo] --> B[Inicio de engorde]
-    B --> C[Consumo de alimento]
-    C --> C1[Descuento de inventario]
-    B --> D[Controles de peso]
-    B --> E[Bajas de engorde]
-    D --> F[Ganancia de peso]
-    C --> G[Consumo acumulado]
-    E --> H[Mortalidad]
-    F --> I[Cierre de engorde]
-    G --> I
-    H --> I
-    I --> J[Reporte de engorde]
-    J --> J1[Duracion]
-    J --> J2[Peso final]
-    J --> J3[Conversion alimenticia basica]
-    J --> J4[Resultado productivo]
+    LoteActivo["Lote activo con finalidad Engorde"] --> Inicio[Inicio manual de engorde]
+    Inicio --> PesoInicial["Control inicial opcional"]
+    Inicio --> Proceso[Engorde en curso]
+    Proceso --> Consumo[Consumo de alimento]
+    Consumo --> Inventario[Descuento de inventario]
+    Proceso --> PesoIntermedio[Controles intermedios]
+    Proceso --> Baja[Bajas]
+    Baja --> Cantidad["Cantidad actual calculada"]
+    Baja --> Mortalidad["Mortalidad si el motivo aplica"]
+    Cantidad --> Cierre[Cierre de engorde]
+    PesoIntermedio --> Cierre
+    Consumo --> Cierre
+    Cierre --> PesoFinal["Control final opcional"]
+    Cierre --> LoteCerrado[Lote cerrado]
+    Cierre --> Reporte[Reporte de engorde]
+    Cierre -->|"Anulacion con motivo"| Reapertura["Engorde y lote reabiertos"]
+    Reapertura --> Proceso
+    Reporte --> Duracion[Duracion]
+    Reporte --> Ganancia[Ganancia de peso]
+    Reporte --> Conversion[Conversion alimenticia basica]
+    Reporte --> Resultado[Resultado productivo]
 ```
 
 ## Flujo de alimentacion e inventario
@@ -135,13 +142,11 @@ flowchart TD
     A[Alimento maestro] --> B[Entrada de inventario]
     B --> C[Existencia por almacen]
     C --> D[Consumo de alimento]
-    D --> D1[Animal individual]
     D --> D2[Lote]
     D --> E[Movimiento de inventario tipo consumo]
     E --> F[Existencia actualizada]
     D --> G[Reporte de alimentacion]
     F --> G
-    G --> G1[Consumo por animal]
     G --> G2[Consumo por lote]
     G --> G3[Consumo por alimento]
     G --> G4[Costos]
@@ -154,11 +159,12 @@ flowchart TD
     A[Animal o lote] --> B[Veterinario tratante]
     A --> C[Evento sanitario]
     C --> C1[Vacunacion]
-    C --> C2[Enfermedad o diagnostico]
+    C --> C2[Diagnostico y caso]
     C --> C3[Tratamiento]
     C --> C4[Control preventivo]
     C2 --> D[Casos activos]
     C3 --> D
+    C3 --> R[Periodo de retiro]
     C --> E[Historial sanitario consolidado]
     B --> E
     E --> F[Reporte sanitario]
@@ -166,6 +172,7 @@ flowchart TD
     F --> F2[Enfermedades]
     F --> F3[Tratamientos]
     F --> F4[Eventos por veterinario]
+    F --> F5[Proximas vacunaciones y retiros]
 ```
 
 ## Reglas transversales

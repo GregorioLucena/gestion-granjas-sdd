@@ -2,228 +2,295 @@
 
 ## Estado
 
-Borrador inicial
+Lista para implementar MVP v2 (2026-07-13)
 
 ## Objetivo
 
-Permitir registrar y consultar la informacion sanitaria de animales individuales y lotes, incluyendo veterinario tratante, vacunaciones, enfermedades, diagnosticos, tratamientos y controles preventivos.
-
-Esta especificacion busca mantener historial sanitario trazable por granja, animal, lote y veterinario responsable.
+Mantener historial sanitario trazable de animales y lotes mediante vacunaciones,
+diagnosticos, tratamientos, controles y asignaciones de veterinario tratante.
 
 ## Dependencias
 
-Esta especificacion depende de:
-
 - `000-configuracion-base.md`
-- `docs/03-catalogo-maestras.md`
 - `001-usuarios-perfiles.md`
 - `002-gestion-animales.md`
 - `003-gestion-lotes.md`
+- `docs/03-catalogo-maestras.md`
 - `docs/decisions/0005-auditoria-y-trazabilidad.md`
 
-## Alcance
+## Alcance MVP v2
 
 Incluye:
 
-- Asignacion de veterinario tratante a animales individuales.
-- Asignacion de veterinario tratante a lotes.
-- Registro de vacunaciones.
-- Registro de enfermedades o diagnosticos.
-- Registro de tratamientos.
-- Registro de controles sanitarios preventivos.
-- Consulta de historial sanitario por animal.
-- Consulta de historial sanitario por lote.
-- Consulta de eventos sanitarios por veterinario.
+- Veterinario tratante historico para animal o lote.
+- Vacunacion.
+- Diagnostico/caso sanitario.
+- Tratamiento vinculado opcionalmente a un diagnostico.
+- Control preventivo.
+- Eventos sobre un animal o un lote.
+- Cantidad tratada en eventos de lote.
+- Periodo de retiro y bloqueo de salida para consumo.
+- Anulacion con motivo.
+- Catalogos sanitarios.
 
-No incluye en esta version:
+No incluye:
 
-- Inventario de medicamentos.
-- Compras de medicamentos.
-- Alertas automaticas de proximas vacunas.
-- Recetas digitales.
-- Integraciones con laboratorios.
-- Auditoria sanitaria avanzada.
+- Inventario de medicamentos/vacunas.
+- Eventos para varios lotes a la vez.
+- Clonar eventos del lote a cada animal.
+- Alertas/notificaciones automaticas.
+- Recetas, laboratorios, costos o autoridades sanitarias.
 
-## Conceptos principales
+## Modelo conceptual
 
-### Veterinario
+### Sujeto sanitario
 
-Usuario del sistema con perfil global `Veterinario` o con permisos sanitarios equivalentes. Puede quedar asignado como veterinario tratante de animales o lotes, y puede ser responsable de eventos sanitarios.
-
-### Veterinario tratante
-
-Veterinario responsable del seguimiento sanitario de un animal o lote durante un periodo determinado.
+Cada evento aplica exactamente a un `animalId` o un `loteId`, nunca a ambos. Un evento de
+lote es un solo registro y conserva `cantidadTratada`; no crea eventos individuales.
 
 ### Evento sanitario
 
-Registro fechado relacionado con la salud de un animal individual o lote.
+Cabecera inmutable con tenant, granja, sujeto, tipo, fecha, responsable, observaciones y
+auditoria. Tipos:
 
-Tipos iniciales:
+- `VACUNACION`
+- `DIAGNOSTICO`
+- `TRATAMIENTO`
+- `CONTROL_PREVENTIVO`
 
-- Vacunacion.
+Cada tipo tiene detalle propio.
+
+### Caso sanitario
+
+Un diagnostico abre un caso con estado:
+
+`ACTIVO | EN_TRATAMIENTO | RECUPERADO | CRONICO | FALLECIDO | CERRADO`.
+
+Cambios de estado son seguimientos fechados, no edicion destructiva.
+
+### Periodo de retiro
+
+Intervalo hasta el cual un animal o lote tratado no puede venderse o salir para consumo. El
+tratamiento conserva la fecha calculada como dato historico.
+
+## Maestras
+
+Por compania:
+
+- Vacuna.
 - Enfermedad.
-- Diagnostico.
-- Tratamiento.
-- Control preventivo.
+- Medicamento/producto sanitario, con `diasRetiroDefault`.
+- Via de aplicacion.
+- Unidad de dosis.
+- Gravedad.
+- Motivo de control.
 
-### Vacunacion
+Enums globales:
 
-Evento sanitario donde se registra la aplicacion de una vacuna a un animal o lote.
+- Tipo de evento sanitario.
+- Estado de caso.
 
-### Enfermedad o diagnostico
+Son valores fijos con `codigoSistema`, no maestras ABM.
 
-Evento sanitario donde se registra una condicion detectada, sintomas, diagnostico y estado del caso.
+En MVP son catalogos; no controlan existencias.
 
-### Tratamiento
+## Veterinario tratante
 
-Evento sanitario donde se registra el uso de medicamentos, dosis, frecuencia, duracion y resultado esperado o real.
+Datos: sujeto, veterinario, fecha inicio, fecha fin opcional y observaciones.
 
-### Control sanitario
+Reglas:
 
-Revision preventiva o seguimiento general realizado sobre un animal o lote.
+1. Veterinario es usuario activo de la misma compania con perfil `Veterinario` o permisos
+   sanitarios equivalentes.
+2. La asignacion es opcional.
+3. Solo existe una asignacion vigente por sujeto.
+4. Los intervalos son `[fechaInicio, fechaFin)`. Al reemplazar, `fechaFin` anterior toma la
+   nueva `fechaInicio`, sin solapamiento.
+5. Fechas no se solapan ni preceden alta del sujeto.
+6. El historial no se elimina.
 
-## Datos requeridos
+## Datos por evento
 
-### Asignacion de veterinario tratante
+### Comunes
 
-- Compania.
-- Granja.
-- Animal o lote.
-- Veterinario.
-- Fecha de inicio.
-- Fecha de fin opcional.
-- Estado activo/inactivo.
+- `granjaId`, sujeto y `fecha`.
+- `veterinarioResponsableId` segun tipo.
+- `cantidadTratada` obligatoria para lote y no mayor que cantidad disponible en esa fecha.
 - Observaciones opcionales.
 
-### Evento sanitario
-
-- Compania.
-- Granja.
-- Tipo de evento sanitario.
-- Fecha del evento.
-- Animal o lote.
-- Veterinario responsable.
-- Descripcion u observaciones.
-- Estado del evento.
-
 ### Vacunacion
 
-- Evento sanitario.
-- Vacuna.
-- Dosis opcional.
-- Unidad de dosis opcional.
+- `vacunaId`.
+- Dosis y unidad, ambas presentes o ausentes.
 - Via de aplicacion opcional.
-- Proxima fecha sugerida opcional.
+- Proxima fecha sugerida opcional y posterior al evento.
 
-### Enfermedad o diagnostico
+### Diagnostico
 
-- Evento sanitario.
-- Enfermedad opcional.
-- Sintomas opcionales.
-- Diagnostico.
+- `enfermedadId`.
+- Descripcion/hallazgos.
 - Gravedad opcional.
-- Estado del caso: activo, en tratamiento, recuperado, cronico, fallecido.
+- Estado inicial `ACTIVO`.
 
 ### Tratamiento
 
-- Evento sanitario.
-- Enfermedad o diagnostico relacionado opcional.
-- Medicamento o producto sanitario.
-- Dosis opcional.
-- Frecuencia opcional.
-- Fecha de inicio.
-- Fecha de fin opcional.
+- `diagnosticoId` opcional y del mismo sujeto.
+- `medicamentoId`.
+- Dosis/unidad y frecuencia opcionales.
+- Fecha inicio y fin planificada opcional.
 - Resultado opcional.
+- `diasRetiroAplicado` y `fechaFinRetiro` calculada.
 
-### Control sanitario
+### Control preventivo
 
-- Evento sanitario.
-- Motivo del control.
-- Hallazgos opcionales.
-- Recomendaciones opcionales.
+- `motivoControlId`.
+- Hallazgos y recomendaciones opcionales.
 
-## Reglas de negocio
+## Reglas
 
-- Todo evento sanitario debe pertenecer a una compania y una granja.
-- Todo evento sanitario debe aplicar a un animal individual o a un lote.
-- Un evento sanitario no debe aplicar simultaneamente a animal y lote, salvo que una especificacion futura defina eventos masivos mixtos.
-- El animal o lote del evento debe pertenecer a la misma granja del evento.
-- El veterinario responsable debe ser un usuario activo de la misma compania.
-- El veterinario responsable debe tener perfil `Veterinario` o permisos sanitarios equivalentes.
-- Un usuario solo puede registrar eventos sanitarios en granjas a las que tiene acceso.
-- Un usuario solo puede registrar eventos sanitarios si tiene el permiso correspondiente.
-- Un animal puede tener un veterinario tratante actual.
-- Un lote puede tener un veterinario tratante actual.
-- Solo debe existir una asignacion activa de veterinario tratante por animal.
-- Solo debe existir una asignacion activa de veterinario tratante por lote.
-- Al asignar un nuevo veterinario tratante, la asignacion anterior debe cerrarse con fecha de fin.
-- Las vacunaciones deben quedar en el historial sanitario del animal o lote.
-- Las enfermedades y tratamientos deben quedar relacionados cuando el tratamiento responda a un diagnostico.
-- Vacunas, enfermedades, sintomas, medicamentos, vias de aplicacion, unidades de dosis, gravedades, estados y motivos de control deben venir de maestras configuradas.
-- Los eventos sanitarios no deben eliminarse fisicamente si ya forman parte del historial; deben anularse segun `0005-auditoria-y-trazabilidad.md`.
+1. Todo dato filtra por tenant y granja permitida.
+2. Sujeto debe pertenecer a la granja y estar operativo al momento del evento.
+3. Fechas no pueden ser futuras ni anteriores al alta/inicio del sujeto.
+4. Diagnostico y tratamiento exigen veterinario responsable.
+5. Vacunacion y control permiten veterinario opcional; `createdBy` siempre identifica a
+   quien registro.
+6. Catalogos deben estar activos al crear; historiales conservan inactivos.
+7. Tratamiento vinculado debe corresponder al mismo sujeto y caso no anulado.
+8. `fechaFin >= fechaInicio`.
+9. Retiro usa dias informados o default del medicamento; no puede ser negativo.
+10. La mayor fecha de retiro vigente del sujeto bloquea venta/salida para consumo; no
+    bloquea registrar muerte o descarte.
+11. Eventos registrados son inmutables.
+12. Correcciones se hacen anulando con motivo y creando otro evento.
+13. Anular un diagnostico con tratamientos vigentes se bloquea hasta anular estos.
+14. Anular tratamiento recalcula la restriccion de retiro.
+15. Evento anulado no participa en historial operativo, casos ni reportes, pero queda en
+    auditoria.
+16. Para evento de lote, la cantidad disponible en `fecha` es:
 
-## Permisos requeridos
+```text
+con engorde vigente para esa fecha:
+  cantidadInicialEngorde - SUM(bajas vigentes con fecha <= evento)
+sin engorde:
+  cantidadInicialLote
+```
 
-- `sanidad.ver`: consultar historial sanitario.
-- `sanidad.crear`: registrar eventos sanitarios.
-- `sanidad.editar`: modificar eventos sanitarios permitidos.
-- `sanidad.tratamientos.administrar`: administrar tratamientos.
-- `sanidad.veterinario_asignar`: asignar veterinario tratante.
+   Un lote cerrado no recibe eventos nuevos; el calculo historico se usa solo para fechas en
+   las que estaba activo. Engordes y bajas anulados se ignoran.
+
+## Permisos
+
+- `sanidad.ver`
+- `sanidad.crear`
+- `sanidad.anular`
+- `sanidad.casos.seguir`
+- `sanidad.veterinario_asignar`
+- `maestras.administrar`
+
+No existe `sanidad.editar`.
+
+## API
+
+| Metodo | Ruta |
+|--------|------|
+| `GET` | `/sanidad/eventos` |
+| `POST` | `/sanidad/eventos` |
+| `GET` | `/sanidad/eventos/:id` |
+| `POST` | `/sanidad/eventos/:id/anular` |
+| `POST` | `/sanidad/diagnosticos/:id/seguimientos` |
+| `GET` | `/sanidad/historial/animales/:animalId` |
+| `GET` | `/sanidad/historial/lotes/:loteId` |
+| `GET/POST/PATCH` | `/sanidad/veterinarios-tratantes` |
+
+Listado: granja y periodo obligatorios; sujeto, tipo, veterinario, enfermedad, vacuna y
+estado de caso opcionales; paginado.
+
+Campos de tenant, auditoria, estado de anulacion y retiro calculado son de servidor.
+
+## UX
+
+Hub `/sanidad` con accesos a eventos, casos, proximas vacunaciones y veterinarios tratantes.
+Un formulario cambia campos segun tipo sin mostrar secciones irrelevantes.
+
+- Granja y sujeto visibles.
+- Eventos en linea de tiempo.
+- Casos activos destacados.
+- Retiro vigente con fecha y bloqueo explicito.
+- Anulacion confirmada con motivo y toast.
+- Carga/error/empty segun guia UX.
 
 ## Criterios de aceptacion
 
-### CA-001: Asignar veterinario tratante a animal
+### CA-001: Asignar veterinario
 
-Dado un animal activo y un usuario veterinario activo de la misma compania, cuando un usuario con permisos asigna el veterinario tratante, entonces el animal queda asociado a ese veterinario desde la fecha indicada.
+Dado veterinario valido, cuando se asigna, entonces se cierra cualquier asignacion vigente
+sin solapamiento y se conserva historial.
 
-### CA-002: Asignar veterinario tratante a lote
+### CA-002: Registrar vacunacion
 
-Dado un lote activo y un usuario veterinario activo de la misma compania, cuando un usuario con permisos asigna el veterinario tratante, entonces el lote queda asociado a ese veterinario desde la fecha indicada.
+Dado sujeto y vacuna validos, cuando se registra, entonces queda un evento auditable con
+proxima fecha opcional.
 
-### CA-003: Reemplazar veterinario tratante
+### CA-003: Registrar diagnostico
 
-Dado un animal o lote con veterinario tratante activo, cuando se asigna un nuevo veterinario tratante, entonces la asignacion anterior queda cerrada y la nueva queda activa.
+Dado veterinario valido, cuando registra diagnostico, entonces se abre caso activo.
 
-### CA-004: Registrar vacunacion
+### CA-004: Registrar tratamiento
 
-Dado un animal o lote activo, cuando un usuario con permiso `sanidad.crear` registra una vacunacion con datos validos, entonces la vacunacion queda en el historial sanitario correspondiente.
+Dado medicamento y veterinario validos, cuando registra tratamiento, entonces se conserva
+detalle, vinculo opcional y retiro calculado.
 
-### CA-005: Registrar enfermedad o diagnostico
+### CA-005: Evento por lote
 
-Dado un animal o lote activo, cuando un usuario con permiso `sanidad.crear` registra un diagnostico, entonces el caso sanitario queda disponible para seguimiento.
+Dado lote con cantidad disponible, cuando se registra cantidad tratada valida, entonces se
+crea un solo evento de lote.
 
-### CA-006: Registrar tratamiento asociado a diagnostico
+### CA-006: Bloquear salida por retiro
 
-Dado un diagnostico activo, cuando un usuario con permiso registra un tratamiento relacionado, entonces el tratamiento queda vinculado al diagnostico.
+Dado retiro vigente, cuando se intenta venta/salida para consumo, entonces se rechaza con
+fecha final.
 
-### CA-007: Consultar historial sanitario de animal
+### CA-007: Inmutabilidad
 
-Dado un animal registrado, cuando un usuario con permiso consulta su historial sanitario, entonces el sistema muestra vacunaciones, diagnosticos, tratamientos, controles y veterinario tratante.
+Dado evento registrado, cuando se intenta editar o eliminar, entonces se rechaza.
 
-### CA-008: Consultar historial sanitario de lote
+### CA-008: Anular evento
 
-Dado un lote registrado, cuando un usuario con permiso consulta su historial sanitario, entonces el sistema muestra vacunaciones, diagnosticos, tratamientos, controles y veterinario tratante.
+Dado evento sin dependencias bloqueantes, cuando se anula con motivo, entonces se excluye de
+operacion y reportes, conservando auditoria.
 
-### CA-009: Validar acceso por granja
+### CA-009: Proteger diagnostico
 
-Dado un usuario sin acceso a la granja del animal o lote, cuando intenta registrar o consultar eventos sanitarios, entonces el sistema debe impedir la accion.
+Dado diagnostico con tratamientos vigentes, cuando se intenta anular, entonces se rechaza.
 
-### CA-010: Validar veterinario responsable
+### CA-010: Respetar tenant
 
-Dado un usuario que no tiene perfil `Veterinario` ni permisos sanitarios equivalentes, cuando se intenta asignarlo como veterinario responsable, entonces el sistema debe rechazarlo.
+Dado usuario sin acceso a granja, cuando consulta o muta, entonces no se exponen datos.
+
+## Verificacion
+
+- Unitarias de tipo/detalle, fechas, cantidad y retiro.
+- Integracion de diagnostico, tratamiento, anulacion y bloqueo.
+- Asignaciones sin solapamiento.
+- Multi-tenant y permisos.
+- Prueba manual mobile-first.
 
 ## Preguntas abiertas
 
-- Los medicamentos y vacunas tendran tambien control de inventario sanitario o solo catalogo maestro en el MVP?
-- Se permitiran eventos sanitarios masivos para varios lotes o varias ubicaciones?
-- Las proximas vacunas generaran alertas desde el MVP o en una fase posterior?
-- El veterinario tratante sera obligatorio para animales reproductores o siempre opcional?
-- Los tratamientos requeriran control de retiro antes de venta o consumo?
+No quedan preguntas que bloqueen MVP v2.
 
-## Decisiones tomadas
+Futuro:
 
-- El veterinario sera un tipo/perfil de usuario del sistema.
-- Animales y lotes podran tener veterinario tratante.
-- La sanidad se manejara como modulo separado, no dentro de gestion de animales.
-- Los eventos sanitarios podran aplicar a animal individual o lote.
-- El historial sanitario sera parte importante de la trazabilidad productiva.
+- Inventario sanitario y vencimientos.
+- Eventos masivos.
+- Alertas y notificaciones.
+- Costos e integraciones.
+
+## Decisiones MVP v2
+
+- Veterinario obligatorio solo en diagnostico/tratamiento.
+- Eventos inmutables.
+- Evento de lote unico.
+- Retiro con bloqueo.
+- Catalogos sin inventario.
+- Proximas fechas visibles, sin alertas automaticas.

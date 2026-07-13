@@ -2,6 +2,9 @@
 
 Este documento traduce el SDD funcional cerrado en decisiones de implementacion concretas: arquitectura, modelo de datos, permisos, auditoria y estructura del proyecto.
 
+Cuando una ruta, entidad o regla difiera de una spec refinada o ADR posterior, prevalece la
+spec/ADR. El diseno de MVP v2 esta en `15-diseno-tecnico-mvp-v2.md`.
+
 ## Referencias
 
 - Cierre SDD: `06-cierre-sdd.md`
@@ -12,7 +15,7 @@ Este documento traduce el SDD funcional cerrado en decisiones de implementacion 
 - Cierre diseno: `10-cierre-diseno-tecnico.md`
 - Guia UX/UI: `11-guia-ux-ui.md`
 - Git y calidad: `12-convenciones-git-y-calidad.md`
-- Modelo TypeORM: `src/database/entities/`
+- Modelo TypeORM: `packages/database/src/entities/`
 
 ## Objetivo tecnico del MVP v1
 
@@ -26,36 +29,18 @@ Con seguridad multi-compania, acceso por granja, auditoria transversal y UI mobi
 
 ## Arquitectura
 
-### Enfoque: monolito modular con capa de servicios
+### Enfoque: monorepo con API modular
 
 ```text
-┌─────────────────────────────────────────────────────┐
-│  app/ (Next.js App Router)                          │
-│  ├── (auth)/login                                   │
-│  ├── (app)/dashboard, lotes, inventario, reportes   │
-│  └── api/ (Route Handlers — fachada HTTP)           │
-├─────────────────────────────────────────────────────┤
-│  modules/ (logica de negocio por dominio)           │
-│  ├── auth/  companias/  granjas/  lotes/            │
-│  ├── inventario/  consumo/  engorde/  pesos/         │
-│  └── reportes/                                      │
-├─────────────────────────────────────────────────────┤
-│  lib/ (infraestructura compartida)                  │
-│  ├── db.ts  auth.ts  permissions.ts  audit.ts     │
-│  └── errors.ts  validation/                         │
-├─────────────────────────────────────────────────────┤
-│  components/ (UI reutilizable mobile-first)         │
-├─────────────────────────────────────────────────────┤
-│  lib/ (db TypeORM, auth, permisos)                  │
-├─────────────────────────────────────────────────────┤
-│  src/database/ + PostgreSQL                         │
-└─────────────────────────────────────────────────────┘
+apps/web (Next.js) -> apps/api (NestJS) -> packages/database -> PostgreSQL
+          |                    |
+          +---- packages/shared+
 ```
 
 ### Reglas arquitectonicas
 
 1. **Sin logica de negocio en componentes React.** Los componentes renderizan y delegan.
-2. **Los Route Handlers solo validan, autorizan y delegan** a servicios en `modules/`.
+2. **Los controllers NestJS validan, autorizan y delegan** a servicios de dominio.
 3. **Toda consulta productiva filtra** por `companiaId` y granjas permitidas del usuario.
 4. **Las validaciones Zod viven en `modules/*/schemas.ts`** y se reutilizan en API y formularios.
 5. **Los reportes son consultas de lectura** sobre eventos no anulados.
@@ -64,20 +49,22 @@ Con seguridad multi-compania, acceso por granja, auditoria transversal y UI mobi
 
 ### Acceso a datos
 
-- Configuracion central en `src/database/data-source.ts`.
-- Entidades agrupadas por dominio en `src/database/entities/`.
-- Los servicios obtienen repositorios via `getDataSource()`:
+- Configuracion, entidades y migraciones en `packages/database/src/`.
+- `apps/api` importa el paquete database mediante exports compilados.
+- Servicios NestJS reciben repositorios por inyeccion:
 
 ```typescript
-const ds = await getDataSource();
-const loteRepo = ds.getRepository(Lote);
+constructor(
+  @InjectRepository(Lote)
+  private readonly loteRepo: Repository<Lote>,
+) {}
 ```
 
 ### Migraciones
 
 - `synchronize: false` siempre en produccion.
-- Migraciones versionadas en `src/database/migrations/`.
-- Generar con TypeORM CLI apuntando a `src/database/typeorm-cli.ts`.
+- Migraciones versionadas en `packages/database/src/migrations/`.
+- Ejecutar mediante scripts del paquete database.
 
 ### Transacciones
 
@@ -85,59 +72,21 @@ Operaciones que afectan multiples tablas (consumo + movimiento inventario, cierr
 
 ### Enums
 
-Los enums de dominio viven en `src/database/enums.ts` y se mapean con `@Column({ type: 'enum', enum: ... })`.
+Enums persistidos viven en `packages/database`; enums y contratos publicos viven en
+`packages/shared`.
 
 ## Estructura de carpetas
 
 ```text
-gestion-granjas/
-├── src/database/
-│   ├── data-source.ts
-│   ├── typeorm-cli.ts
-│   ├── entities/
-│   ├── migrations/
-│   └── seeds/
-├── src/
-│   ├── app/
-│   │   ├── (auth)/
-│   │   │   └── login/page.tsx
-│   │   ├── (app)/
-│   │   │   ├── layout.tsx          # shell mobile-first + selector granja
-│   │   │   ├── dashboard/page.tsx
-│   │   │   ├── configuracion/
-│   │   │   ├── lotes/
-│   │   │   ├── inventario/
-│   │   │   ├── consumo/
-│   │   │   ├── engorde/
-│   │   │   ├── pesos/
-│   │   │   └── reportes/
-│   │   └── api/
-│   │       ├── auth/[...nextauth]/route.ts
-│   │       ├── lotes/route.ts
-│   │       └── ...
-│   ├── modules/
-│   │   ├── auth/
-│   │   │   ├── auth.service.ts
-│   │   │   └── auth.schemas.ts
-│   │   ├── lotes/
-│   │   │   ├── lotes.service.ts
-│   │   │   ├── lotes.schemas.ts
-│   │   │   └── lotes.permissions.ts
-│   │   └── ...
-│   ├── lib/
-│   │   ├── db.ts                   # getDataSource() TypeORM
-│   │   ├── auth.ts
-│   │   ├── permissions.ts
-│   │   ├── audit.ts
-│   │   ├── tenant.ts               # filtros compania/granja
-│   │   └── errors.ts
-│   └── components/
-│       ├── ui/                     # shadcn/ui
-│       ├── forms/
-│       ├── layout/
-│       └── data-display/
+gestion-granjas-sdd/
+├── apps/
+│   ├── api/src/modules/       # NestJS: controllers, services y rules
+│   └── web/src/               # Next.js: app, modules y components
+├── packages/
+│   ├── database/src/          # TypeORM, migraciones y seeds
+│   └── shared/src/            # Zod, tipos, permisos y errores
 ├── docs/
-└── package.json
+└── pnpm-workspace.yaml
 ```
 
 ## Multi-tenancy
@@ -173,13 +122,14 @@ type TenantContext = {
 
 ## Autenticacion
 
-### MVP v1: Auth.js con Credentials Provider
+### MVP v1: JWT en NestJS
 
 | Aspecto | Decision |
 |---------|----------|
 | Identificador | Correo electronico (unico global) |
 | Contrasena | Hash con bcrypt (cost factor 12) |
-| Sesion | Cookie HTTP-only, estrategia JWT o database session |
+| Access token | JWT de vida corta enviado como Bearer token |
+| Renovacion | Refresh token rotado en cookie HttpOnly |
 | Recuperacion | No en v1 — admin restablece contrasena |
 | Estados bloqueados | `INACTIVO` y `BLOQUEADO` no pueden iniciar sesion |
 
@@ -187,13 +137,14 @@ type TenantContext = {
 
 1. Usuario ingresa correo y contrasena.
 2. Sistema valida credenciales y estado activo.
-3. Sesion incluye `userId`, `companiaId`, `granjaIds`, `permisos`.
+3. La API emite access token y refresh token; reconstruye `TenantContext` en cada solicitud.
 4. Si tiene una sola granja, se selecciona automaticamente.
 5. Si tiene varias, muestra selector de granja activa.
 
 ### Extension futura (app movil)
 
-Agregar endpoint `/api/auth/token` con JWT sin cambiar la logica de permisos en `modules/`.
+El mismo contrato JWT puede reutilizarse desde una app movil sin cambiar la logica de
+permisos en los servicios.
 
 ## Convencion de permisos
 
@@ -249,7 +200,7 @@ Campos estandar en entidades TypeORM:
 - `createdAt`, `updatedAt`
 - `createdById`, `updatedById`
 
-### Eventos historicos (movimientos, consumos, pesos, bajas)
+### Eventos historicos (movimientos, consumos, pesos, bajas, cierres)
 
 Campos estandar:
 
@@ -280,10 +231,11 @@ erDiagram
     Usuario }o--o{ Perfil : tiene_via_UsuarioPerfil
     Perfil }o--o{ Permiso : tiene_via_PerfilPermiso
     Lote ||--o{ MovimientoUbicacion : mueve
-    Lote ||--o| EngordeLote : engorda
+    Lote ||--o{ EngordeLote : engorda
     EngordeLote ||--o{ BajaEngorde : registra
+    EngordeLote ||--o{ CierreEngorde : cierra
     Lote ||--o{ ConsumoAlimento : consume
-    Lote ||--o{ ControlPeso : pesa
+    EngordeLote ||--o{ ControlPeso : controla
     Almacen ||--o{ MovimientoInventario : mueve
     Alimento ||--o{ MovimientoInventario : afecta
     ConsumoAlimento }o--|| MovimientoInventario : descuenta
@@ -297,7 +249,7 @@ erDiagram
 |---------|---------|-------|
 | `Compania` | Global | Tenant raiz |
 | `Granja` | Compania | Unidad productiva |
-| `Usuario` | Compania | Login con Auth.js |
+| `Usuario` | Compania | Login JWT en NestJS |
 | `Perfil` | Global | Roles del sistema |
 | `Permiso` | Global | Catalogo seed |
 | `UsuarioGranja` | — | N:M acceso por granja |
@@ -309,7 +261,7 @@ erDiagram
 |---------|---------|----------|
 | `TipoAnimal` | Compania | Porcino, Aviar |
 | `Raza` | Compania | Yorkshire, Duroc |
-| `FinalidadProductiva` | Compania | Engorde, Reproduccion |
+| `FinalidadProductiva` | Compania | Engorde (`codigoSistema = ENGORDE`), Reproduccion |
 | `TipoUbicacion` | Compania | Galpon, Corral |
 | `Ubicacion` | Granja | Galpon A, Corral 01 |
 | `UnidadMedida` | Global (seed) | kg, g, saco |
@@ -318,9 +270,10 @@ erDiagram
 | `TipoMovimientoInventario` | Global (seed) | Compra, Salida, Ajuste |
 | `MotivoMovimientoUbicacion` | Compania | Cambio a engorde |
 | `MotivoCierreEngorde` | Compania | Venta, Sacrificio |
-| `MotivoBajaEngorde` | Compania | Muerte, Descarte |
-| `MetodoPesaje` | Compania | Bascula corral |
-| `TipoControlPeso` | Global (seed) | Promedio, Muestra |
+| `MotivoBajaEngorde` | Compania | Muerte, Descarte; incluye `cuentaComoMortalidad` |
+| `MetodoPesaje` | Compania | Bascula corral, Estimacion visual |
+| `MomentoControlPeso` | Enum global | INICIAL, INTERMEDIO, FINAL |
+| `ModalidadControlPeso` | Enum global | PROMEDIO_LOTE, MUESTRA |
 
 #### Operacion productiva
 
@@ -333,9 +286,10 @@ erDiagram
 | `Almacen` | ABM | Por granja |
 | `MovimientoInventario` | Evento | Existencia = SUM movimientos no anulados |
 | `ConsumoAlimento` | Evento | Solo lote en v1; genera salida inventario |
-| `EngordeLote` | Proceso | EN_CURSO → CERRADO |
+| `EngordeLote` | Proceso | EN_CURSO → CERRADO; un proceso valido por lote |
 | `BajaEngorde` | Evento | Reduce cantidad del lote |
-| `ControlPeso` | Evento | Promedio por animal en lotes |
+| `CierreEngorde` | Evento | Cierra lote; anulacion reabre proceso y lote |
+| `ControlPeso` | Evento | Promedio por animal en kg; inmutable |
 
 ### Campos clave por entidad operativa
 
@@ -351,16 +305,49 @@ estadoOperativo: ACTIVO | CERRADO | CANCELADO
 estadoRegistro + auditoria ABM
 ```
 
-**Cantidad actual (calculada):** `cantidadInicial - SUM(bajas no anuladas del engorde activo)`.
+**Cantidad actual (calculada):** `cantidadInicialEngorde - SUM(bajas no anuladas)`.
 
 #### EngordeLote
 
 ```text
-loteId (unique si EN_CURSO)
-fechaInicio, cantidadInicial, pesoInicialPromedio
-fechaCierre, cantidadFinal, pesoFinalPromedio
-motivoCierreId
+loteId (un solo proceso no anulado)
+companiaId, granjaId
+fechaInicio, cantidadInicial
+objetivoPesoKg, observaciones
 estado: EN_CURSO | CERRADO | ANULADO
+anuladoAt, anuladoById, motivoAnulacion (sin booleano redundante)
+```
+
+#### BajaEngorde
+
+```text
+companiaId, granjaId, engordeId, loteId
+fecha, cantidad, motivoId, observaciones
+anulado + auditoria evento
+```
+
+#### CierreEngorde
+
+```text
+companiaId, granjaId, engordeId, loteId
+fechaCierre, cantidadFinal, motivoCierreId, observaciones
+anulado + auditoria evento
+```
+
+Solo un cierre no anulado por engorde. El cierre y la reapertura actualizan
+`EngordeLote.estado` y `Lote.estadoOperativo` dentro de una transaccion.
+
+#### ControlPeso
+
+```text
+companiaId, granjaId, engordeId, loteId
+fecha, pesoPromedioKg
+momento: INICIAL | INTERMEDIO | FINAL
+modalidad: PROMEDIO_LOTE | MUESTRA
+metodoPesajeId, cantidadMuestra
+origen: ENGORDE_INICIO | MANUAL | ENGORDE_CIERRE
+cierreEngordeId (solo origen ENGORDE_CIERRE), observaciones
+anulado + auditoria evento
 ```
 
 #### MovimientoInventario
@@ -411,7 +398,8 @@ export const crearLoteSchema = z.object({
 });
 ```
 
-Los servicios reciben datos ya validados. Los Route Handlers parsean con `safeParse` y devuelven 400 con errores de campo.
+Los servicios reciben datos validados. Controllers/pipes NestJS aplican Zod y devuelven 400
+con errores de campo.
 
 ## API — convenciones
 
@@ -441,25 +429,33 @@ Los servicios reciben datos ya validados. Los Route Handlers parsean con `safePa
 
 | Metodo | Ruta | Modulo |
 |--------|------|--------|
-| POST | `/api/auth/[...nextauth]` | Auth |
+| POST | `/api/auth/login`, `/api/auth/refresh`, `/api/auth/logout` | Auth JWT |
 | GET/POST | `/api/companias` | Config |
 | GET/POST | `/api/granjas` | Config |
 | GET/POST | `/api/usuarios` | Seguridad |
 | GET/POST | `/api/lotes` | Lotes |
-| POST | `/api/lotes/[id]/movimientos-ubicacion` | Ubicaciones |
+| GET/POST | `/api/movimientos-ubicacion` | Ubicaciones |
+| POST | `/api/movimientos-ubicacion/:id/anular` | Ubicaciones |
 | GET/POST | `/api/alimentos` | Inventario |
 | GET/POST | `/api/almacenes` | Inventario |
 | GET/POST | `/api/inventario/movimientos` | Inventario |
 | GET | `/api/inventario/existencias` | Inventario |
 | GET/POST | `/api/consumo` | Consumo |
 | POST | `/api/consumo/[id]/anular` | Consumo |
-| POST | `/api/engorde/iniciar` | Engorde |
-| POST | `/api/engorde/[id]/bajas` | Engorde |
-| POST | `/api/engorde/[id]/cerrar` | Engorde |
-| GET/POST | `/api/pesos` | Pesos |
-| GET | `/api/reportes/existencias` | Reportes |
-| GET | `/api/reportes/consumo` | Reportes |
-| GET | `/api/reportes/engorde` | Reportes |
+| GET/POST | `/api/engordes` | Engorde |
+| GET | `/api/engordes/:id` | Resumen engorde |
+| POST | `/api/engordes/:id/bajas` | Engorde |
+| POST | `/api/engordes/:id/bajas/:bajaId/anular` | Engorde |
+| POST | `/api/engordes/:id/cerrar` | Engorde |
+| POST | `/api/engordes/:id/cierres/:cierreId/anular` | Engorde |
+| POST | `/api/engordes/:id/anular` | Engorde |
+| GET/POST/PATCH | `/api/motivos-cierre-engorde` | Maestras engorde |
+| GET/POST/PATCH | `/api/motivos-baja-engorde` | Maestras engorde |
+| GET/POST | `/api/controles-peso` | Pesos |
+| POST | `/api/controles-peso/:id/anular` | Pesos |
+| GET/POST/PATCH | `/api/metodos-pesaje` | Maestras pesos |
+| GET | `/api/reportes/alimentacion/*` | Reportes alimentacion |
+| GET | `/api/reportes/engorde/*` | Reportes engorde |
 
 ## UI mobile-first
 
@@ -490,25 +486,32 @@ Implementar como funciones puras testeables en `modules/*/rules.ts`:
 
 1. **Stock no negativo:** rechazar salida/ajuste negativo/consumo si existencia resultante < 0.
 2. **Lote unico por codigo** dentro de la granja.
-3. **Un engorde EN_CURSO por lote** a la vez.
+3. **Un proceso de engorde no anulado por lote**; un inicio anulado sin actividad puede reemplazarse.
 4. **No eventos en lote CERRADO o CANCELADO.**
 5. **Consumo siempre genera movimiento de salida** en el almacen indicado.
 6. **Anular consumo anula movimiento** de inventario vinculado.
 7. **Movimiento ubicacion actualiza** `Lote.ubicacionId`.
 8. **Anular ultimo movimiento ubicacion recalcula** ubicacion anterior.
+9. **Cantidad actual derivada:** cantidad inicial del engorde menos bajas no anuladas.
+10. **Cierre consistente:** cantidad final igual a cantidad actual; cierre, peso final y
+    estados se actualizan en transaccion.
+11. **Reapertura trazable:** anular cierre conserva el evento y reactiva engorde/lote.
+12. **Pesos inmutables:** controles incorrectos se anulan; no se editan.
 
 ## Seed inicial
 
-El script `src/database/seeds/run-seed.ts` debe crear:
+El seed de `packages/database/src/seeds/` debe crear:
 
 1. Permisos del catalogo completo.
 2. Perfil `Administrador Sistema` con todos los permisos.
 3. Perfil `Operador Granja` con permisos MVP operativos.
 4. Unidades de medida base (kg, g, saco).
 5. Tipos de movimiento de inventario.
-6. Tipos de control de peso.
-7. Compania y granja demo.
-8. Usuario admin demo.
+6. Motivos de cierre de engorde.
+7. Motivos de baja con indicador `cuentaComoMortalidad`.
+8. Metodos de pesaje, incluida Estimacion visual.
+9. Compania y granja demo.
+10. Usuario admin demo.
 
 ## Orden de implementacion
 
@@ -516,7 +519,7 @@ Alineado con `05-mvp-tecnico.md`:
 
 | Sprint | Entregable |
 |--------|------------|
-| 1 | Proyecto Next.js + TypeORM + Auth.js + login |
+| 1 | Monorepo Next.js + NestJS + TypeORM + login JWT |
 | 2 | Compania, granja, usuarios, perfiles, permisos |
 | 3 | Maestras base + ABM generico |
 | 4 | Lotes + movimientos de ubicacion |

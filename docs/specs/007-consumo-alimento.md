@@ -6,7 +6,8 @@ Implementado MVP v1 (2026-06-17)
 
 ## Objetivo
 
-Permitir registrar y consultar el consumo de alimento por animal individual o por lote, manteniendo trazabilidad por compania, granja, almacen, alimento, fecha, responsable y etapa productiva.
+Permitir registrar y consultar consumo de alimento por lote, descontando inventario de un
+almacen y conservando trazabilidad.
 
 Esta especificacion conecta la gestion productiva con el inventario de alimentos definido en `005-inventario-alimentos.md`.
 
@@ -16,7 +17,6 @@ Esta especificacion depende de:
 
 - `000-configuracion-base.md`
 - `001-usuarios-perfiles.md`
-- `002-gestion-animales.md`
 - `003-gestion-lotes.md`
 - `005-inventario-alimentos.md`
 - `docs/03-catalogo-maestras.md`
@@ -26,14 +26,11 @@ Esta especificacion depende de:
 
 Incluye:
 
-- Registro de consumo de alimento por animal individual.
 - Registro de consumo de alimento por lote.
 - Asociacion del consumo a compania, granja, almacen y alimento.
 - Registro de cantidad consumida.
 - Registro de fecha de consumo.
-- Asociacion opcional a etapa productiva.
-- Descuento de inventario cuando el consumo se registra desde un almacen.
-- Consulta de historial de consumo por animal.
+- Descuento obligatorio desde un almacen.
 - Consulta de historial de consumo por lote.
 - Consulta de consumo por alimento, granja, almacen y periodo.
 - Anulacion de consumos registrados por error.
@@ -53,15 +50,8 @@ No incluye en esta version:
 
 ### Consumo de alimento
 
-Evento productivo que registra la cantidad de alimento entregada o consumida por un animal o lote en una fecha determinada.
-
-### Consumo individual
-
-Consumo asociado a un animal individual.
-
-Ejemplo:
-
-- Una cerda en gestacion consume 2.5 kg de alimento de gestacion en una fecha.
+Evento productivo que registra la cantidad de alimento entregada o consumida por un lote en
+una fecha determinada.
 
 ### Consumo por lote
 
@@ -75,25 +65,20 @@ Ejemplo:
 
 Almacen desde donde sale el alimento consumido. Permite descontar inventario.
 
-### Etapa productiva
-
-Fase productiva asociada al consumo, como gestacion, lactancia, destete, crecimiento o engorde.
-
 ## Datos requeridos
 
 ### Consumo de alimento
 
 - Compania.
 - Granja.
-- Animal o lote.
+- Lote.
 - Fecha de consumo.
 - Alimento.
-- Almacen origen opcional.
+- Almacen origen obligatorio.
 - Cantidad.
 - Unidad de medida.
-- Etapa productiva opcional.
 - Responsable.
-- Movimiento de inventario relacionado opcional.
+- Movimiento de inventario relacionado, generado por servidor.
 - Observaciones opcionales.
 - Estado del consumo.
 - Datos de auditoria.
@@ -101,21 +86,18 @@ Fase productiva asociada al consumo, como gestacion, lactancia, destete, crecimi
 ## Reglas de negocio
 
 - Todo consumo debe pertenecer a una compania y una granja.
-- Todo consumo debe aplicar a un animal individual o a un lote, pero no a ambos al mismo tiempo.
-- El animal o lote debe pertenecer a la misma granja del consumo.
+- Todo consumo debe aplicar a un lote de la misma granja.
 - El alimento debe pertenecer a la misma compania del consumo.
 - El usuario debe tener permiso para registrar consumo de alimento.
 - El usuario solo puede registrar consumo en granjas a las que tiene acceso.
 - La cantidad consumida debe ser mayor que cero.
 - La unidad de medida debe estar activa.
-- Si se informa almacen origen, el almacen debe pertenecer a la misma granja del consumo.
-- Si se informa almacen origen, el sistema debe validar existencia suficiente antes de registrar el consumo.
-- Si se informa almacen origen, el consumo debe generar o asociarse a un movimiento de inventario de tipo consumo.
-- No debe permitirse registrar consumo para animales o lotes inactivos, cerrados, vendidos, muertos o descartados.
+- El almacen origen debe pertenecer a la granja y tener existencia suficiente.
+- El consumo debe generar un movimiento de inventario de tipo consumo.
+- No debe permitirse registrar consumo para lotes inactivos o cerrados.
 - Un consumo registrado no debe eliminarse fisicamente; si fue registrado por error, debe anularse segun `0005-auditoria-y-trazabilidad.md`.
 - Al anular un consumo que afecto inventario, debe anularse o compensarse tambien el movimiento de inventario relacionado.
-- El historial de consumo debe conservarse aunque el alimento, animal o lote luego quede inactivo.
-- La etapa productiva debe venir de maestra cuando se informe.
+- El historial debe conservarse aunque el alimento o lote luego quede inactivo.
 
 ## Permisos requeridos
 
@@ -125,13 +107,14 @@ Fase productiva asociada al consumo, como gestacion, lactancia, destete, crecimi
 
 ## Criterios de aceptacion
 
-### CA-001: Registrar consumo por animal
+### CA-001: Registrar consumo por lote
 
-Dado un animal activo, un alimento activo y un usuario con permisos, cuando el usuario registra un consumo con cantidad mayor que cero, entonces el consumo queda en el historial del animal.
+Dado un lote, alimento y almacen validos, cuando se registra una cantidad positiva, entonces
+el consumo queda en el historial del lote.
 
-### CA-002: Registrar consumo por lote
+### CA-002: Exigir almacen
 
-Dado un lote activo, un alimento activo y un usuario con permisos, cuando el usuario registra un consumo con cantidad mayor que cero, entonces el consumo queda en el historial del lote.
+Dado un consumo sin almacen origen, cuando se intenta registrar, entonces se rechaza.
 
 ### CA-003: Descontar inventario por consumo
 
@@ -141,21 +124,25 @@ Dado un consumo con almacen origen y existencia suficiente, cuando el usuario re
 
 Dado un alimento con existencia insuficiente en el almacen origen, cuando el usuario intenta registrar consumo por una cantidad mayor a la disponible, entonces el sistema debe rechazar el registro.
 
-### CA-005: Validar animal o lote de la misma granja
+### CA-005: Validar lote de la misma granja
 
-Dado un consumo asociado a una granja, cuando el usuario selecciona un animal o lote de otra granja, entonces el sistema debe rechazar el registro.
+Dado un consumo asociado a una granja, cuando se selecciona un lote de otra granja, entonces
+se rechaza.
 
 ### CA-006: Validar acceso por granja
 
-Dado un usuario sin acceso a la granja del animal o lote, cuando intenta registrar o consultar consumo, entonces el sistema debe impedir la accion.
+Dado un usuario sin acceso a la granja del lote, cuando intenta registrar o consultar
+consumo, entonces se impide la accion.
 
-### CA-007: Consultar historial por animal
+### CA-007: Consultar historial por lote
 
-Dado un animal con consumos registrados, cuando el usuario consulta su historial de alimentacion, entonces el sistema muestra fecha, alimento, cantidad, unidad, almacen, etapa productiva y responsable.
+Dado un lote con consumos registrados, cuando se consulta su historial, entonces se muestra
+fecha, alimento, cantidad, unidad, almacen y responsable.
 
-### CA-008: Consultar historial por lote
+### CA-008: Conservar historial
 
-Dado un lote con consumos registrados, cuando el usuario consulta su historial de alimentacion, entonces el sistema muestra fecha, alimento, cantidad, unidad, almacen, etapa productiva y responsable.
+Dado un lote o alimento inactivo con consumos historicos, cuando se consulta, entonces los
+registros siguen visibles.
 
 ### CA-009: Anular consumo
 
@@ -193,14 +180,14 @@ Dado un consumo que genero movimiento de inventario, cuando el consumo se anula,
 
 | ID | Estado | Notas |
 |----|--------|-------|
-| CA-001 | N/A v1 | Consumo por animal individual pospuesto (`002`) |
-| CA-002 | OK | Registro por lote activo con cantidad > 0 |
+| CA-001 | OK | Registro por lote activo con cantidad > 0 |
+| CA-002 | OK | Almacen origen obligatorio |
 | CA-003 | OK | Crea `SALIDA_CONSUMO` y descuenta existencia en transaccion |
 | CA-004 | OK | Error `CONSUMO_STOCK_INSUFICIENTE` |
 | CA-005 | OK | Lote debe pertenecer a la granja del consumo |
 | CA-006 | OK | `requireGranjaAccess` en listar, crear y anular |
-| CA-007 | N/A v1 | Historial por animal pospuesto |
-| CA-008 | OK | Historial por lote con fecha, alimento, cantidad, unidad y almacen |
+| CA-007 | OK | Historial por lote con fecha, alimento, cantidad, unidad y almacen |
+| CA-008 | OK | Historial preservado con maestras o lote inactivos |
 | CA-009 | OK | Anulacion con motivo; registro conservado |
 | CA-010 | OK | Anula tambien el `MovimientoInventario` vinculado |
 
@@ -212,7 +199,9 @@ Dado un consumo que genero movimiento de inventario, cuando el consumo se anula,
 ### Dependencias para modulos siguientes (no bloquean cierre de spec)
 
 - **Reportes (`015`):** consumiran `consumos_alimento` y movimientos asociados.
-- **Engorde (`012`):** lotes en engorde podran seguir consumiendo mientras `estadoOperativo = ACTIVO`.
+- **Engorde (`012`):** el consumo no requiere engorde iniciado. El resumen de un engorde
+  incluye consumos no anulados del lote con fecha desde el inicio hasta el cierre o la fecha
+  actual; consumos anteriores quedan fuera.
 - **Etapa productiva:** campo no modelado en v1.
 
 ### Mejoras opcionales pospuestas
@@ -244,7 +233,7 @@ Pendientes para fases posteriores:
 ## Decisiones tomadas
 
 - El consumo de alimento sera un evento historico.
-- El consumo puede aplicar a animal individual o lote.
-- El consumo puede descontar inventario cuando se indique almacen origen.
+- En MVP v1 el consumo aplica solo a lote.
+- Todo consumo descuenta inventario desde un almacen origen.
 - El consumo no se elimina fisicamente; se anula con trazabilidad.
 - El consumo alimentara futuros reportes de costos y productividad.

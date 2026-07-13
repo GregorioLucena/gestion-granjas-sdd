@@ -38,13 +38,13 @@ Este documento define como escribir codigo en el proyecto. Complementa `07-disen
 
 | Tipo | Patron | Ejemplo |
 |------|--------|---------|
-| Modulo de dominio | `src/modules/<dominio>/` | `src/modules/lotes/` |
+| Modulo de dominio API | `apps/api/src/modules/<dominio>/` | `apps/api/src/modules/lotes/` |
 | Servicio | `<dominio>.service.ts` | `lotes.service.ts` |
 | Reglas puras | `<dominio>.rules.ts` | `lotes.rules.ts` |
 | Schemas Zod | `<dominio>.schemas.ts` | `lotes.schemas.ts` |
 | Permisos del modulo | `<dominio>.permissions.ts` | `lotes.permissions.ts` |
 | Tipos del modulo | `<dominio>.types.ts` | `lotes.types.ts` |
-| Route Handler | `src/app/api/<ruta>/route.ts` | `api/lotes/route.ts` |
+| Controller NestJS | `<dominio>.controller.ts` | `lotes.controller.ts` |
 | Pagina | `src/app/(app)/<ruta>/page.tsx` | `(app)/lotes/page.tsx` |
 | Componente | `PascalCase.tsx` | `LoteForm.tsx` |
 | Hook | `use<Nombre>.ts` | `useLotes.ts` |
@@ -74,7 +74,7 @@ Este documento define como escribir codigo en el proyecto. Complementa `07-disen
 Cada modulo de dominio sigue esta forma minima:
 
 ```text
-src/modules/lotes/
+apps/api/src/modules/lotes/
 ├── lotes.types.ts         # DTOs, inputs/outputs del servicio
 ├── lotes.schemas.ts       # Zod: crear, editar, filtros
 ├── lotes.permissions.ts   # constantes PERMISO_* del modulo
@@ -90,7 +90,7 @@ src/modules/lotes/
 | `*.schemas.ts` | Forma y tipos de datos de entrada | Contener reglas de negocio |
 | `*.rules.ts` | Reglas puras sin I/O | Acceder a BD |
 | `*.service.ts` | Persistencia, transacciones, autorizacion de dominio | Renderizar UI |
-| `route.ts` | HTTP, parseo Zod, sesion, respuesta | Logica de negocio compleja |
+| `*.controller.ts` | HTTP, validacion, autorizacion y delegacion | Logica de negocio compleja |
 | `page.tsx` / componentes | UX, formularios, estados de carga | Filtrar tenant manualmente sin servicio |
 
 ## Patron de servicio
@@ -137,32 +137,31 @@ await dataSource.manager.transaction(async (manager) => {
 });
 ```
 
-## Capa API (Route Handlers)
+## Capa API (NestJS)
 
 ### Plantilla
 
 ```typescript
-export async function POST(request: Request) {
-  try {
-    const ctx = await getTenantContext(request);
-    const body = await request.json();
-    const result = await crearLote(ctx, body);
-    return jsonCreated(result);
-  } catch (error) {
-    return handleApiError(error);
+@Controller('lotes')
+export class LotesController {
+  constructor(private readonly lotesService: LotesService) {}
+
+  @Post()
+  crear(@Tenant() ctx: TenantContext, @Body() body: CrearLoteDto) {
+    return this.lotesService.crear(ctx, body);
   }
 }
 ```
 
-### Helpers en `src/lib/api/`
+### Infraestructura comun en `apps/api/src/common/`
 
-| Helper | Uso |
-|--------|-----|
-| `getTenantContext()` | Sesion + permisos + granja activa |
-| `jsonOk(data)` | 200 `{ data }` |
-| `jsonCreated(data)` | 201 `{ data }` |
-| `handleApiError(error)` | Mapea `AppError` a HTTP (ver doc 09) |
-| `parseBody(schema, body)` | Zod safeParse con error 400 estandar |
+| Componente | Uso |
+|------------|-----|
+| Guard JWT | Autenticacion y usuario vigente |
+| Decorador `@Tenant()` | Usuario, compania, granjas y permisos efectivos |
+| Guard/decorador de permisos | Autorizacion del endpoint |
+| Pipe Zod | Validacion con error 400 estandar |
+| `AppErrorFilter` | Mapea errores de dominio a HTTP (ver doc 09) |
 
 ### Reglas HTTP
 
@@ -175,7 +174,7 @@ export async function POST(request: Request) {
 
 ### TenantContext
 
-Definido en `src/lib/tenant.ts`:
+Definido en la capa comun de `apps/api` y construido desde el JWT/BD:
 
 ```typescript
 export type TenantContext = {
@@ -256,7 +255,7 @@ evento.motivoAnulacion = motivo; // requerido, min 3 caracteres
 - Log interno en servidor para errores 500.
 
 ```typescript
-// src/lib/errors.ts
+// packages/shared/src/errors.ts
 export class AppError extends Error {
   constructor(
     public code: string,
@@ -335,7 +334,10 @@ export class AppError extends Error {
 | Variable | Requerida | Descripcion |
 |----------|-----------|-------------|
 | `DATABASE_URL` | Si | PostgreSQL |
-| `AUTH_SECRET` | Si | Secreto Auth.js |
+| `JWT_SECRET` | Si | Firma de access y refresh tokens en NestJS |
+| `JWT_ACCESS_EXPIRES_IN` | Si | Duracion del access token |
+| `JWT_REFRESH_EXPIRES_DAYS` | Si | Duracion del refresh token |
+| `NEXT_PUBLIC_API_URL` | Si | URL publica base de la API para web |
 | `NODE_ENV` | Si | development / production |
 
 Archivo `.env.development.example` commiteado; `.env.development` nunca commiteado.

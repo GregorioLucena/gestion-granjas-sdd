@@ -108,6 +108,11 @@ Evento reproductivo donde una hembra es servida por un macho o inseminada.
 
 Evento que registra una monta natural, inseminacion artificial u otro metodo reproductivo aplicado a una hembra.
 
+## Ciclo reproductivo
+
+Intento reproductivo de una hembra que puede agrupar uno o varios servicios del mismo celo y
+continua con confirmacion, gestacion, parto, lactancia y destete o con un fallo.
+
 ## Hembra servida
 
 Animal hembra que recibe un servicio reproductivo.
@@ -122,7 +127,8 @@ Fecha estimada de parto calculada o registrada a partir de un servicio reproduct
 
 ## Gestacion
 
-Periodo posterior a una monta o inseminacion en el que una hembra se encuentra preñada o bajo seguimiento reproductivo.
+Periodo creado al confirmar que una hembra esta gestante. Excepcionalmente puede crearse como
+no confirmada al registrar un parto omitido en el seguimiento.
 
 ## Confirmacion de gestacion
 
@@ -166,7 +172,7 @@ Numero de crias que llegan vivas al destete.
 
 ## Mortalidad durante lactancia
 
-Cantidad de crias que mueren entre el parto y el destete.
+Suma de bajas de lactancia fechadas entre el parto y el destete.
 
 ## Peso al destete
 
@@ -182,7 +188,8 @@ Registro que marca el comienzo productivo del engorde para un lote.
 
 ## Cierre de engorde
 
-Registro que marca el final productivo del engorde y resume cantidades, pesos y resultado.
+Evento historico que marca el final productivo del engorde y resume cantidades, pesos y
+resultado. Puede anularse con trazabilidad para reabrir el proceso y el lote.
 
 ## Ganancia de peso
 
@@ -194,7 +201,8 @@ Reduccion de animales durante el proceso de engorde por muerte, venta, traslado,
 
 ## Control de peso
 
-Registro de peso de un animal o lote en una fecha determinada.
+Evento historico e inmutable que registra el peso de un animal o lote en una fecha
+determinada. En MVP v1 aplica solo a lotes con engorde.
 
 ## Peso individual
 
@@ -210,7 +218,17 @@ Subconjunto de animales pesados para estimar el peso promedio de un lote.
 
 ## Metodo de pesaje
 
-Forma usada para obtener el peso, como bascula individual, bascula de corral, muestra representativa o estimacion visual.
+Forma usada para obtener el peso, como bascula individual, bascula de corral o estimacion
+visual.
+
+## Momento del control de peso
+
+Posicion del control dentro del ciclo: inicial, intermedio o final.
+
+## Modalidad del control de peso
+
+Indica si el peso promedio corresponde al lote completo o se obtuvo desde una muestra. La
+modalidad es independiente del metodo de pesaje.
 
 ## Vacunacion
 
@@ -227,6 +245,11 @@ Resultado de una evaluacion sanitaria realizada por un veterinario o responsable
 ## Tratamiento
 
 Accion sanitaria aplicada a un animal o lote para prevenir, controlar o resolver una enfermedad o condicion. Puede incluir medicamento, dosis, frecuencia y duracion.
+
+## Periodo de retiro
+
+Intervalo posterior a un tratamiento durante el cual el animal o lote no puede venderse o
+salir para consumo.
 
 ## Alimento
 
@@ -278,7 +301,7 @@ Medida calculada a partir de datos registrados. Ejemplos: promedio de nacidos vi
 
 ## Reporte de consumo
 
-Vista que consolida alimento consumido por animal, lote, alimento, granja o periodo.
+Vista que consolida alimento consumido por lote, alimento, granja o periodo en MVP v1.
 
 ## Reporte de existencia
 
@@ -314,7 +337,8 @@ Suma de alimento consumido por un animal o lote durante un periodo.
 
 ## Conversion alimenticia basica
 
-Relacion entre alimento consumido y ganancia de peso, calculada solo cuando existen datos suficientes.
+Relacion entre alimento consumido y ganancia total estimada. En MVP v1 usa la ganancia de
+peso promedio multiplicada por la cantidad final del engorde.
 
 ## Historial reproductivo consolidado
 

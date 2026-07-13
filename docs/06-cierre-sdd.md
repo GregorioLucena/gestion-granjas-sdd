@@ -13,10 +13,10 @@ Este documento cierra la fase de especificacion funcional del proyecto. Resume l
 | Diagramas de flujo | Completo | `04-diagrama-flujo.md` |
 | MVP tecnico v1 | Completo | `05-mvp-tecnico.md` |
 | Specs funcionales | Completo | 18 specs en `docs/specs/` |
-| Decisiones de dominio | Completo | 5 ADRs en `docs/decisions/` |
+| Decisiones de dominio | Completo | ADRs en `docs/decisions/`, incluidas `0009` engorde y `0010` reproduccion |
 | Decision de stack | Completo | `decisions/0006-stack-tecnologico.md` |
-| Diseno tecnico | Completo | `07-10`, `src/database/entities/` |
-| Implementacion | Pendiente | Scaffold Next.js |
+| Diseno tecnico | Completo | MVP v1 en `07-10`; MVP v2 en `15-diseno-tecnico-mvp-v2.md` |
+| Implementacion | En curso | MVP v1 implementado hasta consumo; siguientes: engorde y pesos |
 
 ## Cobertura funcional
 
@@ -103,19 +103,25 @@ Las preguntas que afectan directamente al MVP v1 se resuelven aqui. Las demas qu
 | Pregunta | Decision MVP v1 |
 |----------|-----------------|
 | Engorde automatico al crear lote? | No. El engorde se inicia explicitamente. |
-| Cantidad actual del lote? | Se calcula desde bajas registradas en el engorde activo. |
+| Cantidad actual del lote? | Se calcula desde bajas no anuladas; no es editable. |
 | Motivos de cierre (venta, sacrificio)? | Si, como maestra de motivo de cierre dentro de engorde. |
 | Conversion alimenticia? | Solo en reportes, no en pantalla de engorde. |
-| Reabrir engorde cerrado? | No en v1. Correcciones mediante anulacion y nuevo registro. |
+| Reabrir engorde cerrado? | Solo anulando el cierre con motivo; se conserva el cierre y se reabren engorde/lote. |
+| Cantidad final distinta de la calculada? | No. Toda diferencia debe registrarse antes como baja. |
+| Varios engordes por lote? | Un solo proceso valido; un inicio anulado sin actividad puede reemplazarse. |
 
 ### Controles de peso (`013-controles-peso.md`)
 
 | Pregunta | Decision MVP v1 |
 |----------|-----------------|
 | Peso de lote: promedio o total? | Promedio por animal. |
-| Peso estimado visual? | No en v1. |
-| Peso de cierre de engorde? | Se registra en cierre de engorde y puede replicarse como control de peso vinculado. |
-| Ganancia diaria promedio? | Solo en reportes. |
+| Unidad? | Solo kg en v1. |
+| Peso estimado visual? | Si, con metodo obligatorio y claramente identificado. |
+| Peso de inicio/cierre? | Si se informa, engorde genera automaticamente un control vinculado. |
+| Controles manuales? | Solo intermedios y para engordes activos. |
+| Editar un control? | No. Se anula con motivo y se registra otro. |
+| Clasificacion? | Momento, modalidad y metodo son dimensiones separadas. |
+| Ganancia? | El historial muestra diferencia simple; ganancia diaria queda para reportes futuros. |
 
 ### Movimientos de ubicacion (`006-movimientos-ubicacion.md`)
 
@@ -125,6 +131,9 @@ Las preguntas que afectan directamente al MVP v1 se resuelven aqui. Las demas qu
 | Capacidad maxima de ubicacion? | No en v1. |
 | Movimientos masivos? | No en v1. |
 | Anulacion recalcula ubicacion actual? | Si. Al anular el ultimo movimiento valido, se recalcula la ubicacion anterior. |
+| Edicion directa de ubicacion? | Solo ubicacion inicial; cambios posteriores mediante movimientos. |
+| Que movimiento se anula? | Solo el ultimo vigente. |
+| Fecha y motivo? | Fecha retroactiva ordenada y motivo de maestra obligatorio. |
 
 ### Reportes MVP v1 (`015`, `017`)
 
@@ -133,19 +142,33 @@ Las preguntas que afectan directamente al MVP v1 se resuelven aqui. Las demas qu
 | Graficos? | No. Solo tablas y totales en pantalla. |
 | Exportacion Excel/PDF? | No en v1. |
 | Metodo de costo en reportes? | Costo del movimiento asociado al consumo. |
-| Conversion alimenticia? | Con peso promedio del lote cuando existan datos suficientes. |
+| Costos faltantes? | Mostrar costo conocido parcial, cantidad sin costo y cobertura; nunca asumir cero. |
+| Conversion alimenticia? | Consumo kg / ((peso final promedio - inicial) x cantidad final). |
 | Comparativas entre lotes? | No en v1. |
 | Ganancia diaria promedio? | No en v1. |
 
-## Preguntas pospuestas (no bloquean MVP v1)
+## Decisiones cerradas para MVP v2
 
-Estas preguntas permanecen abiertas porque corresponden a modulos fuera del MVP v1 o a funcionalidades avanzadas:
+- Animales: identificacion no reutilizable, parentesco opcional y estados derivados de
+  eventos de venta/muerte/descarte.
+- Sanidad: eventos inmutables, veterinario obligatorio en diagnostico/tratamiento, retiro
+  bloqueante y catalogos sin inventario.
+- Reproduccion: un ciclo agrupa servicios del mismo celo; gestacion nace de confirmacion
+  positiva y un parto no confirmado se admite como excepcion trazable.
+- Crias: conteos obligatorios, individuos opcionales con identificacion manual.
+- Lactancia: bajas fechadas y destete total con conciliacion exacta.
+- Reportes: tasas por cohorte del primer servicio y denominadores vacios como no disponible.
 
-- Reproduccion: montas, gestacion, partos, destete (specs 008-011, 014).
-- Sanidad: inventario de medicamentos, alertas, retiro antes de venta (spec 004, 016).
-- Animales individuales: reutilizacion de identificacion, prefijos automaticos (spec 002).
+## Alcance futuro no bloqueante
+
+Las decisiones funcionales de animales, sanidad y reproduccion quedaron resueltas en las
+specs MVP v2 y ADR `0010`. Permanecen fuera de las versiones especificadas:
+
+- Identificacion automatica y genealogia avanzada.
+- Inventario sanitario, alertas y notificaciones.
+- Adopciones, transferencias y destetes parciales.
 - App movil nativa y modo offline.
-- Exportaciones, graficos avanzados, filtros favoritos.
+- Exportaciones, graficos avanzados y filtros favoritos.
 - Modulo comercial (ventas, facturacion).
 
 ## Coherencia transversal verificada
@@ -154,6 +177,8 @@ Estas preguntas permanecen abiertas porque corresponden a modulos fuera del MVP 
 - Maestras y alcances: catalogo consolidado y decision `0003`.
 - Estado de registro vs operativo: decision `0004`.
 - Auditoria y anulacion: decision `0005`, aplicada en specs de eventos.
+- Ciclo de engorde, cantidad actual y reapertura: decision `0009`.
+- Ciclo reproductivo, crias y anulacion en cadena: decision `0010`.
 - Permisos: consolidados en `001-usuarios-perfiles.md` con acciones por modulo.
 - Veterinario vs veterinario tratante: decision `0002`.
 
@@ -166,7 +191,7 @@ Resumen:
 - Aplicacion web responsive, mobile-first.
 - Next.js + TypeScript + PostgreSQL + TypeORM.
 - UI con Tailwind CSS y shadcn/ui.
-- Autenticacion con Auth.js (sesiones web).
+- Autenticacion JWT en NestJS con refresh token en cookie HttpOnly, segun ADR `0007`.
 - Arquitectura preparada para app movil nativa futura mediante capa de API clara.
 
 ## Criterios de cierre cumplidos
@@ -180,11 +205,16 @@ Resumen:
 - [x] Stack tecnologico definido.
 - [x] Convenciones y catalogo de errores documentados
 - [x] Diseno tecnico cerrado (`10-cierre-diseno-tecnico.md`)
-- [ ] Proyecto Next.js scaffolded
-- [ ] Base de datos configurada
-- [ ] Migracion inicial aplicada
-- [ ] Seed ejecutado
+- [x] Monorepo Next.js + NestJS creado
+- [x] Base de datos PostgreSQL configurada
+- [x] Migracion inicial aplicada
+- [x] Seed disponible y ejecutable
+- [x] Specs 000, 001, 003, 005 y 007 implementadas
+- [ ] Spec 012 engorde implementada
+- [ ] Spec 013 controles de peso implementada
+- [ ] Reportes MVP implementados
 
 ## Siguiente paso
 
-Diseno tecnico cerrado. Proceder con scaffold del proyecto.
+Implementar `012-engorde-lotes.md`, luego `013-controles-peso.md` y finalmente los reportes
+`015` y `017`. `006-movimientos-ubicacion.md` es opcional para el cierre del MVP v1.

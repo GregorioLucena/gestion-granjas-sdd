@@ -34,19 +34,28 @@ Aunque el enfoque inicial sea porcino, el modelo debe permitir agregar otros tip
 - Tecnico agropecuario o veterinario.
 - Operador que registra informacion diaria.
 
-## Objetivos del MVP
+## Objetivos por version
+
+El alcance vinculante del MVP v1 esta en `05-mvp-tecnico.md`.
+
+### MVP v1
 
 - Registrar companias y granjas.
 - Registrar usuarios, perfiles y permisos.
 - Registrar maestras base como tipos de animales, razas, finalidades productivas, tipos de ubicacion y ubicaciones internas.
 - Registrar tipos de animales y sus finalidades productivas.
-- Registrar animales individuales con identificacion unica.
-- Registrar lotes de animales para engorde u otros procesos grupales.
-- Registrar veterinario tratante, vacunaciones, enfermedades, tratamientos y controles sanitarios basicos.
-- Registrar montas, gestaciones y partos basicos.
+- Registrar lotes de engorde.
 - Registrar alimentos, costos y movimientos de inventario.
-- Registrar consumo de alimento por animal o por lote.
-- Consultar historiales productivos basicos.
+- Registrar consumo de alimento por lote.
+- Registrar engorde, bajas y controles de peso.
+- Consultar reportes basicos de alimentacion y engorde.
+
+### MVP v2
+
+- Registrar animales individuales con identificacion unica.
+- Registrar veterinario tratante, vacunaciones, diagnosticos, tratamientos y controles.
+- Registrar ciclos reproductivos, gestaciones, partos, lactancia y destete.
+- Consultar historiales y reportes reproductivos y sanitarios.
 
 ## Fuera de alcance inicial
 

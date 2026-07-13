@@ -4,13 +4,14 @@ Este documento cierra la fase de diseno tecnico previa al scaffold e implementac
 
 ## Estado
 
-**Diseno tecnico cerrado — listo para scaffold.**
+**Cierre historico del diseno inicial.** El scaffold ya fue implementado; para estado actual
+usar `06-cierre-sdd.md`. Arquitectura y autenticacion vigentes: ADR `0007`.
 
 ## Documentos de diseno completados
 
 | Documento | Contenido |
 |-----------|-----------|
-| `decisions/0006-stack-tecnologico.md` | Stack: Next.js, TypeORM, PostgreSQL, Auth.js, mobile-first |
+| `decisions/0006-stack-tecnologico.md` | Stack base; backend/auth superados por ADR `0007` |
 | `07-diseno-tecnico-inicial.md` | Arquitectura, modelo, permisos, API, UI, reglas criticas |
 | `08-convenciones-implementacion.md` | Nomenclatura, modulos, servicios, UI, testing |
 | `09-catalogo-errores.md` | Codigos de error, HTTP, mensajes al usuario |
@@ -37,7 +38,7 @@ Este documento cierra la fase de diseno tecnico previa al scaffold e implementac
 - [x] Estrategia de migraciones TypeORM definida
 
 ### Seguridad
-- [x] Auth.js + Credentials definido
+- [x] JWT + refresh HttpOnly en NestJS definido
 - [x] TenantContext definido
 - [x] Convencion de permisos definida
 - [x] Catalogo de permisos MVP v1 identificado
@@ -82,7 +83,7 @@ Scaffold + implementacion   → siguiente fase
 1. Configurar Next.js + TypeScript + Tailwind + shadcn/ui.
 2. Integrar TypeORM + PostgreSQL + migracion inicial.
 3. Implementar `lib/errors.ts`, `lib/tenant.ts`, `lib/permissions.ts` segun docs 08 y 09.
-4. Auth.js + login + TenantContext.
+4. JWT en NestJS + login + TenantContext.
 5. Seed de permisos, perfiles y datos demo.
 6. Sprint 2 en adelante segun `07-diseno-tecnico-inicial.md`.
 

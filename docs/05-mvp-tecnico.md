@@ -98,7 +98,7 @@ Incluye:
 - Historial de ubicaciones.
 - Responsable y motivo.
 
-Puede limitarse en MVP v1 a lotes, dejando animales individuales para una fase posterior.
+En MVP v1 se limita a lotes; animales individuales quedan para una extension posterior.
 
 ### 5. Inventario de alimentos
 
@@ -158,14 +158,16 @@ Specs relacionadas:
 
 Incluye:
 
-- Inicio de engorde.
+- Inicio manual de engorde para lotes con finalidad Engorde.
 - Cantidad inicial.
 - Peso inicial promedio.
-- Bajas.
+- Bajas por toda disminucion, con motivo y clasificacion de mortalidad.
+- Cantidad actual calculada desde bajas no anuladas.
 - Cierre de engorde.
 - Cantidad final.
 - Peso final promedio.
 - Motivo de cierre.
+- Anulacion trazable del cierre con reapertura.
 
 ### 8. Controles de peso
 
@@ -177,14 +179,17 @@ Incluye:
 
 - Peso promedio de lote.
 - Muestra de lote.
-- Metodo de pesaje.
+- Metodo de pesaje obligatorio, incluyendo estimacion visual identificada.
 - Historial de peso.
-- Asociacion con engorde.
+- Asociacion obligatoria con engorde en MVP v1.
+- Controles inicial/final generados desde engorde y controles intermedios manuales.
+- Diferencia simple contra el control anterior.
 
 No incluye en MVP v1:
 
 - Pesaje individual avanzado.
 - Integracion con basculas.
+- Unidades distintas de kg.
 - Analisis estadistico avanzado.
 
 ### 9. Reportes basicos
@@ -214,7 +219,8 @@ No incluye en MVP v1:
 
 ## Estado de implementacion MVP v1
 
-Actualizado al cierre de `007-consumo-alimento.md` (2026-06-17).
+Actualizado tras la refinacion SDD de `012-engorde-lotes.md` y
+`013-controles-peso.md` (2026-07-13).
 
 | Modulo | Spec | Estado |
 |--------|------|--------|
@@ -223,24 +229,23 @@ Actualizado al cierre de `007-consumo-alimento.md` (2026-06-17).
 | Lotes | `003` | Implementado |
 | Inventario de alimentos | `005` | Implementado |
 | Consumo por lote | `007` | Implementado |
-| Movimientos de ubicacion | `006` | Pendiente |
-| Engorde de lotes | `012` | Pendiente |
-| Controles de peso | `013` | Pendiente |
-| Reportes alimentacion | `015` | Pendiente |
-| Reportes engorde | `017` | Pendiente |
+| Movimientos de ubicacion | `006` | Spec lista; implementacion opcional pendiente |
+| Engorde de lotes | `012` | Spec lista; implementacion pendiente |
+| Controles de peso | `013` | Spec lista; implementacion pendiente |
+| Reportes alimentacion | `015` | Spec lista; implementacion pendiente |
+| Reportes engorde | `017` | Spec lista; implementacion pendiente |
 
-**Siguiente paso recomendado:** `013-controles-peso.md` o `012-engorde-lotes.md`.
+**Siguiente paso recomendado:** implementar `012-engorde-lotes.md`, luego
+`013-controles-peso.md`, `015-reportes-alimentacion.md` y `017-reportes-engorde.md`. El
+modulo `006` es opcional y no bloquea esa secuencia.
 
 ## Modulos fuera de MVP v1
 
 Quedan para fases posteriores:
 
-- `002-gestion-animales.md` completo para animales individuales.
-- `004-sanidad-animal.md`, salvo una version minima si se requiere.
-- `008-montas.md`.
-- `009-gestacion.md`.
-- `010-partos.md`.
-- `011-destete.md`.
+- `002-gestion-animales.md`.
+- `004-sanidad-animal.md`.
+- `008-montas.md` a `011-destete.md`.
 - `014-reportes-reproduccion.md`.
 - `016-reportes-sanidad.md`.
 - Inventario de medicamentos.
@@ -248,6 +253,9 @@ Quedan para fases posteriores:
 - Facturacion.
 - Contabilidad.
 - Aplicacion movil offline.
+
+Las specs listadas estan listas para implementar como MVP v2; su diseno tecnico se resume
+en `15-diseno-tecnico-mvp-v2.md`.
 
 ## MVP v2 recomendado
 
@@ -320,6 +328,7 @@ Despues de validar MVP v1, la siguiente version deberia enfocarse en produccion 
 - ConsumoAlimento.
 - EngordeLote.
 - BajaEngorde.
+- CierreEngorde.
 - ControlPeso.
 
 ## Reglas tecnicas transversales
@@ -351,7 +360,8 @@ Definido en `decisions/0006-stack-tecnologico.md`. Resumen:
 - Aplicacion web responsive, mobile-first.
 - Next.js + TypeScript + PostgreSQL + TypeORM.
 - UI: Tailwind CSS + shadcn/ui.
-- Autenticacion: Auth.js (sesiones web).
+- Autenticacion: JWT en `apps/api` con refresh token en cookie HttpOnly, segun
+  `decisions/0007-monorepo-backend-frontend.md`.
 - Validacion: Zod + React Hook Form.
 - PWA y app movil nativa: fases posteriores, arquitectura preparada desde el inicio.
 
@@ -367,8 +377,8 @@ Definido en `decisions/0006-stack-tecnologico.md`. Resumen:
 8. Crear almacenes y alimentos.
 9. Crear movimientos de inventario.
 10. Crear consumo por lote.
-11. Crear controles de peso.
-12. Crear engorde y cierre.
+11. Crear engorde, bajas y cierre.
+12. Crear controles de peso.
 13. Crear reportes basicos.
 14. *(Opcional en MVP v1)* Crear movimientos de ubicacion de lotes (`006`).
 
