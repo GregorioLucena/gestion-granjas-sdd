@@ -1,192 +1,138 @@
-# Spec 009: Gestacion
+# Spec 009: Confirmacion y Gestacion
 
 ## Estado
 
-Borrador inicial
+Lista para implementar MVP v2 (2026-07-13)
 
 ## Objetivo
 
-Permitir confirmar, registrar y dar seguimiento a la gestacion de hembras servidas, partiendo de un servicio reproductivo registrado en `008-montas.md`.
-
-Esta especificacion conecta montas e inseminaciones con el registro posterior de partos en `010-partos.md`.
+Registrar confirmaciones, crear gestacion solo ante resultado positivo, controlar su
+evolucion y cerrar fallos reproductivos de forma trazable.
 
 ## Dependencias
 
-Esta especificacion depende de:
-
-- `000-configuracion-base.md`
-- `001-usuarios-perfiles.md`
 - `002-gestion-animales.md`
 - `008-montas.md`
-- `docs/03-catalogo-maestras.md`
-- `docs/decisions/0005-auditoria-y-trazabilidad.md`
+- `docs/decisions/0010-ciclo-reproductivo.md`
 
 ## Alcance
 
-Incluye:
+- Confirmaciones positivas, negativas y dudosas.
+- Metodo de confirmacion.
+- Gestacion activa a partir de positivo.
+- Controles de gestacion.
+- Aborto, reabsorcion y otros fallos.
+- Historial y anulacion.
 
-- Registro de confirmacion de gestacion.
-- Registro de resultado de confirmacion.
-- Registro de metodo de confirmacion.
-- Creacion o actualizacion de gestacion asociada a un servicio reproductivo.
-- Seguimiento de estado de gestacion.
-- Registro de fecha probable de parto.
-- Registro de controles de gestacion.
-- Registro de fallos reproductivos como no gestante, aborto o repeticion.
-- Consulta de historial de gestacion por hembra.
-- Anulacion de registros de gestacion o controles registrados por error.
+No incluye adjuntos, alertas, alimentacion especifica ni parto.
 
-No incluye en esta version:
+## Datos
 
-- Registro de parto.
-- Registro de crias.
-- Destete.
-- Alimentacion detallada durante gestacion.
-- Alertas automaticas de parto proximo.
-- Ecografias con adjuntos o imagenes.
-- Protocolos reproductivos avanzados.
+### Confirmacion
 
-## Conceptos principales
+- Ciclo.
+- Fecha.
+- Resultado global: `POSITIVA`, `NEGATIVA`, `DUDOSA`.
+- Metodo de confirmacion por compania.
+- Responsable y observaciones.
 
 ### Gestacion
 
-Periodo reproductivo iniciado cuando una hembra se confirma o se considera en seguimiento luego de un servicio reproductivo.
+- Ciclo y hembra.
+- Origen `CONFIRMADA` o `NO_CONFIRMADA`.
+- Fecha de inicio: primer servicio del ciclo.
+- Fecha probable heredada del ciclo al confirmar.
+- Estado derivado: `ACTIVA`, `FINALIZADA_PARTO`, `FALLIDA`.
 
-### Confirmacion de gestacion
+### Control
 
-Evaluacion para determinar si una hembra servida esta gestante.
+- Gestacion, fecha, metodo, resultado, responsable, observaciones y recomendaciones.
 
-### Control de gestacion
-
-Revision realizada durante el periodo de gestacion para verificar estado, observaciones o recomendaciones.
-
-### Fallo reproductivo
-
-Resultado negativo o interrupcion del proceso reproductivo.
-
-Ejemplos:
-
-- No gestante.
-- Repeticion de celo.
-- Aborto.
-- Reabsorcion.
-
-## Datos requeridos
-
-### Gestacion
-
-- Compania.
-- Granja.
-- Hembra.
-- Servicio reproductivo.
-- Fecha de inicio.
-- Fecha probable de parto.
-- Estado de gestacion.
-- Resultado de confirmacion opcional.
-- Metodo de confirmacion opcional.
-- Fecha de confirmacion opcional.
-- Responsable.
-- Observaciones opcionales.
-- Datos de auditoria.
-
-### Control de gestacion
+### Fallo
 
 - Gestacion.
-- Fecha del control.
-- Metodo de control opcional.
-- Resultado del control opcional.
-- Responsable.
-- Observaciones opcionales.
-- Recomendaciones opcionales.
-- Datos de auditoria.
+- Fecha.
+- Causa por compania con `codigoSistema`: `ABORTO`, `REABSORCION`, `OTRO`.
+- Responsable y observaciones.
 
-### Fallo reproductivo
+## Reglas
 
-- Gestacion o servicio reproductivo.
-- Fecha del fallo.
-- Causa de fallo reproductivo.
-- Responsable.
-- Observaciones opcionales.
-- Datos de auditoria.
+1. Ciclo, hembra y eventos pertenecen al mismo tenant/granja.
+2. Solo ciclos `PENDIENTE_CONFIRMACION` y no anulados reciben confirmaciones.
+3. Fechas respetan el orden del ADR 0010 y no son futuras.
+4. Resultado dudoso conserva ciclo pendiente y exige nuevo control; no crea gestacion.
+5. Resultado positivo crea una sola gestacion activa en transaccion.
+   La gestacion copia la fecha probable canonica del ciclo como snapshot; despues de la
+   confirmacion no se agregan servicios ni se recalcula.
+6. Resultado negativo cierra el ciclo como fallo `NO_GESTANTE`, sin crear gestacion.
+7. Solo existe una gestacion activa por hembra.
+8. Metodo debe estar activo al registrar.
+9. Controles solo se agregan a gestacion activa.
+10. Un fallo cierra gestacion y ciclo.
+11. Eventos son inmutables.
+12. Se anulan en orden inverso: controles/fallo, gestacion/confirmacion.
+13. Gestacion con parto vigente no puede anularse.
+14. Anular resultado definitivo recalcula ciclo; una gestacion creada por esa confirmacion se
+    anula en la misma transaccion solo si no tiene dependencias.
 
-## Reglas de negocio
+## Permisos
 
-- Toda gestacion debe pertenecer a una compania y granja.
-- Toda gestacion debe estar asociada a una hembra individual.
-- Toda gestacion debe originarse desde un servicio reproductivo registrado.
-- La hembra de la gestacion debe ser la misma hembra del servicio reproductivo.
-- La hembra debe estar activa y tener sexo `Hembra`.
-- El servicio reproductivo no debe estar anulado.
-- No debe existir mas de una gestacion activa para la misma hembra.
-- El usuario debe tener permiso para registrar o consultar gestacion.
-- El usuario solo puede operar gestaciones de granjas a las que tiene acceso.
-- El metodo de confirmacion debe venir de maestra activa cuando se informe.
-- El resultado de confirmacion debe venir de maestra activa cuando se informe.
-- Si el resultado de confirmacion es `Gestante`, la gestacion debe quedar activa.
-- Si el resultado de confirmacion es `No gestante`, el servicio reproductivo debe quedar como fallido o equivalente.
-- Si se registra un fallo reproductivo, la gestacion debe cerrarse o marcarse como fallida.
-- La fecha probable de parto debe heredarse del servicio reproductivo o calcularse con la duracion esperada de gestacion del tipo de animal.
-- Los controles de gestacion deben quedar asociados a una gestacion activa, salvo que se registren como cierre o fallo.
-- Una gestacion no debe eliminarse fisicamente; si fue registrada por error, debe anularse segun `0005-auditoria-y-trazabilidad.md`.
+- `reproduccion.gestacion.ver`
+- `reproduccion.gestacion.confirmar`
+- `reproduccion.gestacion.controlar`
+- `reproduccion.gestacion.finalizar`
+- `reproduccion.gestacion.anular`
 
-## Permisos requeridos
+## API
 
-- `reproduccion.gestacion.ver`: consultar gestaciones y controles.
-- `reproduccion.gestacion.crear`: registrar o confirmar gestacion.
-- `reproduccion.gestacion.editar`: modificar datos permitidos antes del parto.
-- `reproduccion.gestacion.controlar`: registrar controles de gestacion.
-- `reproduccion.gestacion.anular`: anular registros de gestacion o controles.
+| Metodo | Ruta |
+|--------|------|
+| `POST` | `/reproduccion/ciclos/:id/confirmaciones` |
+| `GET` | `/reproduccion/gestaciones` |
+| `GET` | `/reproduccion/gestaciones/:id` |
+| `POST` | `/reproduccion/gestaciones/:id/controles` |
+| `POST` | `/reproduccion/gestaciones/:id/fallos` |
+| `POST` | `/reproduccion/confirmaciones/:id/anular` |
+| `POST` | `/reproduccion/controles/:id/anular` |
+| `POST` | `/reproduccion/fallos/:id/anular` |
+
+Listados requieren granja; aceptan hembra, estado, resultado, periodo y paginacion.
+Confirmaciones usan `reproduccion.gestacion.confirmar`, controles usan `.controlar`, fallos
+usan `.finalizar` y anulaciones usan `.anular`.
+
+## UX
+
+- Ciclos pendientes, dudosos, gestantes y proximos a fecha probable.
+- Confirmacion como accion contextual del ciclo.
+- Dudoso muestra `Requiere nuevo control`.
+- Gestacion usa linea de tiempo.
+- Sin notificaciones automaticas.
 
 ## Criterios de aceptacion
 
-### CA-001: Confirmar gestacion positiva
+1. Positivo crea gestacion activa atomicamente.
+2. Negativo cierra ciclo sin gestacion.
+3. Dudoso deja pendiente.
+4. Se impide doble gestacion activa.
+5. Controles y fallos respetan estado y fechas.
+6. Fallo cierra gestacion/ciclo.
+7. Anulacion bloquea dependencias y recalcula estados.
+8. Se respeta tenant y permisos.
 
-Dado un servicio reproductivo registrado para una hembra activa, cuando un usuario con permisos registra resultado `Gestante`, entonces se crea o actualiza una gestacion activa asociada a ese servicio.
+## Verificacion
 
-### CA-002: Confirmar no gestante
-
-Dado un servicio reproductivo registrado, cuando un usuario con permisos registra resultado `No gestante`, entonces no queda gestacion activa y el servicio reproductivo queda marcado como fallido o equivalente.
-
-### CA-003: Impedir doble gestacion activa
-
-Dado una hembra con gestacion activa, cuando el usuario intenta crear otra gestacion activa para la misma hembra, entonces el sistema debe rechazar la accion.
-
-### CA-004: Registrar control de gestacion
-
-Dado una gestacion activa, cuando un usuario con permisos registra un control con datos validos, entonces el control queda en el historial de la gestacion.
-
-### CA-005: Registrar fallo reproductivo
-
-Dado una gestacion activa, cuando un usuario registra un fallo reproductivo con causa valida, entonces la gestacion queda cerrada o fallida y se conserva el historial.
-
-### CA-006: Consultar historial de gestacion por hembra
-
-Dado una hembra con gestaciones registradas, cuando el usuario consulta su historial reproductivo, entonces el sistema muestra servicios, confirmaciones, controles, estados, fallos y fecha probable de parto.
-
-### CA-007: Validar acceso por granja
-
-Dado un usuario sin acceso a la granja de la hembra, cuando intenta registrar o consultar una gestacion, entonces el sistema debe impedir la accion.
-
-### CA-008: Preparar registro de parto
-
-Dado una gestacion activa con fecha probable de parto, cuando se consulte la gestacion, entonces el sistema debe mostrar la informacion necesaria para registrar el parto en `010-partos.md`.
-
-### CA-009: Anular gestacion
-
-Dado una gestacion registrada por error, cuando un usuario con permiso la anula indicando motivo, entonces la gestacion queda marcada como anulada y se conserva en el historial.
+- Matriz positiva/negativa/dudosa.
+- Orden de fechas y doble gestacion.
+- Fallos, anulaciones y rollback.
+- Multi-tenant y UX mobile-first.
 
 ## Preguntas abiertas
 
-- La gestacion se crea automaticamente al registrar la monta o solo al confirmar resultado gestante?
-- El resultado `Dudoso` dejara la gestacion como pendiente o requerira nuevo control?
-- Se permitira registrar alimentacion especifica de gestacion desde esta spec o solo desde `007-consumo-alimento.md`?
-- Se permitiran adjuntos o archivos de ecografia en una fase futura?
-- Los estados sugeridos de gestacion seran suficientes para el MVP o se requiere algun estado adicional?
+No quedan preguntas que bloqueen MVP v2.
 
-## Decisiones tomadas
+## Decisiones
 
-- La gestacion se relaciona con un servicio reproductivo.
-- Solo puede existir una gestacion activa por hembra.
-- La confirmacion de gestacion y sus controles forman parte del historial reproductivo.
-- Los fallos reproductivos se registran como eventos historicos.
-- El parto se gestiona en `010-partos.md`.
+- Gestacion solo tras positivo.
+- Dudoso mantiene ciclo pendiente.
+- Parto no confirmado es excepcion de spec 010.
+- Eventos inmutables.

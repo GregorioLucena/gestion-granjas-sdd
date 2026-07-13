@@ -1,168 +1,125 @@
-# Spec 008: Montas e Inseminaciones
+# Spec 008: Servicios Reproductivos
 
 ## Estado
 
-Borrador inicial
+Lista para implementar MVP v2 (2026-07-13)
 
 ## Objetivo
 
-Permitir registrar y consultar servicios reproductivos de hembras, incluyendo montas naturales e inseminaciones, para iniciar el seguimiento reproductivo que luego continuara con gestacion, parto y destete.
-
-Esta especificacion es la entrada principal al ciclo reproductivo.
+Iniciar ciclos reproductivos de hembras y registrar uno o varios servicios de monta o
+inseminacion dentro del mismo intento.
 
 ## Dependencias
-
-Esta especificacion depende de:
 
 - `000-configuracion-base.md`
 - `001-usuarios-perfiles.md`
 - `002-gestion-animales.md`
-- `docs/03-catalogo-maestras.md`
-- `docs/decisions/0005-auditoria-y-trazabilidad.md`
+- `docs/decisions/0010-ciclo-reproductivo.md`
 
 ## Alcance
 
-Incluye:
+- Crear ciclo con su primer servicio.
+- Agregar servicios al ciclo `PENDIENTE_CONFIRMACION`.
+- Monta natural e inseminacion.
+- Macho interno o referencia externa.
+- Material genetico como texto historico.
+- Fecha probable de parto calculada.
+- Historial y anulacion.
 
-- Registro de monta natural.
-- Registro de inseminacion artificial.
-- Asociacion de hembra servida.
-- Asociacion opcional de macho reproductor.
-- Registro opcional de identificacion de semen o pajilla.
-- Registro de fecha del servicio reproductivo.
-- Registro de tipo de servicio reproductivo.
-- Calculo o registro de fecha probable de parto.
-- Registro de estado del servicio reproductivo.
-- Consulta de historial reproductivo inicial por hembra.
-- Anulacion de servicios registrados por error.
+No incluye inventario de semen, protocolos de celo, genetica ni gestacion.
 
-No incluye en esta version:
+## Datos
 
-- Confirmacion de gestacion.
-- Seguimiento de gestacion.
-- Registro de partos.
-- Registro de crias.
-- Destete.
-- Control genetico avanzado.
-- Inventario de semen.
-- Sincronizacion de celo.
+### Ciclo reproductivo
 
-## Conceptos principales
+- Hembra, granja y fecha de inicio derivada del primer servicio.
+- Estado derivado.
+- Fecha probable de parto calculada desde el ultimo servicio del ciclo.
 
-### Servicio reproductivo
+### Servicio
 
-Evento que registra que una hembra fue servida mediante monta natural, inseminacion artificial u otro metodo reproductivo.
+- `cicloId`.
+- Tipo con `codigoSistema`: `MONTA_NATURAL`, `INSEMINACION_ARTIFICIAL`, `OTRO`.
+- Fecha.
+- `machoId` interno opcional.
+- `machoExternoIdentificacion` y `machoExternoOrigen` opcionales.
+- `materialGeneticoIdentificacion` opcional.
+- Responsable y observaciones.
 
-### Hembra servida
+`TipoAnimal.duracionGestacionDias` es opcional y positivo.
 
-Animal hembra que recibe el servicio reproductivo.
+## Reglas
 
-### Macho reproductor
+1. Hembra debe ser activa, sexo `HEMBRA` y finalidad con `codigoSistema = REPRODUCCION`.
+2. Sexo desconocido no participa.
+3. Solo existe un ciclo no terminal por hembra.
+4. Si esta `PENDIENTE_CONFIRMACION`, el usuario agrega el servicio a ese ciclo; la API no
+   decide por una ventana temporal implicita.
+5. Si esta gestante, en lactancia o terminal, se rechaza el nuevo servicio.
+6. Fecha no es futura, no precede alta de hembra ni servicio anterior del ciclo.
+7. Macho interno debe ser activo, de la misma compania/tipo, sexo `MACHO` y finalidad
+   `REPRODUCCION`. Puede pertenecer a otra granja accesible de la compania.
+8. Monta natural exige macho interno o referencia externa.
+9. Inseminacion exige material genetico o referencia de macho.
+10. Referencias externas se guardan como snapshot y no crean animales.
+11. Fecha probable = fecha del ultimo servicio + dias de gestacion; si no hay configuracion,
+    puede informarse manualmente y debe ser posterior.
+12. Servicios son inmutables y se anulan con motivo.
+13. No se anula un servicio con confirmaciones o eventos posteriores vigentes. Si hay varios
+    servicios sin dependencias, solo se anula el ultimo.
 
-Animal macho usado en una monta natural o como referencia del material genetico.
+## Permisos
 
-### Inseminacion artificial
+- `reproduccion.servicios.ver`
+- `reproduccion.servicios.crear`
+- `reproduccion.servicios.anular`
 
-Servicio reproductivo donde se registra material genetico sin requerir necesariamente un macho presente en la granja.
+## API
 
-### Fecha probable de parto
+| Metodo | Ruta |
+|--------|------|
+| `GET` | `/reproduccion/ciclos` |
+| `POST` | `/reproduccion/ciclos` |
+| `GET` | `/reproduccion/ciclos/:id` |
+| `POST` | `/reproduccion/ciclos/:id/servicios` |
+| `POST` | `/reproduccion/servicios/:id/anular` |
 
-Fecha estimada de parto calculada o registrada a partir de la fecha del servicio reproductivo y la duracion esperada de gestacion del tipo de animal.
+Crear ciclo recibe hembra y datos del primer servicio en una transaccion. Listado requiere
+granja y permite hembra, tipo, estado, periodo y paginacion.
 
-## Datos requeridos
+## UX
 
-### Servicio reproductivo
-
-- Compania.
-- Granja.
-- Hembra servida.
-- Tipo de servicio reproductivo.
-- Fecha del servicio.
-- Macho reproductor opcional.
-- Identificacion de semen o pajilla opcional.
-- Responsable.
-- Fecha probable de parto opcional.
-- Estado del servicio reproductivo.
-- Observaciones opcionales.
-- Datos de auditoria.
-
-## Reglas de negocio
-
-- Todo servicio reproductivo debe pertenecer a una compania y granja.
-- La hembra servida debe pertenecer a la misma compania y granja del servicio.
-- La hembra servida debe ser un animal activo.
-- La hembra servida debe tener sexo `Hembra`.
-- La hembra servida debe tener finalidad productiva compatible con reproduccion.
-- Si se informa macho reproductor, debe pertenecer a la misma compania.
-- Si se informa macho reproductor dentro de la granja, debe ser un animal activo y de sexo `Macho`.
-- Para monta natural debe informarse macho reproductor, salvo que una regla futura permita registrar macho externo.
-- Para inseminacion artificial debe informarse identificacion de semen/pajilla o macho reproductor de referencia.
-- El tipo de servicio reproductivo debe venir de maestra activa.
-- El estado inicial del servicio reproductivo debe ser `Registrado` o equivalente segun maestra.
-- El usuario debe tener permiso para registrar servicios reproductivos.
-- El usuario solo puede registrar servicios en granjas a las que tiene acceso.
-- No debe permitirse registrar servicios reproductivos para animales vendidos, muertos o descartados.
-- No debe permitirse registrar un nuevo servicio reproductivo a una hembra con gestacion activa, salvo que una especificacion futura lo permita como repeticion o correccion.
-- La fecha probable de parto puede calcularse si existe duracion de gestacion configurada para el tipo de animal; si no existe, puede registrarse manualmente.
-- Un servicio reproductivo no debe eliminarse fisicamente; si fue registrado por error, debe anularse segun `0005-auditoria-y-trazabilidad.md`.
-
-## Permisos requeridos
-
-- `reproduccion.montas.ver`: consultar servicios reproductivos.
-- `reproduccion.montas.crear`: registrar montas o inseminaciones.
-- `reproduccion.montas.editar`: modificar datos permitidos antes de confirmacion.
-- `reproduccion.montas.anular`: anular servicios registrados por error.
+- Hub reproductivo y ficha de ciclo.
+- Al seleccionar hembra con ciclo `PENDIENTE_CONFIRMACION`, ofrecer `Agregar servicio al
+  ciclo`; para otros estados no terminales explicar el bloqueo.
+- Campos condicionales por tipo.
+- Fecha probable explicada como estimacion.
+- Linea de tiempo inmutable y anulacion confirmada.
 
 ## Criterios de aceptacion
 
-### CA-001: Registrar monta natural
+1. Crear ciclo y primer servicio atomicamente.
+2. Agrupar servicios del mismo intento sin duplicar ciclo.
+3. Bloquear segundo ciclo no terminal.
+4. Validar hembra, macho y referencias requeridas.
+5. Recalcular fecha probable con el ultimo servicio.
+6. Bloquear servicio posterior a resultado definitivo.
+7. Anular solo sin dependencias y en orden.
+8. Respetar tenant, granjas y permisos.
 
-Dado una hembra activa con finalidad reproductiva y un macho activo, cuando un usuario con permisos registra una monta natural con datos validos, entonces el servicio reproductivo queda registrado en el historial de la hembra.
+## Verificacion
 
-### CA-002: Registrar inseminacion artificial
-
-Dado una hembra activa con finalidad reproductiva, cuando un usuario con permisos registra una inseminacion artificial con identificacion de semen o macho de referencia, entonces el servicio reproductivo queda registrado en el historial de la hembra.
-
-### CA-003: Validar sexo de la hembra
-
-Dado un animal que no tiene sexo `Hembra`, cuando el usuario intenta registrarlo como hembra servida, entonces el sistema debe rechazar el registro.
-
-### CA-004: Validar sexo del macho
-
-Dado un animal que no tiene sexo `Macho`, cuando el usuario intenta usarlo como macho reproductor, entonces el sistema debe rechazar el registro.
-
-### CA-005: Validar acceso por granja
-
-Dado un usuario sin acceso a la granja de la hembra, cuando intenta registrar o consultar un servicio reproductivo, entonces el sistema debe impedir la accion.
-
-### CA-006: Calcular fecha probable de parto
-
-Dado un tipo de animal con duracion de gestacion configurada, cuando se registra un servicio reproductivo, entonces el sistema propone la fecha probable de parto a partir de la fecha del servicio.
-
-### CA-007: Consultar historial reproductivo de hembra
-
-Dado una hembra con servicios reproductivos registrados, cuando el usuario consulta su historial reproductivo, entonces el sistema muestra fecha, tipo de servicio, macho o semen, estado, fecha probable de parto y responsable.
-
-### CA-008: Impedir servicio en hembra con gestacion activa
-
-Dado una hembra con gestacion activa, cuando el usuario intenta registrar un nuevo servicio reproductivo sin marcarlo como correccion o repeticion permitida, entonces el sistema debe rechazar la accion.
-
-### CA-009: Anular servicio reproductivo
-
-Dado un servicio reproductivo registrado por error, cuando un usuario con permiso lo anula indicando motivo, entonces el servicio queda marcado como anulado y se conserva en el historial.
+- Unitarias por tipo, participantes, fechas y estimacion.
+- Integracion de ciclo/multiples servicios/anulacion.
+- Multi-tenant y UX mobile-first.
 
 ## Preguntas abiertas
 
-- La duracion de gestacion se configurara en `Tipo de animal` o en una maestra reproductiva separada?
-- Se permitira registrar macho externo no existente como animal del sistema?
-- La identificacion de semen/pajilla sera texto libre en MVP o requerira inventario genetico futuro?
-- Se permitiran multiples servicios en un mismo celo?
-- Cuando se confirme gestacion, el estado del servicio se actualizara automaticamente?
+No quedan preguntas que bloqueen MVP v2.
 
-## Decisiones tomadas
+## Decisiones
 
-- La monta o inseminacion sera un evento historico reproductivo.
-- El servicio reproductivo siempre pertenece a una hembra individual.
-- El servicio puede registrar macho reproductor, semen/pajilla o ambos segun tipo de servicio.
-- La fecha probable de parto podra calcularse si existe configuracion de duracion de gestacion.
-- El seguimiento de gestacion se definira en `009-gestacion.md`.
+- Un intento es un ciclo con uno o varios servicios.
+- Referencias externas permitidas como snapshot.
+- Duracion configurada en tipo de animal.
+- Eventos inmutables.

@@ -196,6 +196,8 @@ El detalle completo se mantiene en `docs/03-catalogo-maestras.md`.
 
 - Nombre.
 - Descripcion opcional.
+- Codigo de sistema opcional e inmutable cuando una spec productiva lo requiera. La
+  finalidad Engorde usa `ENGORDE`.
 - Estado activo/inactivo.
 
 ### Tipo de ubicacion
@@ -370,7 +372,7 @@ Dado un registro existente, cuando el usuario edita el nombre (u otro campo con 
 
 Dado un registro en edicion, cuando el usuario modifica campos administrables, entonces el sistema permite solo los definidos para ese catalogo:
 
-- **Compania / granja / finalidad / tipo de ubicacion:** nombre y campos opcionales segun entidad (`identificacionFiscal`, `telefono`, `correo`, `direccion` en compania; `codigo`, `direccion` en granja; `descripcion` en finalidad y tipo de ubicacion), y reactivacion (`Activo`) si estaba inactivo.
+- **Compania / granja / finalidad / tipo de ubicacion:** nombre y campos opcionales segun entidad (`identificacionFiscal`, `telefono`, `correo`, `direccion` en compania; `codigo`, `direccion` en granja; `descripcion` en finalidad y tipo de ubicacion), y reactivacion (`Activo`) si estaba inactivo. `FinalidadProductiva.codigoSistema` no es editable.
 - **Compania (formulario):** ademas del nombre, la UI permite capturar y editar `identificacionFiscal`, `telefono`, `correo` y `direccion` (todos opcionales); el correo se valida en formato email si se informa.
 - **Granja (formulario):** ademas del nombre, la UI permite capturar y editar `codigo` y `direccion` (opcionales).
 - **Tipo de animal:** nombre, descripcion, `requiereRaza`, `duracionGestacionDias`.
@@ -424,6 +426,16 @@ Dado un formulario ABM de configuracion base, cuando se muestran campos requerid
 
 - **Almacenes:** fuera de alcance; implementar con spec `005-inventario-alimentos.md`.
 - **Autenticacion:** login JWT en spec `001-usuarios-perfiles.md` (reemplaza el bypass `X-Dev-User-Email` usado durante spec `000`).
+- **Finalidad Engorde:** `012-engorde-lotes.md` agregara `codigoSistema = ENGORDE`
+  mediante una migracion y seed; no cambia el ABM visible ya cerrado en esta spec.
+- **Finalidades MVP v2:** `002`/`008` agregaran codigos inmutables `REPRODUCCION` y `CRIA`
+  mediante migracion y seed.
+- **Maestras de engorde/pesos:** `012` y `013` agregaran ABM separados para motivos de
+  cierre, motivos de baja y metodos de pesaje usando el patron de esta spec y el permiso
+  `maestras.administrar`.
+- **Maestras posteriores:** `002`, `004`, `006` y `008`-`011` agregaran los catalogos de
+  ciclo animal, sanidad, movimientos y reproduccion definidos en
+  `docs/03-catalogo-maestras.md`, cada uno como pantalla separada bajo el hub de maestras.
 
 ### Mejoras opcionales pospuestas
 

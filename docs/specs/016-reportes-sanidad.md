@@ -2,240 +2,215 @@
 
 ## Estado
 
-Borrador inicial
+Lista para implementar MVP v2 (2026-07-13)
 
 ## Objetivo
 
-Permitir consultar indicadores y reportes sanitarios a partir de eventos de sanidad registrados sobre animales individuales y lotes, incluyendo vacunaciones, enfermedades, diagnosticos, tratamientos, controles preventivos y veterinarios responsables.
-
-Esta especificacion convierte el historial sanitario en informacion util para seguimiento, prevencion y toma de decisiones.
+Consultar actividad sanitaria, casos que requieren seguimiento, proximas vacunaciones,
+retiros vigentes e historial por sujeto o veterinario.
 
 ## Dependencias
 
-Esta especificacion depende de:
-
-- `000-configuracion-base.md`
 - `001-usuarios-perfiles.md`
 - `002-gestion-animales.md`
 - `003-gestion-lotes.md`
 - `004-sanidad-animal.md`
 - `docs/decisions/0005-auditoria-y-trazabilidad.md`
 
-## Alcance
+## Alcance MVP v2
 
 Incluye:
 
-- Reporte de eventos sanitarios por periodo.
-- Reporte de vacunaciones.
-- Reporte de enfermedades y diagnosticos.
-- Reporte de tratamientos.
-- Reporte de controles preventivos.
-- Reporte por veterinario responsable.
-- Reporte de animales o lotes con casos sanitarios activos.
-- Historial sanitario consolidado por animal.
-- Historial sanitario consolidado por lote.
-- Filtros por compania, granja, animal, lote, veterinario, tipo de evento y periodo.
-
-No incluye en esta version:
-
-- Alertas automaticas de proximas vacunas.
-- Indicadores epidemiologicos avanzados.
-- Reportes oficiales para autoridades sanitarias.
-- Integraciones con laboratorios.
-- Analisis de costos sanitarios.
-- Inventario de medicamentos.
-
-## Conceptos principales
-
-### Reporte sanitario
-
-Vista que consolida eventos relacionados con salud animal por periodo, granja, animal, lote o veterinario.
-
-### Caso sanitario activo
-
-Enfermedad, diagnostico o tratamiento que todavia requiere seguimiento.
-
-### Historial sanitario consolidado
-
-Vista que agrupa vacunaciones, enfermedades, diagnosticos, tratamientos, controles y veterinarios tratantes de un animal o lote.
-
-### Cobertura de vacunacion
-
-Indicador basico que muestra animales o lotes vacunados en un periodo contra una vacuna especifica.
-
-## Datos de entrada
-
-Los reportes se alimentan de:
-
-- Eventos sanitarios.
-- Vacunaciones.
-- Enfermedades o diagnosticos.
+- Eventos sanitarios por periodo.
+- Vacunaciones aplicadas.
+- Proximas vacunaciones sugeridas.
+- Casos sanitarios activos.
 - Tratamientos.
-- Controles sanitarios.
-- Veterinarios tratantes.
-- Animales.
-- Lotes.
-- Compania y granja.
+- Restricciones por retiro.
+- Actividad por veterinario.
+- Historial consolidado de animal o lote.
 
-## Filtros requeridos
+No incluye:
 
-- Compania.
-- Granja opcional.
-- Periodo desde.
-- Periodo hasta.
-- Animal opcional.
-- Lote opcional.
-- Veterinario opcional.
-- Tipo de evento sanitario opcional.
-- Enfermedad opcional.
-- Vacuna opcional.
-- Estado de caso sanitario opcional.
+- Notificaciones automaticas.
+- Cobertura porcentual de vacunacion.
+- Epidemiologia avanzada.
+- Costos, inventario sanitario o reportes oficiales.
+- Graficos y exportacion.
 
-## Reportes iniciales
+## Fuente y exclusiones
 
-### Reporte de eventos sanitarios
+Se usan eventos, seguimientos y asignaciones de veterinario no anulados. Registros anulados
+no participan en totales ni pendientes. Maestras y sujetos inactivos se conservan en
+historial.
 
-Debe mostrar:
+## Filtros
 
-- Fecha.
-- Tipo de evento sanitario.
-- Animal o lote.
-- Veterinario responsable.
-- Estado.
-- Observaciones o descripcion.
+- `granjaId` obligatorio y accesible.
+- `fechaDesde` y `fechaHasta` obligatorios en reportes por periodo, maximo 366 dias.
+- Animal o lote opcional y mutuamente excluyentes.
+- Veterinario, tipo de evento, enfermedad, vacuna, medicamento y estado opcionales.
+- Paginacion obligatoria en detalle.
 
-### Reporte de vacunaciones
+## Reportes
 
-Debe mostrar:
+### Eventos
 
-- Vacuna.
-- Fecha de aplicacion.
-- Animal o lote.
-- Dosis cuando exista.
-- Via de aplicacion cuando exista.
-- Proxima fecha sugerida cuando exista.
-- Veterinario o responsable.
+Fecha, tipo, sujeto, cantidad tratada, veterinario, usuario registrador y resumen.
 
-### Reporte de enfermedades y diagnosticos
+### Vacunaciones
 
-Debe mostrar:
+Vacuna, fecha, sujeto, dosis/unidad, via, cantidad tratada, proxima fecha y responsable.
 
-- Enfermedad o diagnostico.
-- Animal o lote.
-- Fecha de deteccion.
-- Gravedad.
-- Estado del caso.
-- Veterinario responsable.
+### Proximas vacunaciones
 
-### Reporte de tratamientos
+Una vacunacion con `proximaFechaSugerida` queda pendiente si no existe otra vacunacion
+vigente posterior para el mismo sujeto y vacuna.
 
-Debe mostrar:
+Estado:
 
-- Medicamento o producto sanitario.
-- Diagnostico relacionado cuando exista.
-- Fecha de inicio.
-- Fecha de fin.
-- Dosis y frecuencia cuando existan.
-- Resultado.
-- Veterinario responsable.
+- `PROXIMA`: fecha >= hoy.
+- `VENCIDA`: fecha < hoy.
 
-### Reporte de controles preventivos
+Es un reporte consultable; no genera alerta o notificacion.
 
-Debe mostrar:
+### Casos activos
 
-- Motivo del control.
-- Animal o lote.
-- Fecha.
-- Hallazgos.
-- Recomendaciones.
-- Responsable.
+Diagnosticos cuyo ultimo estado es `ACTIVO`, `EN_TRATAMIENTO` o `CRONICO`, con sujeto,
+enfermedad, gravedad, antiguedad, veterinario y ultimo seguimiento.
 
-### Reporte por veterinario
+### Tratamientos
 
-Debe mostrar:
+Medicamento, sujeto, diagnostico relacionado, fechas, dosis/frecuencia, retiro, resultado y
+veterinario.
 
-- Veterinario.
-- Eventos registrados.
-- Animales o lotes atendidos.
-- Tratamientos indicados.
-- Controles realizados.
-- Periodo consultado.
+### Retiros vigentes
 
-### Historial sanitario consolidado
+Animal o lote, medicamento/tratamiento origen, fecha de inicio, fecha final y dias restantes.
+Si hay varios tratamientos, se muestra la mayor fecha vigente y sus fuentes.
 
-Debe mostrar:
+### Actividad por veterinario
 
-- Vacunaciones.
-- Enfermedades y diagnosticos.
-- Tratamientos.
-- Controles preventivos.
-- Veterinario tratante actual.
-- Eventos anulados excluidos por defecto.
+Eventos, sujetos atendidos, diagnosticos y tratamientos en el periodo. Son conteos de
+actividad, no evaluacion de desempeño.
 
-## Reglas de negocio
+### Historial consolidado
 
-- Todo reporte debe respetar la compania del usuario.
-- Todo reporte debe respetar las granjas a las que el usuario tiene acceso.
-- Los eventos anulados deben excluirse por defecto.
-- Los reportes deben usar datos historicos aunque animales, lotes, veterinarios o maestras hayan quedado inactivos.
-- Los reportes deben indicar claramente periodo, filtros y fecha de consulta.
-- El historial sanitario de un animal o lote debe mostrarse en orden cronologico.
-- Los casos activos deben basarse en estados sanitarios no cerrados, recuperados o anulados.
-- El usuario debe tener permiso para consultar reportes sanitarios.
+Linea cronologica de eventos, seguimientos, veterinario tratante y anulados solo cuando se
+solicite vista auditable.
 
-## Permisos requeridos
+Los endpoints de esta spec son un read model de reporte con filtros/metadatos y permiso
+`reportes.sanidad.ver`. Los historiales de spec `004` son la vista operativa del modulo
+sanitario y delegan a la misma consulta base; no se duplican reglas ni persistencia.
 
-- `reportes.sanidad.ver`: consultar reportes sanitarios.
+## Reglas
+
+1. Consultas filtran por tenant y granjas permitidas.
+2. Filtros ajenos se rechazan.
+3. Anulados se excluyen por defecto y siempre de agregados.
+4. Casos activos se definen por ultimo estado, no por fecha de tratamiento.
+5. Una vacunacion posterior satisface la recomendacion previa del mismo sujeto/vacuna.
+6. Retiro vigente usa la mayor fecha final entre tratamientos vigentes no anulados.
+7. Sin datos devuelve estructura vacia, no error.
+8. Backend calcula estados, dias y totales.
+9. Periodo y fecha de consulta se incluyen en metadatos.
+
+## Permiso
+
+- `reportes.sanidad.ver`
+
+## API
+
+| Metodo | Ruta |
+|--------|------|
+| `GET` | `/reportes/sanidad/eventos` |
+| `GET` | `/reportes/sanidad/vacunaciones` |
+| `GET` | `/reportes/sanidad/proximas-vacunaciones` |
+| `GET` | `/reportes/sanidad/casos-activos` |
+| `GET` | `/reportes/sanidad/tratamientos` |
+| `GET` | `/reportes/sanidad/retiros-vigentes` |
+| `GET` | `/reportes/sanidad/veterinarios` |
+| `GET` | `/reportes/sanidad/historial/animales/:id` |
+| `GET` | `/reportes/sanidad/historial/lotes/:id` |
+
+Respuesta separa `data`, `summary` y `meta` con filtros, periodo, fecha y paginacion.
+
+## UX
+
+Hub `/reportes/sanidad`, una pantalla por reporte:
+
+- Granja y periodo visibles.
+- Filtros colapsables.
+- Estados con texto, no solo color.
+- Casos, vacunas vencidas y retiros destacados.
+- Detalle mobile-first.
+- Loading, empty y error inline.
+- Sin graficos, exportacion ni notificaciones.
 
 ## Criterios de aceptacion
 
-### CA-001: Consultar eventos sanitarios
+### CA-001: Consultar eventos
 
-Dado eventos sanitarios registrados, cuando el usuario consulta el reporte por periodo, entonces el sistema muestra tipo, fecha, animal o lote, veterinario, estado y descripcion.
+Dado un periodo, cuando se consulta, entonces se muestra actividad vigente paginada.
 
-### CA-002: Consultar vacunaciones
+### CA-002: Determinar proxima vacunacion
 
-Dado vacunaciones registradas, cuando el usuario consulta el reporte de vacunaciones, entonces el sistema muestra vacuna, fecha, animal o lote, dosis, via y proxima fecha sugerida cuando exista.
+Dada recomendacion sin aplicacion posterior, cuando se consulta, entonces figura proxima o
+vencida; si existe aplicacion posterior, no figura.
 
-### CA-003: Consultar enfermedades y diagnosticos
+### CA-003: Casos activos
 
-Dado diagnosticos registrados, cuando el usuario consulta el reporte sanitario, entonces el sistema muestra enfermedad, animal o lote, fecha, gravedad, estado y veterinario responsable.
+Dado diagnostico, cuando su ultimo estado requiere seguimiento, entonces aparece; recuperado,
+cerrado o fallecido no.
 
-### CA-004: Consultar tratamientos
+### CA-004: Retiros
 
-Dado tratamientos registrados, cuando el usuario consulta el reporte de tratamientos, entonces el sistema muestra medicamento, diagnostico relacionado, fechas, dosis, frecuencia, resultado y responsable.
+Dados tratamientos vigentes, cuando se consulta, entonces se informa la mayor fecha final y
+dias restantes.
 
-### CA-005: Consultar casos activos
+### CA-005: Actividad por veterinario
 
-Dado casos sanitarios no cerrados, cuando el usuario consulta casos activos, entonces el sistema muestra animales o lotes que requieren seguimiento.
+Dado un periodo, cuando se agrupa, entonces los conteos no duplican sujetos ni incluyen
+eventos anulados.
 
-### CA-006: Consultar reporte por veterinario
+### CA-006: Historial
 
-Dado eventos con veterinario responsable, cuando el usuario filtra por veterinario, entonces el sistema muestra eventos, animales o lotes atendidos y tratamientos indicados en el periodo.
+Dado un sujeto, cuando se consulta, entonces eventos y seguimientos se ordenan
+cronologicamente.
 
-### CA-007: Consultar historial sanitario consolidado
+### CA-007: Excluir anulados
 
-Dado un animal o lote con eventos sanitarios, cuando el usuario consulta su historial, entonces el sistema muestra vacunaciones, diagnosticos, tratamientos, controles y veterinario tratante.
+Dado evento anulado, cuando se reporta, entonces no participa en pendientes ni totales.
 
-### CA-008: Respetar acceso por granja
+### CA-008: Respetar tenant
 
-Dado un usuario sin acceso a una granja, cuando consulta reportes sanitarios, entonces el sistema no debe incluir datos de esa granja.
+Dado acceso insuficiente, cuando se consulta, entonces no se exponen datos.
 
-### CA-009: Excluir anulados
+### CA-009: Validar periodo
 
-Dado eventos sanitarios anulados, cuando el usuario consulta reportes, entonces esos eventos no deben incluirse por defecto.
+Dado rango invertido o mayor a 366 dias, cuando se consulta, entonces se rechaza.
+
+## Verificacion
+
+- Pruebas de casos por ultimo estado.
+- Pruebas de cumplimiento de proxima vacunacion.
+- Pruebas de retiro multiple y anulacion.
+- Multi-tenant y periodos.
+- Prueba manual mobile-first.
 
 ## Preguntas abiertas
 
-- Se mostraran proximas vacunas como reporte o como modulo de alertas futuro?
-- Los reportes sanitarios incluiran costos cuando exista inventario de medicamentos?
-- Se requiere exportacion a PDF o Excel desde el MVP?
-- Se permitira clasificar enfermedades por grupos o sistemas corporales?
-- Los casos activos se definiran solo por estado o tambien por fechas de tratamiento?
+No quedan preguntas que bloqueen MVP v2.
 
-## Decisiones tomadas
+Futuro:
 
-- Los reportes sanitarios se basan en eventos historicos no anulados.
-- Los reportes deben respetar seguridad multi-compania y acceso por granja.
-- El historial sanitario consolidado podra consultarse por animal o lote.
-- Las alertas y analisis sanitarios avanzados quedan para fases posteriores.
+- Alertas y notificaciones.
+- Cobertura poblacional, epidemiologia y costos.
+- Exportaciones y reportes oficiales.
+
+## Decisiones MVP v2
+
+- Proximas fechas como reporte.
+- Casos activos por ultimo estado.
+- Sin costos ni inventario.
+- Sin exportacion/graficos.

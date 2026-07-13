@@ -2,209 +2,187 @@
 
 ## Estado
 
-Borrador inicial
+Lista para implementar MVP v2 (2026-07-13)
 
 ## Objetivo
 
-Permitir consultar indicadores y reportes reproductivos a partir de montas, gestaciones, partos y destetes registrados, facilitando la evaluacion productiva de hembras, granjas y periodos.
-
-Esta especificacion convierte los eventos reproductivos en informacion util para la toma de decisiones.
+Consultar actividad e indicadores del ciclo reproductivo sin contar multiples servicios de
+un mismo celo como intentos independientes.
 
 ## Dependencias
 
-Esta especificacion depende de:
-
-- `000-configuracion-base.md`
-- `001-usuarios-perfiles.md`
-- `002-gestion-animales.md`
 - `008-montas.md`
 - `009-gestacion.md`
 - `010-partos.md`
 - `011-destete.md`
-- `docs/decisions/0005-auditoria-y-trazabilidad.md`
+- `docs/decisions/0010-ciclo-reproductivo.md`
 
 ## Alcance
 
-Incluye:
+- Servicios por periodo.
+- Cohortes de ciclos reproductivos.
+- Confirmaciones y fallos.
+- Gestaciones activas.
+- Partos y nacimientos.
+- Bajas de lactancia y destetes.
+- Indicadores basicos.
+- Historial por hembra.
 
-- Reporte de servicios reproductivos por periodo.
-- Reporte de gestaciones confirmadas.
-- Reporte de partos por periodo.
-- Reporte de nacidos vivos, nacidos muertos y total nacido.
-- Reporte de crias destetadas.
-- Reporte de mortalidad durante lactancia.
-- Promedio de nacidos vivos por parto.
-- Promedio de destetados por parto.
-- Tasa basica de confirmacion de gestacion.
-- Tasa basica de fallos reproductivos.
-- Consulta de historial reproductivo consolidado por hembra.
-- Filtros por compania, granja, tipo de animal, hembra y periodo.
+No incluye comparacion de periodos, formulas configurables, graficos, exportacion, filtros
+favoritos, genetica o economia.
 
-No incluye en esta version:
+## Periodos
 
-- Graficos avanzados.
-- Predicciones reproductivas.
-- Comparativas economicas.
-- Exportaciones avanzadas.
-- Indicadores personalizados por usuario.
-- Analisis genetico.
+- Reportes de actividad filtran por fecha del evento.
+- Tasas filtran cohortes cuyo primer servicio cae entre `fechaDesde` y `fechaHasta`.
+- Periodo maximo: 366 dias.
+- Granja obligatoria.
 
-## Conceptos principales
+## Indicadores
 
-### Indicador reproductivo
+### Confirmacion de gestacion
 
-Medida calculada a partir de eventos reproductivos registrados.
+```text
+ciclosConfirmados = resultado POSITIVA o parto no confirmado
+ciclosNoGestantes = resultado NEGATIVA
+elegiblesConfirmacion = confirmados + noGestantes
+tasaConfirmacionPct = confirmados / elegiblesConfirmacion * 100
+```
 
-### Historial reproductivo consolidado
+Dudosos y pendientes se muestran aparte y no entran al denominador.
 
-Vista que agrupa servicios, gestaciones, partos y destetes de una hembra.
+### Fallo reproductivo
 
-### Tasa de confirmacion
+Resultados finales de cohorte:
 
-Relacion entre servicios reproductivos registrados y gestaciones confirmadas.
+- `PARTO`
+- `PARTO_SIN_VIVOS`
+- `NO_GESTANTE`
+- `ABORTO`
+- `REABSORCION`
+- `OTRO_FALLO`
+- `PENDIENTE`
 
-### Tasa de fallo reproductivo
+```text
+fallos = PARTO_SIN_VIVOS + NO_GESTANTE + ABORTO + REABSORCION + OTRO_FALLO
+resultadosFinales = PARTO + fallos
+tasaFalloPct = fallos / resultadosFinales * 100
+```
 
-Relacion entre servicios o gestaciones que terminaron como fallidos, no gestantes, abortos u otros fallos.
+### Nacimientos
 
-### Productividad al destete
+```text
+promedioVivosPorParto = SUM(nacidosVivos) / partos
+promedioTotalPorParto = SUM(totalNacidos) / partos
+```
 
-Resultado basado en la cantidad de crias destetadas por parto o por hembra.
+### Lactancia
 
-## Datos de entrada
+```text
+mortalidadLactanciaPct = SUM(bajasLactancia) / SUM(nacidosVivos) * 100
+promedioDestetados = SUM(cantidadDestetada) / destetes
+```
 
-Los reportes se alimentan de:
+Todo denominador cero devuelve `null` con `No disponible`.
 
-- Servicios reproductivos.
-- Confirmaciones de gestacion.
-- Fallos reproductivos.
-- Partos.
-- Destetes.
-- Animales reproductores.
-- Compania y granja.
+## Reportes
 
-## Filtros requeridos
+### Servicios
 
-- Compania.
-- Granja opcional.
-- Periodo desde.
-- Periodo hasta.
-- Tipo de animal opcional.
-- Hembra opcional.
-- Estado opcional del evento.
+Servicios por tipo, hembra y responsable, distinguiendo cantidad de servicios y cantidad de
+ciclos.
 
-## Reportes iniciales
+### Cohorte reproductiva
 
-### Reporte de servicios reproductivos
+Por ciclo: hembra, primer/ultimo servicio, cantidad de servicios, confirmacion, gestacion,
+resultado final y dias transcurridos.
 
-Debe mostrar:
+### Gestaciones
 
-- Cantidad de servicios.
-- Servicios por tipo: monta natural, inseminacion u otro.
-- Servicios por hembra.
-- Servicios por responsable.
-- Servicios anulados excluidos por defecto.
+Activas, fechas probables, confirmaciones negativas/dudosas y fallos por causa.
 
-### Reporte de gestacion
+### Partos
 
-Debe mostrar:
+Partos, vivos, muertos, debiles, totales y promedios.
 
-- Gestaciones confirmadas.
-- Confirmaciones negativas.
-- Resultados dudosos o pendientes.
-- Fallos reproductivos por causa.
-- Tasa basica de confirmacion.
+### Lactancia y destete
 
-### Reporte de partos
+Bajas por causa, mortalidad, destetados y pesos disponibles.
 
-Debe mostrar:
+### Historial por hembra
 
-- Cantidad de partos.
-- Nacidos vivos.
-- Nacidos muertos.
-- Total nacido.
-- Crias debiles.
-- Promedio de nacidos vivos por parto.
-- Promedio total nacido por parto.
+Linea cronologica de ciclos, servicios, confirmaciones, gestaciones, partos, bajas y
+destetes.
 
-### Reporte de destete
+## Reglas
 
-Debe mostrar:
+1. Toda consulta filtra por tenant y granjas permitidas.
+2. Registros anulados se excluyen siempre de indicadores.
+3. Un ciclo cuenta una vez aunque tenga varios servicios.
+4. Cohortes pendientes no se mezclan con resultados finales.
+5. Parto no confirmado cuenta como gestacion comprobada para tasa.
+6. Un parto con vivos fija resultado reproductivo `PARTO` aunque el ciclo siga
+   operativamente `EN_LACTANCIA`; no queda pendiente. Sin vivos fija `PARTO_SIN_VIVOS`.
+7. Datos faltantes no se sustituyen por cero.
+8. Backend calcula tasas, promedios y estados.
+9. Metadatos declaran formulas, cohorte, periodo y fecha de consulta.
+10. Sin datos devuelve listas vacias e indicadores `null`.
 
-- Cantidad de destetes.
-- Crias destetadas.
-- Mortalidad durante lactancia.
-- Promedio de destetados por parto.
-- Peso promedio al destete cuando exista.
+## Permiso
 
-### Historial reproductivo por hembra
+- `reportes.reproduccion.ver`
 
-Debe mostrar:
+## API
 
-- Servicios reproductivos.
-- Gestaciones.
-- Partos.
-- Destetes.
-- Fallos reproductivos.
-- Promedios por hembra.
+| Metodo | Ruta |
+|--------|------|
+| `GET` | `/reportes/reproduccion/servicios` |
+| `GET` | `/reportes/reproduccion/cohortes` |
+| `GET` | `/reportes/reproduccion/gestaciones` |
+| `GET` | `/reportes/reproduccion/partos` |
+| `GET` | `/reportes/reproduccion/lactancia-destete` |
+| `GET` | `/reportes/reproduccion/hembras/:id` |
 
-## Reglas de negocio
+Filtros: granja, periodo, tipo de animal, hembra, tipo/estado y paginacion. Respuesta separa
+`data`, `summary` y `meta`.
 
-- Todo reporte debe respetar la compania del usuario.
-- Todo reporte debe respetar las granjas a las que el usuario tiene acceso.
-- Los registros anulados deben excluirse por defecto.
-- El usuario puede incluir anulados solo si tiene permiso especifico futuro.
-- Los calculos deben usar datos historicos, aunque maestras o animales hayan quedado inactivos.
-- Los reportes deben indicar claramente el periodo consultado.
-- Las tasas deben evitar division por cero y mostrar resultado vacio o cero segun definicion de presentacion.
-- Los promedios deben calcularse solo con registros validos y no anulados.
-- El historial de una hembra debe mostrar eventos en orden cronologico.
+## UX
 
-## Permisos requeridos
+Hub `/reportes/reproduccion`, una pantalla por reporte:
 
-- `reportes.reproduccion.ver`: consultar reportes reproductivos.
+- Granja y periodo visibles.
+- Diferenciar `Servicios` de `Intentos/ciclos`.
+- Pendientes destacados sin contarlos como fallos.
+- Indicadores no disponibles explicados.
+- Tablas/resumenes mobile-first.
+- Sin graficos ni exportacion.
 
 ## Criterios de aceptacion
 
-### CA-001: Consultar reporte de servicios
+1. Dos servicios del mismo ciclo cuentan como un intento.
+2. Cohorte se selecciona por primer servicio.
+3. Pendientes/dudosos se excluyen de denominadores.
+4. Parto no confirmado cuenta positivo.
+5. Fallo usa resultados terminales definidos.
+6. Partos/destetes calculan promedios sin anulados.
+7. Denominador cero devuelve null.
+8. Historial se ordena cronologicamente.
+9. Tenant, granja y periodo se validan.
 
-Dado un usuario con permiso y acceso a una granja, cuando consulta servicios reproductivos por periodo, entonces el sistema muestra la cantidad de servicios agrupados por tipo, hembra y responsable.
+## Verificacion
 
-### CA-002: Consultar reporte de gestacion
-
-Dado un periodo con servicios y confirmaciones, cuando el usuario consulta el reporte de gestacion, entonces el sistema muestra gestantes, no gestantes, dudosos, fallos y tasa basica de confirmacion.
-
-### CA-003: Consultar reporte de partos
-
-Dado un periodo con partos registrados, cuando el usuario consulta el reporte de partos, entonces el sistema muestra partos, nacidos vivos, nacidos muertos, total nacido y promedios.
-
-### CA-004: Consultar reporte de destete
-
-Dado un periodo con destetes registrados, cuando el usuario consulta el reporte de destete, entonces el sistema muestra destetados, mortalidad de lactancia, peso promedio y promedio de destetados por parto.
-
-### CA-005: Consultar historial reproductivo de hembra
-
-Dado una hembra con eventos reproductivos, cuando el usuario consulta su historial consolidado, entonces el sistema muestra servicios, gestaciones, partos, destetes y fallos en orden cronologico.
-
-### CA-006: Respetar acceso por granja
-
-Dado un usuario sin acceso a una granja, cuando consulta reportes reproductivos, entonces el sistema no debe incluir datos de esa granja.
-
-### CA-007: Excluir registros anulados
-
-Dado que existen eventos reproductivos anulados, cuando el usuario consulta reportes, entonces esos eventos no se incluyen por defecto en los calculos.
+- Cohortes con uno/multiples servicios.
+- Positivo, negativo, dudoso, aborto y parto no confirmado.
+- Anulaciones y denominadores cero.
+- Multi-tenant y mobile-first.
 
 ## Preguntas abiertas
 
-- Los reportes del MVP se mostraran solo en pantalla o tambien se exportaran?
-- Se requiere comparar periodos, por ejemplo mes actual contra mes anterior?
-- Las tasas reproductivas se calcularan de forma simple o con formulas configurables por especie?
-- Los reportes mostraran graficos desde el MVP o solo tablas/resumenes?
-- Se permitira guardar filtros favoritos por usuario?
+No quedan preguntas que bloqueen MVP v2.
 
-## Decisiones tomadas
+## Decisiones
 
-- Los reportes reproductivos se basan en eventos historicos no anulados.
-- Los reportes deben respetar seguridad multi-compania y acceso por granja.
-- El historial reproductivo consolidado se organizara por hembra.
-- Los indicadores avanzados pueden agregarse despues de validar el MVP.
+- Tasas por cohorte de primer servicio.
+- Pendientes separados.
+- Sin dato es null, no 0%.
+- Sin graficos/exportacion.

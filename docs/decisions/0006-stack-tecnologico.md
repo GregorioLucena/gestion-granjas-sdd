@@ -2,7 +2,7 @@
 
 ## Estado
 
-Aceptado.
+Aceptado, con arquitectura full-stack y autenticacion superadas por ADR `0007`.
 
 ## Contexto
 
@@ -23,14 +23,14 @@ Adoptar una aplicacion web **mobile-first** con la siguiente stack:
 
 | Capa | Tecnologia | Motivo |
 |------|------------|--------|
-| Framework full-stack | **Next.js** (App Router) | Un solo proyecto, rapido para MVP, API integrada |
+| Web | **Next.js** (App Router) | Aplicacion responsive y mobile-first |
 | Lenguaje | **TypeScript** | Tipado compartido entre UI, validacion y BD |
 | Base de datos | **PostgreSQL** | Relacional, robusta para multi-tenant y eventos historicos |
 | ORM | **TypeORM** | Entidades TypeScript, migraciones, repositorios; alineado con NestJS si el backend crece |
 | UI | **React** + **Tailwind CSS** + **shadcn/ui** | Componentes responsive, accesibles y consistentes |
 | Formularios | **React Hook Form** + **Zod** | Validacion compartida cliente/servidor, buena UX en movil |
 | Datos en cliente | **TanStack Query** | Cache, revalidacion y estados de carga en pantallas moviles |
-| Autenticacion | **Auth.js** (NextAuth v5) | Sesiones seguras para web, integracion con Next.js |
+| Autenticacion | **JWT en NestJS** | Decision vigente definida en ADR `0007` |
 | Testing inicial | **Vitest** | Pruebas unitarias de reglas de negocio criticas |
 
 ## Enfoque mobile-first (web responsive)
@@ -135,7 +135,7 @@ src/database/
 - Camino claro hacia PWA y app movil nativa.
 - Dependencia de Next.js como framework principal.
 - Dependencia de TypeORM para acceso a datos y migraciones.
-- Auth.js con sesiones web requerira extension para app nativa futura.
+- JWT en una API NestJS permite clientes web y una app nativa futura.
 
 ## Historial de cambios
 

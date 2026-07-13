@@ -13,9 +13,11 @@ Objetivo: crear las entidades centrales sobre las que dependeran los demas modul
 
 - `000-configuracion-base.md`: companias, granjas y administracion de maestras base. **Implementado MVP v1 (2026-06-14).**
 - `001-usuarios-perfiles.md`: usuarios, perfiles, permisos y acceso por granja. **Implementado MVP v1 (2026-06-14).**
-- `002-gestion-animales.md`: animales individuales asociados a compania, granja, especie, finalidad, raza y ubicacion.
+- `002-gestion-animales.md`: ficha, parentesco y ciclo de vida de animales individuales.
+  **Lista para implementar MVP v2 (2026-07-13).**
 - `003-gestion-lotes.md`: lotes productivos, cantidades, fechas y estados. **Implementado MVP v1 (2026-06-17).**
-- `004-sanidad-animal.md`: veterinario tratante, vacunaciones, enfermedades, tratamientos y controles sanitarios.
+- `004-sanidad-animal.md`: veterinario tratante, eventos, casos, tratamientos y retiro.
+  **Lista para implementar MVP v2 (2026-07-13).**
 
 ## Fase 2: Alimentacion e inventario
 
@@ -27,11 +29,12 @@ Objetivo: controlar alimentos disponibles.
 
 Objetivo: controlar movimientos internos antes de registrar consumos y reportes.
 
-- `006-movimientos-ubicacion.md`: historial de movimientos de ubicacion para animales y lotes.
+- `006-movimientos-ubicacion.md`: historial de movimientos internos de lotes.
+  **Lista para implementar MVP v1 opcional (2026-07-13).**
 
 ## Fase 4: Consumo y alimentacion
 
-Objetivo: controlar consumo por animal o lote.
+Objetivo MVP v1: controlar consumo por lote con descuento de inventario.
 
 - `007-consumo-alimento.md`: consumo diario por animal o lote. **Implementado MVP v1 (2026-06-17)** — alcance v1: solo por lote.
 
@@ -39,26 +42,39 @@ Objetivo: controlar consumo por animal o lote.
 
 Objetivo: controlar el ciclo reproductivo de animales individuales.
 
-- `008-montas.md`: montas o inseminaciones.
-- `009-gestacion.md`: seguimiento de gestacion y fecha probable de parto.
-- `010-partos.md`: partos, crias nacidas, mortalidad y observaciones.
-- `011-destete.md`: crias destetadas, fecha y peso.
+- `008-montas.md`: ciclos con uno o varios servicios. **Lista para implementar MVP v2
+  (2026-07-13).**
+- `009-gestacion.md`: confirmaciones, controles y fallos. **Lista para implementar MVP v2
+  (2026-07-13).**
+- `010-partos.md`: partos, conteos y crias opcionales. **Lista para implementar MVP v2
+  (2026-07-13).**
+- `011-destete.md`: bajas de lactancia y destete total. **Lista para implementar MVP v2
+  (2026-07-13).**
 
 ## Fase 6: Engorde
 
 Objetivo: controlar rendimiento productivo de lotes.
 
-- `012-engorde-lotes.md`: inicio, cierre, cantidad inicial/final y resultados.
-- `013-controles-peso.md`: pesajes por animal o lote.
+- `012-engorde-lotes.md`: inicio manual, bajas, cantidad actual derivada, cierre y
+  reapertura trazable. **Lista para implementar MVP v1 (2026-07-13).**
+- `013-controles-peso.md`: controles inicial, intermedio y final de lotes con engorde.
+  **Lista para implementar MVP v1 (2026-07-13).**
+
+Orden de implementacion obligatorio: `012` antes de `013`. El proceso de engorde aporta el
+contexto, la cantidad actual y los eventos de inicio/cierre que generan controles de peso.
 
 ## Fase 7: Reportes
 
 Objetivo: convertir los registros en informacion util para decisiones.
 
-- `014-reportes-reproduccion.md`: partos, crias, fallos reproductivos.
-- `015-reportes-alimentacion.md`: consumo y costos.
-- `016-reportes-sanidad.md`: vacunaciones, enfermedades, tratamientos y veterinarios tratantes.
-- `017-reportes-engorde.md`: ganancia de peso, conversion y mortalidad.
+- `014-reportes-reproduccion.md`: cohortes, partos, lactancia y tasas. **Lista para
+  implementar MVP v2 (2026-07-13).**
+- `015-reportes-alimentacion.md`: consumo, existencias y cobertura de costos. **Lista para
+  implementar MVP v1 (2026-07-13).**
+- `016-reportes-sanidad.md`: casos, vacunas, tratamientos y retiros. **Lista para implementar
+  MVP v2 (2026-07-13).**
+- `017-reportes-engorde.md`: ganancia, conversion y mortalidad. **Lista para implementar MVP
+  v1 (2026-07-13).**
 
 ## Regla de avance
 
@@ -70,3 +86,12 @@ Una especificacion puede pasar de borrador a lista para implementar cuando tenga
 - Reglas de negocio.
 - Criterios de aceptacion.
 - Preguntas abiertas resueltas o marcadas para despues.
+
+Para el MVP v1, `006-movimientos-ubicacion.md` es opcional y no bloquea engorde, pesos ni
+reportes.
+
+Orden recomendado pendiente MVP v1: `012` -> `013` -> `015` -> `017`; `006` puede
+implementarse en paralelo o despues.
+
+Orden obligatorio MVP v2: `002` -> `004` y `008` -> `009` -> `010` -> `011`; luego `014` y
+`016`.
