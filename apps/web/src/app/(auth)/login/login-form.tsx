@@ -56,60 +56,80 @@ export function LoginForm() {
   }
 
   return (
-    <main className="flex min-h-dvh items-center justify-center bg-background bg-[radial-gradient(circle_at_top_left,rgba(242,201,76,0.28),transparent_24rem),radial-gradient(circle_at_bottom_right,rgba(31,122,77,0.18),transparent_26rem)] p-6">
-      <section className="grid w-full max-w-5xl overflow-hidden rounded-4xl bg-surface shadow-xl shadow-primary/10 ring-1 ring-primary/10 md:grid-cols-[1.05fr_0.95fr]">
-        <div className="relative hidden min-h-136 overflow-hidden bg-primary p-8 text-white md:block">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_20%,rgba(242,201,76,0.35),transparent_14rem),radial-gradient(circle_at_80%_80%,rgba(249,115,22,0.28),transparent_15rem)]" />
-          <div className="relative z-10 flex h-full flex-col justify-between">
-            <div className="space-y-5">
+    <main className="relative flex min-h-dvh items-center justify-center overflow-hidden p-5 sm:p-8">
+      <div className="pointer-events-none absolute inset-0 app-horizon" aria-hidden />
+      <div
+        className="pointer-events-none absolute -left-24 top-24 size-72 rounded-full bg-secondary/25 blur-3xl"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute -right-16 bottom-10 size-80 rounded-full bg-primary/15 blur-3xl"
+        aria-hidden
+      />
+
+      <section className="relative grid w-full max-w-5xl overflow-hidden rounded-[2rem] bg-surface/95 shadow-[0_30px_80px_rgba(11,77,49,0.18)] ring-1 ring-primary/10 md:grid-cols-[1.08fr_0.92fr]">
+        <div className="brand-panel relative hidden min-h-[34rem] overflow-hidden p-8 text-white md:flex md:flex-col md:justify-between">
+          <div className="relative z-10 space-y-8">
+            <div className="inline-flex items-center gap-3">
               <span className="inline-flex size-12 items-center justify-center rounded-2xl bg-white/15 ring-1 ring-white/20">
                 <Sprout className="size-6" aria-hidden />
               </span>
-              <div className="space-y-3">
-                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-secondary">
-                  Gestion de granjas
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/70">
+                  Producto
                 </p>
-                <h1 className="max-w-md text-4xl font-bold tracking-tight">
-                  Control productivo claro para decidir a tiempo.
-                </h1>
-                <p className="max-w-sm text-sm leading-6 text-white/80">
-                  Lotes, alimento, consumo y engorde en una experiencia pensada para trabajar rapido
-                  desde la granja.
+                <p className="font-display text-2xl font-semibold tracking-tight">
+                  Gestion de Granjas
                 </p>
               </div>
             </div>
 
-            <div className="grid gap-3">
-              {[
-                { icon: Wheat, text: 'Inventario y consumo siempre visibles' },
-                { icon: ShieldCheck, text: 'Acceso seguro por compania y granja' },
-              ].map((item) => {
-                const Icon = item.icon;
-
-                return (
-                  <div
-                    key={item.text}
-                    className="flex items-center gap-3 rounded-2xl bg-white/10 p-3 ring-1 ring-white/15"
-                  >
-                    <span className="flex size-9 items-center justify-center rounded-xl bg-white/15">
-                      <Icon className="size-4" aria-hidden />
-                    </span>
-                    <span className="text-sm font-medium">{item.text}</span>
-                  </div>
-                );
-              })}
+            <div className="space-y-4">
+              <h1 className="font-display max-w-md text-4xl font-semibold leading-[1.1] tracking-tight lg:text-5xl">
+                Decide en el campo con datos claros.
+              </h1>
+              <p className="max-w-sm text-sm leading-7 text-white/80">
+                Lotes, alimento, consumo y engorde en una experiencia hecha para trabajar rapido
+                desde el telefono.
+              </p>
             </div>
+          </div>
+
+          <div className="relative z-10 grid gap-3">
+            {[
+              { icon: Wheat, text: 'Inventario y consumo siempre a la mano' },
+              { icon: ShieldCheck, text: 'Acceso seguro por compania y granja' },
+            ].map((item) => {
+              const Icon = item.icon;
+
+              return (
+                <div
+                  key={item.text}
+                  className="flex items-center gap-3 rounded-2xl bg-white/10 p-3.5 ring-1 ring-white/15 backdrop-blur-sm"
+                >
+                  <span className="flex size-9 items-center justify-center rounded-xl bg-white/15 text-white">
+                    <Icon className="size-4" aria-hidden />
+                  </span>
+                  <span className="text-sm font-medium">{item.text}</span>
+                </div>
+              );
+            })}
           </div>
         </div>
 
-        <div className="space-y-6 p-6 sm:p-8">
-          <div className="space-y-2 text-center md:text-left">
-            <span className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary ring-1 ring-primary/15 md:mx-0">
+        <div className="space-y-6 p-6 sm:p-9">
+          <div className="space-y-3 text-center md:text-left">
+            <span className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary ring-1 ring-primary/15 md:mx-0 md:hidden">
               <Sprout className="size-6" aria-hidden />
             </span>
             <div>
-              <h1 className="text-2xl font-bold">Iniciar sesion</h1>
-              <p className="mt-1 text-sm text-muted">Accede con tu correo y contrasena.</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary md:hidden">
+                Gestion de Granjas
+              </p>
+              <h2 className="font-display mt-1 text-3xl font-semibold tracking-tight">
+                Iniciar sesion
+              </h2>
+              <p className="mt-1.5 text-sm text-muted">Entra con tu correo y contrasena.</p>
             </div>
           </div>
 
@@ -144,15 +164,17 @@ export function LoginForm() {
             </Field>
 
             {formError ? (
-              <p className="rounded-lg bg-danger/10 px-3 py-2 text-sm text-danger">{formError}</p>
+              <p className="rounded-xl bg-danger/10 px-3 py-2 text-sm text-danger ring-1 ring-danger/15">
+                {formError}
+              </p>
             ) : null}
 
             <Button type="submit" disabled={isSubmitting} fullWidth>
-              {isSubmitting ? 'Ingresando...' : 'Iniciar sesion'}
+              {isSubmitting ? 'Ingresando...' : 'Entrar a la granja'}
             </Button>
           </form>
 
-          <div className="rounded-2xl bg-background p-3 text-xs text-muted ring-1 ring-black/5">
+          <div className="rounded-2xl bg-background/80 p-3.5 text-xs leading-5 text-muted ring-1 ring-primary/10">
             <p>{PASSWORD_POLICY_MESSAGE}</p>
             {searchParams.get('next') ? (
               <p className="mt-2">Tras iniciar sesion volveras a tu pantalla anterior.</p>

@@ -1,12 +1,12 @@
 type Estado = 'ACTIVO' | 'INACTIVO' | 'CERRADO' | 'CANCELADO' | 'ANULADO' | 'EN_CURSO';
 
 const styles: Record<Estado, string> = {
-  ACTIVO: 'bg-success/15 text-success ring-success/20',
-  INACTIVO: 'bg-muted/10 text-muted ring-black/10',
-  CERRADO: 'bg-muted/10 text-muted ring-black/10',
+  ACTIVO: 'bg-success/15 text-success ring-success/25',
+  INACTIVO: 'bg-muted/10 text-muted ring-primary/10',
+  CERRADO: 'bg-muted/10 text-muted ring-primary/10',
   CANCELADO: 'bg-danger/10 text-danger ring-danger/20',
   ANULADO: 'bg-danger/10 text-danger ring-danger/20',
-  EN_CURSO: 'bg-success/15 text-success ring-success/20',
+  EN_CURSO: 'bg-success/15 text-success ring-success/25',
 };
 
 type StatusBadgeProps = {

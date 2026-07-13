@@ -21,14 +21,14 @@ const metrics = [
   {
     label: 'Lotes activos',
     value: '—',
-    helper: 'Pendiente de conectar con el modulo de lotes.',
+    helper: 'Se conectara con el listado de lotes.',
     icon: Layers3,
     tone: 'primary' as const,
   },
   {
     label: 'Stock bajo',
     value: '—',
-    helper: 'Se activara con inventario de alimentos.',
+    helper: 'Alertas desde existencias de alimento.',
     icon: AlertTriangle,
     tone: 'warning' as const,
   },
@@ -60,21 +60,21 @@ const operationalLinks: QuickLink[] = [
   {
     href: '/lotes',
     title: 'Crear o revisar lotes',
-    description: 'Gestiona grupos productivos, cantidades y ubicacion actual.',
+    description: 'Grupos productivos, cantidades y ubicacion actual.',
     icon: Layers3,
     tone: 'primary',
   },
   {
     href: '/inventario',
     title: 'Registrar alimento',
-    description: 'Prepara entradas, salidas, ajustes y existencias.',
+    description: 'Entradas, salidas, ajustes y existencias.',
     icon: PackageOpen,
     tone: 'secondary',
   },
   {
     href: '/consumo',
     title: 'Registrar consumo',
-    description: 'Flujo rapido para descontar alimento por lote.',
+    description: 'Descuenta alimento por lote en pocos toques.',
     icon: Wheat,
     tone: 'accent',
   },
@@ -138,24 +138,22 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <section className="overflow-hidden rounded-[1.75rem] bg-primary p-5 text-white shadow-lg shadow-primary/15">
-        <div className="relative">
-          <div className="absolute -right-12 -top-16 size-40 rounded-full bg-secondary/25 blur-2xl" />
-          <div className="absolute -bottom-16 left-12 size-32 rounded-full bg-accent/20 blur-2xl" />
-          <div className="relative space-y-3">
-            <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold ring-1 ring-white/15">
-              <ClipboardList className="size-4" aria-hidden />
-              Centro operativo
-            </span>
-            <div>
-              <h1 className="text-2xl font-bold tracking-tight">
-                {user ? `Hola, ${user.nombre}` : 'Dashboard'}
-              </h1>
-              <p className="mt-1 max-w-xl text-sm leading-6 text-white/80">
-                Resumen diario de la granja activa. Los indicadores operativos se conectaran al
-                avanzar con lotes, inventario, consumo y engorde.
-              </p>
-            </div>
+      <section className="brand-panel relative overflow-hidden rounded-[1.85rem] p-5 text-white shadow-lg shadow-primary/20 sm:p-6">
+        <div className="absolute -right-8 -top-12 size-40 rounded-full bg-white/10 blur-3xl" />
+        <div className="absolute -bottom-14 left-6 size-32 rounded-full bg-black/10 blur-3xl" />
+        <div className="relative space-y-4">
+          <span className="inline-flex items-center gap-2 rounded-full bg-white/12 px-3 py-1 text-xs font-semibold ring-1 ring-white/20">
+            <ClipboardList className="size-3.5" aria-hidden />
+            Centro operativo
+          </span>
+          <div>
+            <h1 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+              {user ? `Hola, ${user.nombre}` : 'Dashboard'}
+            </h1>
+            <p className="mt-2 max-w-xl text-sm leading-6 text-white/80">
+              Resumen de la granja activa. Usa los atajos para registrar lo del dia sin perder
+              el ritmo en campo.
+            </p>
           </div>
         </div>
       </section>
@@ -175,10 +173,8 @@ export default function DashboardPage() {
 
       <section className="space-y-3">
         <div>
-          <h2 className="font-semibold">Acciones productivas</h2>
-          <p className="text-sm text-muted">
-            Atajos preparados para el flujo principal del MVP v1.
-          </p>
+          <h2 className="text-lg font-semibold text-foreground">Acciones productivas</h2>
+          <p className="text-sm text-muted">Atajos del flujo principal del MVP.</p>
         </div>
         <div className="grid gap-3 md:grid-cols-2">
           {operationalLinks.map((link) => (
@@ -190,7 +186,7 @@ export default function DashboardPage() {
       {adminLinks.length > 0 ? (
         <section className="space-y-3">
           <div>
-            <h2 className="font-semibold">Administracion</h2>
+            <h2 className="text-lg font-semibold text-foreground">Administracion</h2>
             <p className="text-sm text-muted">Modulos disponibles segun tus permisos.</p>
           </div>
           <div className="grid gap-3 md:grid-cols-3">
@@ -201,16 +197,15 @@ export default function DashboardPage() {
         </section>
       ) : null}
 
-      <section className="rounded-2xl bg-warning/10 p-4 ring-1 ring-warning/20">
+      <section className="rounded-2xl bg-secondary/20 p-4 ring-1 ring-secondary/35">
         <div className="flex items-start gap-3">
-          <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-warning/15 text-warning">
-            <AlertTriangle className="size-5" aria-hidden />
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-secondary/40 text-primary-dark">
+            <TrendingUp className="size-5" aria-hidden />
           </span>
           <div>
-            <h2 className="font-semibold text-foreground">Siguiente hito sugerido</h2>
-            <p className="mt-1 text-sm text-muted">
-              Implementar lotes y luego inventario para que estas metricas pasen de placeholder a
-              indicadores reales.
+            <h2 className="font-semibold text-foreground">Siguiente hito</h2>
+            <p className="mt-1 text-sm leading-6 text-muted">
+              Controles de peso y engorde para cerrar el ciclo productivo del MVP v1.
             </p>
           </div>
         </div>

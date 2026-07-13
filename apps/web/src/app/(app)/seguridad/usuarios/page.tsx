@@ -9,7 +9,9 @@ import { PaginationBar } from '@/components/data-display/pagination-bar';
 import { RecordListItem } from '@/components/data-display/record-list-item';
 import { useToast } from '@/components/feedback/toast';
 import { Field, FormRequiredLegend, getInputClassName, inputClassName } from '@/components/forms/field';
+import { FormActions, FormHeader, formShellClassName } from '@/components/forms/form-shell';
 import { PasswordInput } from '@/components/forms/password-input';
+import { Button } from '@/components/ui/button';
 import { apiFetch, apiFetchPaginated, getApiErrorMessage } from '@/lib/api-client';
 import {
   clearFieldError,
@@ -267,12 +269,12 @@ export default function UsuariosPage() {
         description="Administra cuentas, accesos por granja y perfiles."
       />
 
-      <div className="rounded-2xl bg-surface p-4 ring-1 ring-black/5">
+      <div className="rounded-2xl bg-surface/95 p-4 shadow-sm ring-1 ring-primary/10">
         <p className="text-xs font-semibold uppercase tracking-wide text-muted">Resultados</p>
         <p className="mt-1 text-2xl font-bold text-primary">{meta.total}</p>
       </div>
 
-      <div className="space-y-3 rounded-2xl bg-surface p-4 ring-1 ring-black/5">
+      <div className="space-y-3 rounded-2xl bg-surface/95 p-4 shadow-sm ring-1 ring-primary/10">
         <div className="relative">
           <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted" />
           <input
@@ -290,7 +292,7 @@ export default function UsuariosPage() {
               type="button"
               onClick={() => setFiltro(option.value)}
               className={`min-h-9 rounded-full px-3 text-sm font-medium ${
-                filtro === option.value ? 'bg-primary text-white' : 'bg-background text-muted ring-1 ring-black/10'
+                filtro === option.value ? 'bg-primary text-white' : 'bg-background text-muted ring-1 ring-primary/10'
               }`}
             >
               {option.label}
@@ -301,20 +303,22 @@ export default function UsuariosPage() {
 
       <div ref={formSectionRef} className="scroll-mt-20">
         {!formMode && canCreate ? (
-          <button
+          <Button
             type="button"
+            fullWidth
             onClick={() => {
               resetForm();
               setFormMode({ type: 'create' });
             }}
-            className="min-h-11 w-full rounded-xl bg-primary px-4 text-sm font-semibold text-white"
           >
             Agregar usuario
-          </button>
+          </Button>
         ) : null}
         {formMode && (formMode.type === 'create' ? canCreate : canEdit) ? (
-          <form onSubmit={onSubmit} className="space-y-4 rounded-2xl bg-surface p-4 ring-1 ring-black/5">
+          <form onSubmit={onSubmit} className={formShellClassName}>
+            <FormHeader title={isEditing ? `Editar: ${editingItem?.nombre}` : 'Nuevo usuario'} />
             <FormRequiredLegend />
+            <div className="space-y-4">
             <Field label="Nombre" htmlFor="nombre" required error={fieldErrors.nombre}>
               <input id="nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} className={getInputClassName(Boolean(fieldErrors.nombre))} />
             </Field>
@@ -397,18 +401,21 @@ export default function UsuariosPage() {
                 </select>
               </Field>
             ) : null}
-            <div className="flex gap-2">
-              <button type="submit" className="min-h-11 flex-1 rounded-xl bg-primary px-4 text-sm font-semibold text-white">
-                {isEditing ? 'Guardar cambios' : 'Registrar usuario'}
-              </button>
-              <button type="button" onClick={resetForm} className="min-h-11 rounded-xl bg-background px-4 text-sm font-semibold ring-1 ring-black/10">
-                Cancelar
-              </button>
             </div>
+            <FormActions
+              onCancel={resetForm}
+              submitLabel={isEditing ? 'Guardar cambios' : 'Registrar usuario'}
+            />
             {isEditing && editingItem && canEdit ? (
-              <button type="button" onClick={() => setResetTarget(editingItem)} className="min-h-11 w-full rounded-xl bg-warning/15 px-4 text-sm font-semibold text-warning">
+              <Button
+                type="button"
+                variant="outline"
+                fullWidth
+                className="border-warning/30 bg-warning/10 text-warning hover:bg-warning/15"
+                onClick={() => setResetTarget(editingItem)}
+              >
                 Restablecer contrasena
-              </button>
+              </Button>
             ) : null}
           </form>
         ) : null}
@@ -461,33 +468,31 @@ export default function UsuariosPage() {
 
       {resetTarget ? (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/40 p-4 sm:items-center">
-          <form onSubmit={onResetPassword} className="w-full max-w-md space-y-3 rounded-2xl bg-surface p-5 ring-1 ring-black/10">
-            <h2 className="text-lg font-bold">Nueva contrasena</h2>
-            <p className="text-sm text-muted">{resetTarget.email}</p>
-            <Field label="Nueva contrasena" htmlFor="resetPassword" required>
-              <PasswordInput
-                id="resetPassword"
-                value={resetPassword}
-                autoComplete="new-password"
-                onChange={setResetPassword}
-              />
-            </Field>
-            <Field label="Confirmar contrasena" htmlFor="resetConfirm" required>
-              <PasswordInput
-                id="resetConfirm"
-                value={resetConfirm}
-                autoComplete="new-password"
-                onChange={setResetConfirm}
-              />
-            </Field>
-            <div className="flex gap-2">
-              <button type="button" onClick={() => setResetTarget(null)} className="min-h-11 flex-1 rounded-xl ring-1 ring-black/10">
-                Cancelar
-              </button>
-              <button type="submit" className="min-h-11 flex-1 rounded-xl bg-primary text-sm font-semibold text-white">
-                Restablecer
-              </button>
+          <form onSubmit={onResetPassword} className={`w-full max-w-md ${formShellClassName}`}>
+            <FormHeader title="Nueva contrasena" description={resetTarget.email} />
+            <FormRequiredLegend />
+            <div className="space-y-4">
+              <Field label="Nueva contrasena" htmlFor="resetPassword" required>
+                <PasswordInput
+                  id="resetPassword"
+                  value={resetPassword}
+                  autoComplete="new-password"
+                  onChange={setResetPassword}
+                />
+              </Field>
+              <Field label="Confirmar contrasena" htmlFor="resetConfirm" required>
+                <PasswordInput
+                  id="resetConfirm"
+                  value={resetConfirm}
+                  autoComplete="new-password"
+                  onChange={setResetConfirm}
+                />
+              </Field>
             </div>
+            <FormActions
+              onCancel={() => setResetTarget(null)}
+              submitLabel="Restablecer"
+            />
           </form>
         </div>
       ) : null}

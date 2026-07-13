@@ -9,8 +9,10 @@ import { PaginationBar } from '@/components/data-display/pagination-bar';
 import { RecordListItem } from '@/components/data-display/record-list-item';
 import { ConfirmDialog } from '@/components/feedback/confirm-dialog';
 import { useToast } from '@/components/feedback/toast';
-import { Field, FormRequiredLegend, getInputClassName } from '@/components/forms/field';
+import { Field, getInputClassName } from '@/components/forms/field';
+import { FormShell } from '@/components/forms/form-shell';
 import { ReactivateField } from '@/components/forms/reactivate-field';
+import { Button } from '@/components/ui/button';
 import { usePaginatedList } from '@/modules/configuracion/hooks/use-paginated-list';
 import { apiFetch, apiFetchPaginated, getApiErrorMessage } from '@/lib/api-client';
 import {
@@ -204,8 +206,9 @@ export function RazasAbm() {
         <>
           <div ref={formSectionRef} className="scroll-mt-20">
             {!formMode ? (
-              <button
+              <Button
                 type="button"
+                fullWidth
                 onClick={() => {
                   setFormMode({ type: 'create' });
                   setNombre('');
@@ -213,63 +216,48 @@ export function RazasAbm() {
                   setReactivar(false);
                   setFieldErrors({});
                 }}
-                className="min-h-11 w-full rounded-xl bg-primary text-sm font-semibold text-white"
               >
                 Agregar raza
-              </button>
+              </Button>
             ) : (
-              <form onSubmit={onSubmit} className="space-y-4 rounded-2xl bg-surface p-4 ring-1 ring-black/5">
-              <p className="text-sm font-semibold text-muted">
-                {isEditing ? `Editar: ${editingItem?.nombre}` : 'Nueva raza'}
-              </p>
-              <FormRequiredLegend />
-              <Field
-                label="Nombre de la raza"
-                htmlFor="raza-nombre"
-                required
-                error={fieldErrors.nombre}
+              <FormShell
+                onSubmit={onSubmit}
+                title={isEditing ? `Editar: ${editingItem?.nombre}` : 'Nueva raza'}
+                onCancel={resetForm}
+                submitLabel={isEditing ? 'Guardar cambios' : 'Guardar'}
+                loading={isSaving}
               >
-                <input
-                  id="raza-nombre"
-                  className={getInputClassName(Boolean(fieldErrors.nombre))}
-                  placeholder="Ej. Yorkshire"
-                  value={nombre}
-                  onChange={(e) => {
-                    setNombre(e.target.value);
-                    clearFieldError('nombre', setFieldErrors);
-                  }}
-                  aria-required="true"
-                  aria-invalid={Boolean(fieldErrors.nombre)}
-                />
-              </Field>
-              <Field label="Descripcion" htmlFor="raza-descripcion">
-                <input
-                  id="raza-descripcion"
-                  className={getInputClassName()}
-                  value={descripcion}
-                  onChange={(e) => setDescripcion(e.target.value)}
-                />
-              </Field>
-              {isEditing && editingItem?.estadoRegistro === 'INACTIVO' ? (
-                <ReactivateField checked={reactivar} onChange={setReactivar} />
-              ) : null}
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={resetForm}
-                  className="min-h-11 flex-1 rounded-xl border border-black/10 text-sm font-semibold"
+                <Field
+                  label="Nombre de la raza"
+                  htmlFor="raza-nombre"
+                  required
+                  error={fieldErrors.nombre}
                 >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSaving}
-                  className="min-h-11 flex-1 rounded-xl bg-primary text-sm font-semibold text-white"
-                >
-                  {isSaving ? 'Guardando...' : isEditing ? 'Guardar cambios' : 'Guardar'}
-                </button>
-              </div>
-            </form>
+                  <input
+                    id="raza-nombre"
+                    className={getInputClassName(Boolean(fieldErrors.nombre))}
+                    placeholder="Ej. Yorkshire"
+                    value={nombre}
+                    onChange={(e) => {
+                      setNombre(e.target.value);
+                      clearFieldError('nombre', setFieldErrors);
+                    }}
+                    aria-required="true"
+                    aria-invalid={Boolean(fieldErrors.nombre)}
+                  />
+                </Field>
+                <Field label="Descripcion" htmlFor="raza-descripcion">
+                  <input
+                    id="raza-descripcion"
+                    className={getInputClassName()}
+                    value={descripcion}
+                    onChange={(e) => setDescripcion(e.target.value)}
+                  />
+                </Field>
+                {isEditing && editingItem?.estadoRegistro === 'INACTIVO' ? (
+                  <ReactivateField checked={reactivar} onChange={setReactivar} />
+                ) : null}
+              </FormShell>
             )}
           </div>
 

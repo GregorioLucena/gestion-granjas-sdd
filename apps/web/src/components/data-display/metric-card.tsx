@@ -26,19 +26,23 @@ export function MetricCard({
   tone = 'primary',
 }: MetricCardProps) {
   return (
-    <article className="rounded-2xl bg-surface p-4 shadow-sm ring-1 ring-black/5">
+    <article className="rounded-2xl bg-surface/90 p-4 shadow-sm ring-1 ring-primary/10 transition hover:-translate-y-0.5 hover:shadow-md hover:shadow-primary/10">
       <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-xs font-medium text-muted">{label}</p>
-          <p className="mt-2 text-2xl font-bold tracking-tight text-foreground">{value}</p>
+        <div className="min-w-0">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">
+            {label}
+          </p>
+          <p className="font-display mt-2 text-3xl font-semibold tracking-tight text-foreground">
+            {value}
+          </p>
         </div>
         <span
-          className={`flex size-10 items-center justify-center rounded-xl ring-1 ${toneClasses[tone]}`}
+          className={`flex size-10 shrink-0 items-center justify-center rounded-2xl ring-1 ${toneClasses[tone]}`}
         >
           <Icon className="size-5" aria-hidden />
         </span>
       </div>
-      {helper ? <p className="mt-3 text-xs text-muted">{helper}</p> : null}
+      {helper ? <p className="mt-3 text-xs leading-5 text-muted">{helper}</p> : null}
     </article>
   );
 }

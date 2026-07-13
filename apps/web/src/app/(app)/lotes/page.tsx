@@ -14,6 +14,7 @@ import { StatusBadge } from '@/components/data-display/status-badge';
 import { ConfirmDialog } from '@/components/feedback/confirm-dialog';
 import { useToast } from '@/components/feedback/toast';
 import { Field, FormRequiredLegend, getInputClassName } from '@/components/forms/field';
+import { FormActions, FormHeader, formShellClassName } from '@/components/forms/form-shell';
 import { ReactivateField } from '@/components/forms/reactivate-field';
 import { Button } from '@/components/ui/button';
 import { usePaginatedList } from '@/modules/configuracion/hooks/use-paginated-list';
@@ -289,7 +290,7 @@ function LotesContent({ canCreate, canEdit }: { canCreate: boolean; canEdit: boo
         description="Gestiona grupos productivos por granja: cantidad inicial, ubicacion y estado operativo."
       />
 
-      <section className="rounded-3xl bg-surface p-4 shadow-sm ring-1 ring-black/5">
+      <section className="rounded-3xl bg-surface/95 p-4 shadow-sm ring-1 ring-primary/10">
         <div className="flex items-start gap-3">
           <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary ring-1 ring-primary/15">
             <Layers3 className="size-5" aria-hidden />
@@ -338,21 +339,13 @@ function LotesContent({ canCreate, canEdit }: { canCreate: boolean; canEdit: boo
                   </Button>
                 ) : null
               ) : (
-                <form
-                  onSubmit={onSubmit}
-                  className="space-y-4 rounded-3xl bg-surface p-4 shadow-sm ring-1 ring-black/5"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="text-sm font-semibold text-muted">
-                        {isEditing ? `Editar: ${editingItem?.codigo}` : 'Nuevo lote'}
-                      </p>
-                      <p className="mt-1 text-xs text-muted">
-                        El codigo es manual en esta version del MVP.
-                      </p>
-                    </div>
+                <form onSubmit={onSubmit} className={formShellClassName}>
+                  <FormHeader
+                    title={isEditing ? `Editar: ${editingItem?.codigo}` : 'Nuevo lote'}
+                    description="El codigo es manual en esta version del MVP."
+                  >
                     <StatusBadge estado={formEstadoOperativo} />
-                  </div>
+                  </FormHeader>
                   <FormRequiredLegend />
 
                   <Field label="Codigo" htmlFor="lote-codigo" required error={fieldErrors.codigo}>
@@ -496,14 +489,11 @@ function LotesContent({ canCreate, canEdit }: { canCreate: boolean; canEdit: boo
                     <ReactivateField checked={reactivar} onChange={setReactivar} />
                   ) : null}
 
-                  <div className="flex gap-2">
-                    <Button type="button" variant="outline" fullWidth onClick={resetForm}>
-                      Cancelar
-                    </Button>
-                    <Button type="submit" fullWidth disabled={isSaving}>
-                      {isSaving ? 'Guardando...' : isEditing ? 'Guardar cambios' : 'Guardar lote'}
-                    </Button>
-                  </div>
+                  <FormActions
+                    onCancel={resetForm}
+                    submitLabel={isEditing ? 'Guardar cambios' : 'Guardar lote'}
+                    loading={isSaving}
+                  />
                 </form>
               )}
             </div>
@@ -529,7 +519,7 @@ function LotesContent({ canCreate, canEdit }: { canCreate: boolean; canEdit: boo
                   className={`min-h-9 rounded-full px-3 text-sm font-semibold transition ${
                     estadoOperativo === option.value
                       ? 'bg-primary text-white shadow-sm shadow-primary/20'
-                      : 'bg-surface text-muted ring-1 ring-black/10 hover:text-primary hover:ring-primary/20'
+                      : 'bg-surface text-muted ring-1 ring-primary/10 hover:text-primary hover:ring-primary/20'
                   }`}
                 >
                   {option.label}

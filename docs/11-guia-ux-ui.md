@@ -28,52 +28,52 @@ Crear una aplicacion web responsive, elegante, divertida y llamativa, sin perder
 
 ## Direccion visual
 
+### Identidad: Campo vivo
+
+Producto para operadores de granja en telefono. Debe sentirse productivo, cercano y con identidad agropecuaria propia — no un dashboard generico SaaS.
+
+| Eje | Decision |
+|-----|----------|
+| Firma | Heroes con panel `brand-panel` (degradado solo en verdes limpios) |
+| Atmosfera | Fondo mist con glow verde suave; sin overlays maize/ember en fondos |
+| Display | `Fraunces` solo en titulos de marca / heroes (`font-display`) |
+| UI | `Nunito Sans` para cuerpo, labels, navegacion y formularios |
+| Acentos | Maiz y ember en iconos, chips y CTAs — no mezclados sobre verdes oscuros |
+
 ### Estilo general
 
 - Moderno, limpio y con detalles organicos asociados al campo.
-- Tarjetas con bordes redondeados, sombras suaves y acentos de color.
+- Tarjetas con bordes redondeados, sombras suaves y anillos `primary/10`.
 - Iconos simples para acciones frecuentes: lotes, alimento, peso, inventario, reportes.
 - Ilustraciones pequenas solo en estados vacios o onboarding, no en pantallas operativas densas.
+- Microinteracciones cortas (hover lift, active scale); respetar `prefers-reduced-motion`.
 
-### Paleta sugerida
+### Paleta
 
-| Uso | Color sugerido | Intencion |
-|-----|----------------|-----------|
-| Primario | Verde profundo | Campo, vida, productividad |
-| Secundario | Amarillo/maiz | Energia, alimento, calidez |
-| Acento | Coral/naranja | Acciones llamativas y microdetalles |
-| Fondo | Blanco roto / verde muy suave | Descanso visual |
-| Texto | Gris grafito | Lectura clara |
-| Exito | Verde | Operacion correcta |
-| Alerta | Ambar | Atencion sin urgencia critica |
-| Error | Rojo controlado | Error o anulacion |
-| Info | Azul suave | Datos informativos |
+| Uso | Color | Hex | Intencion |
+|-----|-------|-----|-----------|
+| Primario | Canopy | `#146B45` | Campo, productividad |
+| Primario oscuro | Canopy deep | `#0B4D31` | Hover / profundidad |
+| Secundario | Maize | `#E9B949` | Energia, alimento |
+| Acento | Ember | `#E56B1F` | Acciones llamativas |
+| Fondo | Mist | `#F4F7F2` | Descanso visual |
+| Superficie | Chalk | `#FFFFFF` | Cards y formularios |
+| Texto | Ink | `#1C2B24` | Lectura clara |
+| Muted | Stone | `#5F6F66` | Secundario |
+| Exito | — | `#2F9E5B` | Operacion correcta |
+| Alerta | — | `#D97706` | Atencion |
+| Error | — | `#DC4A3D` | Error / anulacion |
+| Info | — | `#2F7FD1` | Informativo |
 
-Ejemplo de tokens iniciales:
+Implementacion: `apps/web/src/app/globals.css`.
 
-```text
-primary:        #1F7A4D
-primary-dark:   #145A38
-secondary:      #F2C94C
-accent:         #F97316
-background:     #F7FAF5
-surface:        #FFFFFF
-text:           #263238
-muted:          #6B7280
-success:        #22C55E
-warning:        #F59E0B
-danger:         #EF4444
-info:           #3B82F6
-```
+### Tipografia
 
-La paleta final se implementara como variables CSS/Tailwind durante el scaffold.
-
-## Tipografia
-
-- Fuente principal: sans-serif moderna y legible.
-- Recomendadas: `Inter`, `Geist`, `Nunito Sans` o similar.
-- Para una sensacion mas amable y menos fria, preferir `Nunito Sans` o `Inter` con pesos suaves.
+- Display (heroes / marca): `Fraunces` via `font-display`. Usar con restriccion.
+- UI / cuerpo: `Nunito Sans` (`font-sans`).
 - Tamano minimo en formularios moviles: `16px`.
+- Evitar stacks genericos (`Inter`, `Roboto`, `Arial`) como fuente principal.
+- Secciones internas (h2 de listados): sans semibold, no display.
 
 ## Componentes base
 
@@ -106,14 +106,21 @@ La paleta final se implementara como variables CSS/Tailwind durante el scaffold.
 
 ### Formularios
 
-- Una columna en movil.
-- Labels arriba del campo.
-- **Campos obligatorios:** marcar con asterisco rojo (`*`) en el label; mostrar leyenda `Los campos marcados con * son obligatorios` al inicio del formulario.
-- **Validacion en cliente:** si el usuario intenta guardar con un obligatorio vacio, resaltar el campo (borde rojo) y mostrar el mensaje `Este campo es obligatorio.` debajo del input; no enviar la peticion hasta corregir.
-- Campos opcionales no llevan asterisco ni texto `(opcional)` en el label; su opcionalidad se infiere de la spec funcional.
-- Agrupar campos por secciones cortas.
-- Boton principal sticky abajo en formularios largos.
-- Confirmaciones para cerrar, anular o registrar bajas.
+Patron obligatorio: `FormShell` / `FormHeader` + `FormActions` (`apps/web/src/components/forms/form-shell.tsx`).
+
+| Elemento | Regla |
+|----------|-------|
+| Contenedor | Card `rounded-3xl`, anillo `primary/10`, padding generoso |
+| Encabezado | Titulo de accion (`Nuevo…` / `Editar…`) + descripcion corta si aporta |
+| Obligatorios | Asterisco rojo (`*`) + leyenda `Los campos marcados con * son obligatorios` |
+| Inputs | Altura min 44px, borde suave, foco verde; error con borde/rojo y mensaje inline |
+| Acciones | Fila inferior: `Cancelar` (outline) + CTA primario; loading en submit |
+| Una columna | En movil; grid 2 cols solo para pares cortos (fecha/cantidad) en `md+` |
+| Confirmaciones | `ConfirmDialog` para inactivar / acciones destructivas |
+
+Validacion en cliente: si el usuario intenta guardar con un obligatorio vacio, resaltar el campo y mostrar `Este campo es obligatorio.`; no enviar hasta corregir.
+
+Campos opcionales no llevan asterisco ni texto `(opcional)` en el label.
 
 ## Patrones por pantalla
 
@@ -239,9 +246,13 @@ Evitar lenguaje tecnico visible al usuario como `tenant`, `FK`, `constraint`, `p
 
 | Breakpoint | Comportamiento |
 |------------|----------------|
-| Base | Mobile-first, cards, bottom nav |
-| `md` | Sidebar, tablas simples |
+| Base | Mobile-first, cards, bottom nav flotante |
+| `md` | Nav horizontal en header + contenido `max-w-5xl` |
 | `lg` | Dashboard con columnas y paneles |
+
+Componentes de navegacion: `apps/web/src/components/layout/app-nav.ts` + shell en `apps/web/src/app/(app)/layout.tsx`.
+
+Hubs de catalogos: `HubSection` + `ConfigNavCard`.
 
 ## Reglas de implementacion UI
 
@@ -253,17 +264,18 @@ Evitar lenguaje tecnico visible al usuario como `tenant`, `FK`, `constraint`, `p
 
 ## Criterios de aceptacion UX para MVP v1
 
-- [ ] Login usable en telefono.
-- [ ] Navegacion principal clara desde movil.
-- [ ] Selector de granja visible cuando aplique.
-- [ ] Crear lote no requiere mas campos de los necesarios.
-- [ ] Registrar consumo muestra existencia disponible antes de guardar.
+- [x] Login usable en telefono.
+- [x] Navegacion principal clara desde movil.
+- [x] Navegacion principal clara desde desktop (`md+`).
+- [x] Selector de granja visible cuando aplique.
+- [x] Crear lote no requiere mas campos de los necesarios.
+- [x] Registrar consumo muestra existencia disponible antes de guardar.
 - [ ] Registrar peso y baja se puede hacer desde detalle de lote/engorde.
 - [ ] Reportes basicos se leen bien en telefono.
-- [ ] Estados y errores son entendibles sin explicacion tecnica.
-- [ ] Configuracion usa hub de catalogos y una pantalla por maestra.
-- [ ] Listados de configuracion permiten buscar y filtrar por estado.
-- [ ] Inactivar registros de configuracion pide confirmacion.
+- [x] Estados y errores son entendibles sin explicacion tecnica.
+- [x] Configuracion usa hub de catalogos y una pantalla por maestra.
+- [x] Listados de configuracion permiten buscar y filtrar por estado.
+- [x] Inactivar registros de configuracion pide confirmacion.
 
 ## Decision
 

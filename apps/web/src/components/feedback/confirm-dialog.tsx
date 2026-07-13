@@ -1,5 +1,7 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
+
 type ConfirmDialogProps = {
   open: boolean;
   title: string;
@@ -35,29 +37,26 @@ export function ConfirmDialog({
         role="dialog"
         aria-modal="true"
         aria-labelledby="confirm-title"
-        className="relative w-full max-w-md rounded-2xl bg-surface p-5 shadow-xl ring-1 ring-black/10"
+        className="relative w-full max-w-md rounded-3xl bg-surface p-5 shadow-xl ring-1 ring-primary/10 sm:p-6"
       >
-        <h2 id="confirm-title" className="text-lg font-bold">
+        <h2 id="confirm-title" className="font-display text-xl font-semibold tracking-tight">
           {title}
         </h2>
-        <p className="mt-2 text-sm text-muted">{description}</p>
+        <p className="mt-2 text-sm leading-6 text-muted">{description}</p>
         <div className="mt-5 flex gap-2">
-          <button
-            type="button"
-            onClick={onCancel}
-            disabled={loading}
-            className="min-h-11 flex-1 rounded-xl border border-black/10 text-sm font-semibold"
-          >
+          <Button type="button" variant="outline" fullWidth onClick={onCancel} disabled={loading}>
             {cancelLabel}
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant="secondary"
+            fullWidth
             onClick={onConfirm}
             disabled={loading}
-            className="min-h-11 flex-1 rounded-xl bg-warning text-sm font-semibold text-white"
+            className="bg-warning text-white shadow-warning/25 hover:brightness-105"
           >
             {loading ? 'Procesando...' : confirmLabel}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

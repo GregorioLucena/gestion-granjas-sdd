@@ -10,7 +10,7 @@ type FieldProps = {
 export function Field({ label, htmlFor, hint, required = false, error, children }: FieldProps) {
   return (
     <div className="space-y-1.5">
-      <label htmlFor={htmlFor} className="block text-sm font-medium text-foreground">
+      <label htmlFor={htmlFor} className="block text-sm font-semibold text-foreground">
         {label}
         {required ? (
           <span className="text-danger" aria-hidden="true">
@@ -21,28 +21,28 @@ export function Field({ label, htmlFor, hint, required = false, error, children 
       </label>
       {children}
       {error ? (
-        <p className="text-xs text-danger" role="alert">
+        <p className="text-xs font-medium text-danger" role="alert">
           {error}
         </p>
       ) : null}
-      {hint && !error ? <p className="text-xs text-muted">{hint}</p> : null}
+      {hint && !error ? <p className="text-xs leading-5 text-muted">{hint}</p> : null}
     </div>
   );
 }
 
 export const inputClassName =
-  'w-full min-h-11 rounded-xl border border-black/10 bg-surface px-3 text-base text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20';
+  'w-full min-h-11 rounded-xl border border-primary/15 bg-background/60 px-3.5 text-base text-foreground shadow-sm shadow-primary/[0.03] outline-none transition placeholder:text-muted/70 hover:border-primary/25 focus:border-primary focus:bg-surface focus:ring-2 focus:ring-primary/20';
 
 export function getInputClassName(hasError?: boolean) {
   return hasError
-    ? `${inputClassName} border-danger focus:border-danger focus:ring-danger/20`
+    ? `${inputClassName} border-danger/60 bg-danger/[0.03] focus:border-danger focus:ring-danger/20`
     : inputClassName;
 }
 
 export function FormRequiredLegend() {
   return (
-    <p className="text-xs text-muted">
-      Los campos marcados con <span className="font-medium text-danger">*</span> son obligatorios.
+    <p className="rounded-xl bg-primary/[0.04] px-3 py-2 text-xs text-muted ring-1 ring-primary/10">
+      Los campos marcados con <span className="font-semibold text-danger">*</span> son obligatorios.
     </p>
   );
 }

@@ -9,8 +9,10 @@ import { PaginationBar } from '@/components/data-display/pagination-bar';
 import { RecordListItem } from '@/components/data-display/record-list-item';
 import { ConfirmDialog } from '@/components/feedback/confirm-dialog';
 import { useToast } from '@/components/feedback/toast';
-import { Field, FormRequiredLegend, getInputClassName, inputClassName } from '@/components/forms/field';
+import { Field, getInputClassName, inputClassName } from '@/components/forms/field';
+import { FormShell } from '@/components/forms/form-shell';
 import { ReactivateField } from '@/components/forms/reactivate-field';
+import { Button } from '@/components/ui/button';
 import { usePaginatedList } from '@/modules/configuracion/hooks/use-paginated-list';
 import { apiFetch, getApiErrorMessage } from '@/lib/api-client';
 import { getRequiredFieldError, type FieldErrors } from '@/lib/form-validation';
@@ -177,7 +179,7 @@ export default function PerfilesPage() {
         description="Roles globales y permisos asignados."
       />
 
-      <div className="rounded-2xl bg-surface p-4 ring-1 ring-black/5">
+      <div className="rounded-2xl bg-surface/95 p-4 shadow-sm ring-1 ring-primary/10">
         <p className="text-xs font-semibold uppercase tracking-wide text-muted">Resultados</p>
         <p className="mt-1 text-2xl font-bold text-primary">{meta.total}</p>
       </div>
@@ -192,16 +194,16 @@ export default function PerfilesPage() {
 
       <div ref={formSectionRef} className="scroll-mt-20">
         {!formMode ? (
-          <button
-            type="button"
-            onClick={() => setFormMode({ type: 'create' })}
-            className="min-h-11 w-full rounded-xl bg-primary px-4 text-sm font-semibold text-white"
-          >
+          <Button type="button" fullWidth onClick={() => setFormMode({ type: 'create' })}>
             Agregar perfil
-          </button>
+          </Button>
         ) : (
-          <form onSubmit={onSubmit} className="space-y-4 rounded-2xl bg-surface p-4 ring-1 ring-black/5">
-            <FormRequiredLegend />
+          <FormShell
+            onSubmit={onSubmit}
+            title={isEditing ? `Editar: ${editingItem?.nombre}` : 'Nuevo perfil'}
+            onCancel={resetForm}
+            submitLabel={isEditing ? 'Guardar cambios' : 'Registrar perfil'}
+          >
             <Field label="Nombre" htmlFor="nombre" required error={fieldErrors.nombre}>
               <input id="nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} className={getInputClassName(Boolean(fieldErrors.nombre))} />
             </Field>
@@ -209,7 +211,7 @@ export default function PerfilesPage() {
               <textarea id="descripcion" value={descripcion} onChange={(e) => setDescripcion(e.target.value)} className={inputClassName} rows={2} />
             </Field>
             <Field label="Permisos" htmlFor="permisos" required error={fieldErrors.permisoIds}>
-              <div className="max-h-64 space-y-4 overflow-y-auto rounded-xl bg-background p-3 ring-1 ring-black/5">
+              <div className="max-h-64 space-y-4 overflow-y-auto rounded-xl bg-background p-3 ring-1 ring-primary/10">
                 {permisosPorModulo.map(([modulo, permisos]) => (
                   <div key={modulo}>
                     <p className="text-xs font-semibold uppercase tracking-wide text-primary">{modulo}</p>
@@ -241,15 +243,7 @@ export default function PerfilesPage() {
             {isEditing && editingItem?.estadoRegistro === 'INACTIVO' ? (
               <ReactivateField checked={reactivar} onChange={setReactivar} />
             ) : null}
-            <div className="flex gap-2">
-              <button type="submit" className="min-h-11 flex-1 rounded-xl bg-primary px-4 text-sm font-semibold text-white">
-                {isEditing ? 'Guardar cambios' : 'Registrar perfil'}
-              </button>
-              <button type="button" onClick={resetForm} className="min-h-11 rounded-xl bg-background px-4 text-sm font-semibold ring-1 ring-black/10">
-                Cancelar
-              </button>
-            </div>
-          </form>
+          </FormShell>
         )}
       </div>
 

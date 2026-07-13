@@ -11,8 +11,10 @@ import { PaginationBar } from '@/components/data-display/pagination-bar';
 import { RecordListItem } from '@/components/data-display/record-list-item';
 import { ConfirmDialog } from '@/components/feedback/confirm-dialog';
 import { useToast } from '@/components/feedback/toast';
-import { Field, FormRequiredLegend, getInputClassName } from '@/components/forms/field';
+import { Field, getInputClassName } from '@/components/forms/field';
+import { FormShell } from '@/components/forms/form-shell';
 import { ReactivateField } from '@/components/forms/reactivate-field';
+import { Button } from '@/components/ui/button';
 import { usePaginatedList } from '@/modules/configuracion/hooks/use-paginated-list';
 import { apiFetch, getApiErrorMessage } from '@/lib/api-client';
 import {
@@ -186,19 +188,17 @@ function ProveedoresContent({ canAdmin }: { canAdmin: boolean }) {
       {canAdmin ? (
         <div ref={formSectionRef} className="scroll-mt-20">
           {!formMode ? (
-            <button
-              type="button"
-              onClick={openCreateForm}
-              className="flex min-h-11 w-full items-center justify-center rounded-xl bg-primary text-sm font-semibold text-white"
-            >
+            <Button type="button" fullWidth onClick={openCreateForm}>
               Agregar proveedor
-            </button>
+            </Button>
           ) : (
-            <form onSubmit={onSubmit} className="space-y-4 rounded-2xl bg-surface p-4 ring-1 ring-black/5">
-              <p className="text-sm font-semibold text-muted">
-                {isEditing ? `Editar: ${editingItem?.nombre}` : 'Nuevo proveedor'}
-              </p>
-              <FormRequiredLegend />
+            <FormShell
+              onSubmit={onSubmit}
+              title={isEditing ? `Editar: ${editingItem?.nombre}` : 'Nuevo proveedor'}
+              onCancel={resetForm}
+              submitLabel="Guardar"
+              loading={isSaving}
+            >
               <Field label="Nombre" htmlFor="proveedor-nombre" required error={fieldErrors.nombre}>
                 <input
                   id="proveedor-nombre"
@@ -247,23 +247,7 @@ function ProveedoresContent({ canAdmin }: { canAdmin: boolean }) {
               {isEditing && editingItem?.estadoRegistro === 'INACTIVO' ? (
                 <ReactivateField checked={reactivar} onChange={setReactivar} />
               ) : null}
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={resetForm}
-                  className="min-h-11 flex-1 rounded-xl border border-black/10 text-sm font-semibold"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSaving}
-                  className="min-h-11 flex-1 rounded-xl bg-primary text-sm font-semibold text-white"
-                >
-                  {isSaving ? 'Guardando...' : 'Guardar'}
-                </button>
-              </div>
-            </form>
+            </FormShell>
           )}
         </div>
       ) : null}

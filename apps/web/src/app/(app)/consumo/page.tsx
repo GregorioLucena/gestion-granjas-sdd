@@ -10,6 +10,7 @@ import { PaginationBar } from '@/components/data-display/pagination-bar';
 import { StatusBadge } from '@/components/data-display/status-badge';
 import { useToast } from '@/components/feedback/toast';
 import { Field, FormRequiredLegend, getInputClassName } from '@/components/forms/field';
+import { FormActions, FormHeader, formPanelWarningClassName, formShellClassName } from '@/components/forms/form-shell';
 import { Button } from '@/components/ui/button';
 import { usePaginatedList } from '@/modules/configuracion/hooks/use-paginated-list';
 import { apiFetch, apiFetchPaginated, getApiErrorMessage } from '@/lib/api-client';
@@ -277,11 +278,8 @@ function ConsumoContent({
               Registrar consumo
             </Button>
           ) : (
-            <form
-              onSubmit={handleSubmit}
-              className="space-y-4 rounded-3xl bg-surface p-4 shadow-sm ring-1 ring-black/5"
-            >
-              <p className="text-sm font-semibold text-muted">Nuevo consumo por lote</p>
+            <form onSubmit={handleSubmit} className={formShellClassName}>
+              <FormHeader title="Nuevo consumo por lote" />
               <FormRequiredLegend />
               <Field label="Lote" htmlFor="consumo-lote" required error={fieldErrors.loteId}>
                 <select
@@ -395,14 +393,11 @@ function ConsumoContent({
                   rows={2}
                 />
               </Field>
-              <div className="flex gap-2">
-                <Button type="button" variant="outline" fullWidth onClick={resetForm}>
-                  Cancelar
-                </Button>
-                <Button type="submit" fullWidth disabled={createMutation.isPending}>
-                  {createMutation.isPending ? 'Guardando...' : 'Registrar consumo'}
-                </Button>
-              </div>
+              <FormActions
+                onCancel={resetForm}
+                submitLabel="Registrar consumo"
+                loading={createMutation.isPending}
+              />
             </form>
           )}
         </div>
@@ -436,7 +431,7 @@ function ConsumoContent({
         {items.map((item) => (
           <article
             key={item.id}
-            className="space-y-2 rounded-2xl bg-surface p-4 shadow-sm ring-1 ring-black/5 transition hover:-translate-y-0.5 hover:shadow-md hover:shadow-primary/10 hover:ring-primary/15"
+            className="space-y-2 rounded-2xl bg-surface p-4 shadow-sm ring-1 ring-primary/10 transition hover:-translate-y-0.5 hover:shadow-md hover:shadow-primary/10 hover:ring-primary/15"
           >
             <div className="flex items-start justify-between gap-3">
               <div>
@@ -482,12 +477,11 @@ function ConsumoContent({
       />
 
       {pendingAnular ? (
-        <section className="space-y-4 rounded-3xl bg-surface p-4 shadow-sm ring-1 ring-warning/20">
-          <h2 className="text-lg font-semibold text-foreground">Anular consumo</h2>
-          <p className="text-sm text-muted">
-            Lote {pendingAnular.lote?.codigo} · {pendingAnular.alimento?.nombre} ·{' '}
-            {pendingAnular.fecha}
-          </p>
+        <section className={formPanelWarningClassName}>
+          <FormHeader
+            title="Anular consumo"
+            description={`Lote ${pendingAnular.lote?.codigo} · ${pendingAnular.alimento?.nombre} · ${pendingAnular.fecha}`}
+          />
           <Field label="Motivo de anulacion" htmlFor="consumo-motivo-anulacion" required>
             <input
               id="consumo-motivo-anulacion"

@@ -9,8 +9,10 @@ import { PaginationBar } from '@/components/data-display/pagination-bar';
 import { RecordListItem } from '@/components/data-display/record-list-item';
 import { ConfirmDialog } from '@/components/feedback/confirm-dialog';
 import { useToast } from '@/components/feedback/toast';
-import { Field, FormRequiredLegend, getInputClassName } from '@/components/forms/field';
+import { Field, getInputClassName } from '@/components/forms/field';
+import { FormShell } from '@/components/forms/form-shell';
 import { ReactivateField } from '@/components/forms/reactivate-field';
+import { Button } from '@/components/ui/button';
 import { usePaginatedList } from '@/modules/configuracion/hooks/use-paginated-list';
 import { apiFetch, getApiErrorMessage } from '@/lib/api-client';
 import {
@@ -215,80 +217,59 @@ export function MaestraSimpleAbm({
     <div className="space-y-5 pb-24">
       <PageHeader backHref={backHref} backLabel={backLabel} title={title} description={description} />
 
-      <div className="rounded-2xl bg-surface p-4 ring-1 ring-black/5">
+      <div className="rounded-2xl bg-surface/95 p-4 shadow-sm ring-1 ring-primary/10">
         <p className="text-xs font-semibold uppercase tracking-wide text-muted">Resultados</p>
         <p className="mt-1 text-2xl font-bold text-primary">{meta.total}</p>
       </div>
 
       <div ref={formSectionRef} className="scroll-mt-20">
         {!formMode ? (
-          <button
-            type="button"
-            onClick={openCreateForm}
-            className="flex min-h-11 w-full items-center justify-center rounded-xl bg-primary text-sm font-semibold text-white shadow-sm transition hover:bg-primary-dark"
-          >
+          <Button type="button" fullWidth onClick={openCreateForm}>
             Agregar {title.toLowerCase()}
-          </button>
+          </Button>
         ) : (
-          <form
+          <FormShell
             onSubmit={onSubmit}
-            className="space-y-4 rounded-2xl bg-surface p-4 ring-1 ring-black/5"
+            title={isEditing ? `Editar: ${editingItem?.nombre}` : 'Nuevo registro'}
+            onCancel={resetForm}
+            submitLabel={isEditing ? 'Guardar cambios' : 'Guardar'}
+            loading={isSaving}
           >
-          <p className="text-sm font-semibold text-muted">
-            {isEditing ? `Editar: ${editingItem?.nombre}` : 'Nuevo registro'}
-          </p>
-          <FormRequiredLegend />
-          <Field
-            label={nombreLabel}
-            htmlFor="nombre"
-            required
-            error={fieldErrors.nombre}
-          >
-            <input
-              id="nombre"
-              className={getInputClassName(Boolean(fieldErrors.nombre))}
-              placeholder={nombrePlaceholder}
-              value={nombre}
-              onChange={(e) => {
-                setNombre(e.target.value);
-                clearFieldError('nombre', setFieldErrors);
-              }}
-              aria-required="true"
-              aria-invalid={Boolean(fieldErrors.nombre)}
-              autoFocus
-            />
-          </Field>
-          {showDescripcion ? (
-            <Field label="Descripcion" htmlFor="descripcion">
+            <Field
+              label={nombreLabel}
+              htmlFor="nombre"
+              required
+              error={fieldErrors.nombre}
+            >
               <input
-                id="descripcion"
-                className={getInputClassName()}
-                placeholder="Detalle breve"
-                value={descripcion}
-                onChange={(e) => setDescripcion(e.target.value)}
+                id="nombre"
+                className={getInputClassName(Boolean(fieldErrors.nombre))}
+                placeholder={nombrePlaceholder}
+                value={nombre}
+                onChange={(e) => {
+                  setNombre(e.target.value);
+                  clearFieldError('nombre', setFieldErrors);
+                }}
+                aria-required="true"
+                aria-invalid={Boolean(fieldErrors.nombre)}
+                autoFocus
               />
             </Field>
-          ) : null}
-          {isEditing && editingItem?.estadoRegistro === 'INACTIVO' ? (
-            <ReactivateField checked={reactivar} onChange={setReactivar} />
-          ) : null}
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={resetForm}
-              className="min-h-11 flex-1 rounded-xl border border-black/10 text-sm font-semibold"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              disabled={isSaving}
-              className="min-h-11 flex-1 rounded-xl bg-primary text-sm font-semibold text-white"
-            >
-              {isSaving ? 'Guardando...' : isEditing ? 'Guardar cambios' : 'Guardar'}
-            </button>
-          </div>
-        </form>
+            {showDescripcion ? (
+              <Field label="Descripcion" htmlFor="descripcion">
+                <input
+                  id="descripcion"
+                  className={getInputClassName()}
+                  placeholder="Detalle breve"
+                  value={descripcion}
+                  onChange={(e) => setDescripcion(e.target.value)}
+                />
+              </Field>
+            ) : null}
+            {isEditing && editingItem?.estadoRegistro === 'INACTIVO' ? (
+              <ReactivateField checked={reactivar} onChange={setReactivar} />
+            ) : null}
+          </FormShell>
         )}
       </div>
 
