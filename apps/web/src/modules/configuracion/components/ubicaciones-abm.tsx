@@ -9,8 +9,10 @@ import { PaginationBar } from '@/components/data-display/pagination-bar';
 import { RecordListItem } from '@/components/data-display/record-list-item';
 import { ConfirmDialog } from '@/components/feedback/confirm-dialog';
 import { useToast } from '@/components/feedback/toast';
-import { Field, FormRequiredLegend, getInputClassName } from '@/components/forms/field';
+import { Field, getInputClassName } from '@/components/forms/field';
+import { FormShell } from '@/components/forms/form-shell';
 import { ReactivateField } from '@/components/forms/reactivate-field';
+import { Button } from '@/components/ui/button';
 import { usePaginatedList } from '@/modules/configuracion/hooks/use-paginated-list';
 import { apiFetch, apiFetchPaginated, getApiErrorMessage } from '@/lib/api-client';
 import {
@@ -237,8 +239,9 @@ export function UbicacionesAbm() {
         <>
           <div ref={formSectionRef} className="scroll-mt-20">
             {!formMode ? (
-              <button
+              <Button
                 type="button"
+                fullWidth
                 onClick={() => {
                   setFormMode({ type: 'create' });
                   setNombre('');
@@ -248,93 +251,78 @@ export function UbicacionesAbm() {
                   setReactivar(false);
                   setFieldErrors({});
                 }}
-                className="min-h-11 w-full rounded-xl bg-primary text-sm font-semibold text-white"
               >
                 Agregar ubicacion
-              </button>
+              </Button>
             ) : (
-              <form onSubmit={onSubmit} className="space-y-4 rounded-2xl bg-surface p-4 ring-1 ring-black/5">
-              <p className="text-sm font-semibold text-muted">
-                {isEditing ? `Editar: ${editingItem?.nombre}` : 'Nueva ubicacion'}
-              </p>
-              <FormRequiredLegend />
-              <Field label="Nombre" htmlFor="nombre" required error={fieldErrors.nombre}>
-                <input
-                  id="nombre"
-                  className={getInputClassName(Boolean(fieldErrors.nombre))}
-                  placeholder="Galpon A"
-                  value={nombre}
-                  onChange={(e) => {
-                    setNombre(e.target.value);
-                    clearFieldError('nombre', setFieldErrors);
-                  }}
-                  aria-required="true"
-                  aria-invalid={Boolean(fieldErrors.nombre)}
-                />
-              </Field>
-              <Field label="Codigo" htmlFor="codigo">
-                <input
-                  id="codigo"
-                  className={getInputClassName()}
-                  placeholder="GA-01"
-                  value={codigo}
-                  onChange={(e) => setCodigo(e.target.value)}
-                />
-              </Field>
-              <Field label="Descripcion" htmlFor="descripcion">
-                <input
-                  id="descripcion"
-                  className={getInputClassName()}
-                  value={descripcion}
-                  onChange={(e) => setDescripcion(e.target.value)}
-                />
-              </Field>
-              {!isEditing ? (
-                <Field
-                  label="Tipo de ubicacion"
-                  htmlFor="tipoUbicacionId"
-                  required
-                  error={fieldErrors.tipoUbicacionId}
-                >
-                  <select
-                    id="tipoUbicacionId"
-                    className={getInputClassName(Boolean(fieldErrors.tipoUbicacionId))}
-                    value={selectedTipoId}
+              <FormShell
+                onSubmit={onSubmit}
+                title={isEditing ? `Editar: ${editingItem?.nombre}` : 'Nueva ubicacion'}
+                onCancel={resetForm}
+                submitLabel={isEditing ? 'Guardar cambios' : 'Guardar'}
+                loading={isSaving}
+              >
+                <Field label="Nombre" htmlFor="nombre" required error={fieldErrors.nombre}>
+                  <input
+                    id="nombre"
+                    className={getInputClassName(Boolean(fieldErrors.nombre))}
+                    placeholder="Galpon A"
+                    value={nombre}
                     onChange={(e) => {
-                      setTipoUbicacionId(e.target.value);
-                      clearFieldError('tipoUbicacionId', setFieldErrors);
+                      setNombre(e.target.value);
+                      clearFieldError('nombre', setFieldErrors);
                     }}
                     aria-required="true"
-                    aria-invalid={Boolean(fieldErrors.tipoUbicacionId)}
-                  >
-                    {tiposUbicacion.map((tipo) => (
-                      <option key={tipo.id} value={tipo.id}>
-                        {tipo.nombre}
-                      </option>
-                    ))}
-                  </select>
+                    aria-invalid={Boolean(fieldErrors.nombre)}
+                  />
                 </Field>
-              ) : null}
-              {isEditing && editingItem?.estadoRegistro === 'INACTIVO' ? (
-                <ReactivateField checked={reactivar} onChange={setReactivar} />
-              ) : null}
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={resetForm}
-                  className="min-h-11 flex-1 rounded-xl border border-black/10 text-sm font-semibold"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSaving}
-                  className="min-h-11 flex-1 rounded-xl bg-primary text-sm font-semibold text-white"
-                >
-                  {isSaving ? 'Guardando...' : isEditing ? 'Guardar cambios' : 'Guardar'}
-                </button>
-              </div>
-            </form>
+                <Field label="Codigo" htmlFor="codigo">
+                  <input
+                    id="codigo"
+                    className={getInputClassName()}
+                    placeholder="GA-01"
+                    value={codigo}
+                    onChange={(e) => setCodigo(e.target.value)}
+                  />
+                </Field>
+                <Field label="Descripcion" htmlFor="descripcion">
+                  <input
+                    id="descripcion"
+                    className={getInputClassName()}
+                    value={descripcion}
+                    onChange={(e) => setDescripcion(e.target.value)}
+                  />
+                </Field>
+                {!isEditing ? (
+                  <Field
+                    label="Tipo de ubicacion"
+                    htmlFor="tipoUbicacionId"
+                    required
+                    error={fieldErrors.tipoUbicacionId}
+                  >
+                    <select
+                      id="tipoUbicacionId"
+                      className={getInputClassName(Boolean(fieldErrors.tipoUbicacionId))}
+                      value={selectedTipoId}
+                      onChange={(e) => {
+                        setTipoUbicacionId(e.target.value);
+                        clearFieldError('tipoUbicacionId', setFieldErrors);
+                      }}
+                      aria-required="true"
+                      aria-invalid={Boolean(fieldErrors.tipoUbicacionId)}
+                    >
+                      {tiposUbicacion.map((tipo) => (
+                        <option key={tipo.id} value={tipo.id}>
+                          {tipo.nombre}
+                        </option>
+                      ))}
+                    </select>
+                  </Field>
+                ) : null}
+                {isEditing && editingItem?.estadoRegistro === 'INACTIVO' ? (
+                  <ReactivateField checked={reactivar} onChange={setReactivar} />
+                ) : null}
+              </FormShell>
             )}
           </div>
 

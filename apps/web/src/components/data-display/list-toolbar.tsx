@@ -29,7 +29,7 @@ export function ListToolbar({
   resultCount,
 }: ListToolbarProps) {
   return (
-    <div className="space-y-3 rounded-3xl bg-surface p-4 shadow-sm ring-1 ring-black/5">
+    <div className="space-y-3 rounded-3xl bg-surface/90 p-4 shadow-sm ring-1 ring-primary/10">
       <div className="relative">
         <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted" />
         <input
@@ -46,10 +46,10 @@ export function ListToolbar({
             key={option.value}
             type="button"
             onClick={() => onFiltroChange(option.value)}
-            className={`min-h-9 rounded-full px-3 text-sm font-medium transition ${
+            className={`min-h-9 rounded-full px-3.5 text-sm font-semibold transition ${
               filtro === option.value
-                ? 'bg-primary text-white shadow-sm shadow-primary/20'
-                : 'bg-background text-muted ring-1 ring-black/10 hover:text-primary hover:ring-primary/20'
+                ? 'bg-primary text-white shadow-sm shadow-primary/25'
+                : 'bg-background text-muted ring-1 ring-primary/12 hover:text-primary hover:ring-primary/25'
             }`}
           >
             {option.label}

@@ -9,8 +9,10 @@ import { PaginationBar } from '@/components/data-display/pagination-bar';
 import { RecordListItem } from '@/components/data-display/record-list-item';
 import { ConfirmDialog } from '@/components/feedback/confirm-dialog';
 import { useToast } from '@/components/feedback/toast';
-import { Field, FormRequiredLegend, getInputClassName } from '@/components/forms/field';
+import { Field, getInputClassName } from '@/components/forms/field';
+import { FormShell } from '@/components/forms/form-shell';
 import { ReactivateField } from '@/components/forms/reactivate-field';
+import { Button } from '@/components/ui/button';
 import { usePaginatedList } from '@/modules/configuracion/hooks/use-paginated-list';
 import { apiFetch, getApiErrorMessage } from '@/lib/api-client';
 import {
@@ -191,15 +193,16 @@ export default function CompaniasPage() {
         description="Organizaciones que administran una o varias granjas."
       />
 
-      <div className="rounded-2xl bg-surface p-4 ring-1 ring-black/5">
+      <div className="rounded-2xl bg-surface/95 p-4 shadow-sm ring-1 ring-primary/10">
         <p className="text-xs font-semibold uppercase tracking-wide text-muted">Resultados</p>
         <p className="mt-1 text-2xl font-bold text-primary">{meta.total}</p>
       </div>
 
       <div ref={formSectionRef} className="scroll-mt-20">
         {!formMode ? (
-          <button
+          <Button
             type="button"
+            fullWidth
             onClick={() => {
               setFormMode({ type: 'create' });
               setNombre('');
@@ -207,16 +210,17 @@ export default function CompaniasPage() {
               setReactivar(false);
               setFieldErrors({});
             }}
-            className="min-h-11 w-full rounded-xl bg-primary text-sm font-semibold text-white"
           >
             Nueva compania
-          </button>
+          </Button>
         ) : (
-          <form onSubmit={onSubmit} className="space-y-4 rounded-2xl bg-surface p-4 ring-1 ring-black/5">
-            <p className="text-sm font-semibold text-muted">
-              {isEditing ? `Editar: ${editingItem?.nombre}` : 'Nueva compania'}
-            </p>
-            <FormRequiredLegend />
+          <FormShell
+            onSubmit={onSubmit}
+            title={isEditing ? `Editar: ${editingItem?.nombre}` : 'Nueva compania'}
+            onCancel={resetForm}
+            submitLabel={isEditing ? 'Guardar cambios' : 'Guardar'}
+            loading={isSaving}
+          >
             <Field label="Nombre" htmlFor="compania-nombre" required error={fieldErrors.nombre}>
               <input
                 id="compania-nombre"
@@ -276,23 +280,7 @@ export default function CompaniasPage() {
             {isEditing && editingItem?.estadoRegistro === 'INACTIVO' ? (
               <ReactivateField checked={reactivar} onChange={setReactivar} />
             ) : null}
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={resetForm}
-                className="min-h-11 flex-1 rounded-xl border border-black/10 text-sm font-semibold"
-              >
-                Cancelar
-              </button>
-              <button
-                type="submit"
-                disabled={isSaving}
-                className="min-h-11 flex-1 rounded-xl bg-primary text-sm font-semibold text-white"
-              >
-                {isSaving ? 'Guardando...' : isEditing ? 'Guardar cambios' : 'Guardar'}
-              </button>
-            </div>
-          </form>
+          </FormShell>
         )}
       </div>
 

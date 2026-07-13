@@ -37,7 +37,7 @@ export function PasswordInput({
       <button
         type="button"
         onClick={() => setVisible((prev) => !prev)}
-        className="absolute top-1/2 right-3 -translate-y-1/2 text-muted hover:text-foreground"
+        className="absolute top-1/2 right-2.5 flex size-8 -translate-y-1/2 items-center justify-center rounded-lg text-muted transition hover:bg-primary/8 hover:text-primary"
         aria-label={visible ? 'Ocultar contrasena' : 'Mostrar contrasena'}
       >
         {visible ? <EyeOff className="size-4" /> : <Eye className="size-4" />}

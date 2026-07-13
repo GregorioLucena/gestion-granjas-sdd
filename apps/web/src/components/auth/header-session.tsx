@@ -24,17 +24,17 @@ export function HeaderSession() {
   const initials = getInitials(user.nombre, user.apellido);
 
   return (
-    <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-      <div className="flex min-w-0 items-center gap-2.5">
+    <div className="flex shrink-0 items-center gap-2 rounded-2xl bg-background/80 p-1.5 ring-1 ring-primary/10 sm:gap-2.5 sm:pl-2 sm:pr-1.5">
+      <div className="flex min-w-0 items-center gap-2">
         <span
-          className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/12 text-sm font-bold text-primary ring-2 ring-primary/10"
+          className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-white shadow-sm shadow-primary/25"
           aria-hidden
         >
           {initials}
         </span>
-        <div className="min-w-0 text-right">
-          <p className="text-xs font-semibold uppercase tracking-wide text-primary">Tu sesion</p>
-          <p className="truncate text-sm font-semibold leading-tight text-foreground max-w-[7.5rem] sm:max-w-[11rem]">
+        <div className="hidden min-w-0 text-left sm:block">
+          <p className="text-[11px] font-semibold tracking-wide text-muted">Tu sesion</p>
+          <p className="max-w-[10rem] truncate text-sm font-semibold leading-tight text-foreground lg:max-w-[12rem]">
             {displayName}
           </p>
         </div>
@@ -43,7 +43,7 @@ export function HeaderSession() {
       <button
         type="button"
         onClick={() => void logout()}
-        className="flex min-h-10 shrink-0 items-center gap-1.5 rounded-xl bg-background px-2.5 text-sm font-semibold text-muted ring-1 ring-black/10 transition hover:bg-danger/8 hover:text-danger hover:ring-danger/20 sm:px-3"
+        className="flex min-h-9 shrink-0 items-center gap-1.5 rounded-xl px-2.5 text-sm font-semibold text-muted transition hover:bg-danger/10 hover:text-danger sm:px-3"
         aria-label="Cerrar sesion"
       >
         <LogOut className="size-4 shrink-0" aria-hidden />

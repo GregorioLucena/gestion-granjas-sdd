@@ -94,3 +94,6 @@ temp/
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
+
+
+docs_curso/

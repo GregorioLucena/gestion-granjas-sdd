@@ -1,6 +1,7 @@
 'use client';
 
 import { PageHeader } from '@/components/layout/page-header';
+import { HubSection } from '@/components/layout/hub-section';
 import { ConfigNavCard } from '@/components/data-display/config-nav-card';
 import { EmptyState } from '@/components/data-display/empty-state';
 import { PermissionGuard } from '@/components/auth/permission-guard';
@@ -38,22 +39,11 @@ export default function SeguridadPage() {
           />
         ) : (
           visibleGroups.map((group) => (
-            <section
-              key={group.title}
-              className="space-y-3 rounded-3xl bg-white/55 p-3 ring-1 ring-primary/5"
-            >
-              <div>
-                <h2 className="text-sm font-semibold uppercase tracking-wide text-primary">
-                  {group.title}
-                </h2>
-                <p className="text-sm text-muted">{group.description}</p>
-              </div>
-              <div className="grid gap-3">
-                {group.items.map((item) => (
-                  <ConfigNavCard key={item.href} {...item} />
-                ))}
-              </div>
-            </section>
+            <HubSection key={group.title} title={group.title} description={group.description}>
+              {group.items.map((item) => (
+                <ConfigNavCard key={item.href} {...item} />
+              ))}
+            </HubSection>
           ))
         )}
       </div>

@@ -15,16 +15,16 @@ export function ConfigNavCard({
   title,
   description,
   icon: Icon,
-  accentClass = 'bg-primary/10 text-primary',
+  accentClass = 'bg-primary/10 text-primary ring-primary/15',
 }: ConfigNavCardProps) {
   return (
     <Link
       href={href}
-      className="group relative flex min-h-20 items-center gap-3 overflow-hidden rounded-2xl bg-surface p-4 shadow-sm ring-1 ring-black/5 transition hover:-translate-y-0.5 hover:shadow-md hover:shadow-primary/10 hover:ring-primary/25"
+      className="group relative flex min-h-20 items-center gap-3 overflow-hidden rounded-2xl bg-surface p-4 shadow-sm ring-1 ring-primary/10 transition duration-200 hover:-translate-y-0.5 hover:shadow-md hover:shadow-primary/10 hover:ring-primary/25"
     >
-      <span className="absolute inset-y-0 left-0 w-1 bg-primary/50 opacity-0 transition group-hover:opacity-100" />
+      <span className="absolute inset-y-0 left-0 w-1 bg-primary/60 opacity-0 transition group-hover:opacity-100" />
       <span
-        className={`flex size-11 shrink-0 items-center justify-center rounded-xl ring-1 ring-black/5 ${accentClass}`}
+        className={`flex size-11 shrink-0 items-center justify-center rounded-2xl ring-1 transition group-hover:scale-105 ${accentClass}`}
       >
         <Icon className="size-5" aria-hidden />
       </span>

@@ -45,13 +45,13 @@ export default function MasPage() {
 
   return (
     <div className="space-y-5 pb-8">
-      <section className="relative overflow-hidden rounded-3xl bg-primary p-5 text-white shadow-lg shadow-primary/15">
-        <div className="absolute -right-10 -top-16 size-40 rounded-full bg-secondary/25 blur-2xl" />
+      <section className="brand-panel relative overflow-hidden rounded-3xl p-5 text-white shadow-lg shadow-primary/20">
+        <div className="absolute -right-10 -top-16 size-40 rounded-full bg-white/10 blur-2xl" />
         <div className="relative">
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-secondary">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/70">
             Menu general
           </p>
-          <h1 className="mt-2 text-2xl font-bold">Mas</h1>
+          <h1 className="font-display mt-2 text-3xl font-semibold tracking-tight">Mas</h1>
           <p className="mt-1 text-sm leading-6 text-white/80">
             Accesos adicionales y administracion.
           </p>

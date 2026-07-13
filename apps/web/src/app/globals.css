@@ -2,29 +2,74 @@
 
 @theme inline {
   --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
 
-  --color-primary: #1f7a4d;
-  --color-primary-dark: #145a38;
-  --color-secondary: #f2c94c;
-  --color-accent: #f97316;
-  --color-background: #f7faf5;
+  /* Campo vivo — canopy / maize / ember */
+  --color-primary: #146b45;
+  --color-primary-dark: #0b4d31;
+  --color-secondary: #e9b949;
+  --color-accent: #e56b1f;
+  --color-background: #f4f7f2;
   --color-surface: #ffffff;
-  --color-foreground: #263238;
-  --color-muted: #6b7280;
-  --color-success: #22c55e;
-  --color-warning: #f59e0b;
-  --color-danger: #ef4444;
-  --color-info: #3b82f6;
+  --color-foreground: #1c2b24;
+  --color-muted: #5f6f66;
+  --color-success: #2f9e5b;
+  --color-warning: #d97706;
+  --color-danger: #dc4a3d;
+  --color-info: #2f7fd1;
 
   --radius-sm: 0.5rem;
-  --radius-md: 0.75rem;
-  --radius-lg: 1rem;
+  --radius-md: 0.875rem;
+  --radius-lg: 1.25rem;
+  --radius-xl: 1.75rem;
 }
 
-body {
-  background: var(--color-background);
-  color: var(--color-foreground);
-  min-height: 100dvh;
+@layer base {
+  body {
+    background-color: var(--color-background);
+    /* Atmosfera suave: solo verde, sin maize/ember (evita fondos fangosos) */
+    background-image:
+      radial-gradient(ellipse 80% 50% at 0% -5%, rgba(20, 107, 69, 0.1), transparent 55%),
+      radial-gradient(ellipse 60% 40% at 100% 0%, rgba(20, 107, 69, 0.07), transparent 50%);
+    background-attachment: fixed;
+    color: var(--color-foreground);
+    min-height: 100dvh;
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--color-secondary) 55%, white);
+    color: var(--color-primary-dark);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display), var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  }
+
+  .app-horizon {
+    background-image:
+      radial-gradient(ellipse 75% 55% at 8% -15%, rgba(20, 107, 69, 0.14), transparent 52%),
+      radial-gradient(ellipse 55% 45% at 100% 5%, rgba(20, 107, 69, 0.1), transparent 48%);
+  }
+
+  .surface-card {
+    background-color: color-mix(in srgb, var(--color-surface) 94%, transparent);
+    backdrop-filter: blur(10px);
+  }
+
+  /* Heroes: degradado solo en canopy — limpio y legible */
+  .brand-panel {
+    background:
+      radial-gradient(ellipse 65% 75% at 100% 0%, rgba(255, 255, 255, 0.16), transparent 52%),
+      radial-gradient(ellipse 50% 65% at 0% 100%, rgba(8, 61, 40, 0.35), transparent 48%),
+      linear-gradient(135deg, #1a8052 0%, #146b45 48%, #0b4d31 100%);
+  }
 }
 
 button:not(:disabled),
@@ -35,4 +80,15 @@ button:not(:disabled),
 button:disabled,
 [role='button'][aria-disabled='true'] {
   cursor: not-allowed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

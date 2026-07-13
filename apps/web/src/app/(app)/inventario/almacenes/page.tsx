@@ -11,7 +11,8 @@ import { PaginationBar } from '@/components/data-display/pagination-bar';
 import { RecordListItem } from '@/components/data-display/record-list-item';
 import { ConfirmDialog } from '@/components/feedback/confirm-dialog';
 import { useToast } from '@/components/feedback/toast';
-import { Field, FormRequiredLegend, getInputClassName } from '@/components/forms/field';
+import { Field, getInputClassName } from '@/components/forms/field';
+import { FormShell } from '@/components/forms/form-shell';
 import { ReactivateField } from '@/components/forms/reactivate-field';
 import { Button } from '@/components/ui/button';
 import { usePaginatedList } from '@/modules/configuracion/hooks/use-paginated-list';
@@ -232,14 +233,13 @@ function AlmacenesContent({
               Agregar almacen
             </Button>
           ) : (
-            <form
+            <FormShell
               onSubmit={handleSubmit}
-              className="space-y-4 rounded-3xl bg-surface p-4 shadow-sm ring-1 ring-black/5"
+              title={isEditing ? `Editar: ${editingItem?.nombre}` : 'Nuevo almacen'}
+              onCancel={resetForm}
+              submitLabel={isEditing ? 'Guardar cambios' : 'Guardar'}
+              loading={isSaving}
             >
-              <p className="text-sm font-semibold text-muted">
-                {isEditing ? `Editar: ${editingItem?.nombre}` : 'Nuevo almacen'}
-              </p>
-              <FormRequiredLegend />
               <Field
                 label="Nombre"
                 htmlFor="almacen-nombre"
@@ -293,15 +293,7 @@ function AlmacenesContent({
               {isEditing && editingItem?.estadoRegistro === 'INACTIVO' ? (
                 <ReactivateField checked={reactivar} onChange={setReactivar} />
               ) : null}
-              <div className="flex gap-2">
-                <Button type="button" variant="outline" fullWidth onClick={resetForm}>
-                  Cancelar
-                </Button>
-                <Button type="submit" fullWidth disabled={isSaving}>
-                  {isSaving ? 'Guardando...' : isEditing ? 'Guardar cambios' : 'Guardar'}
-                </Button>
-              </div>
-            </form>
+            </FormShell>
           )}
         </div>
       ) : null}

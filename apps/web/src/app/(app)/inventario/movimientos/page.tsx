@@ -10,6 +10,12 @@ import { PaginationBar } from '@/components/data-display/pagination-bar';
 import { StatusBadge } from '@/components/data-display/status-badge';
 import { useToast } from '@/components/feedback/toast';
 import { Field, FormRequiredLegend, getInputClassName } from '@/components/forms/field';
+import {
+  FormActions,
+  FormHeader,
+  formPanelWarningClassName,
+  formShellClassName,
+} from '@/components/forms/form-shell';
 import { Button } from '@/components/ui/button';
 import { usePaginatedList } from '@/modules/configuracion/hooks/use-paginated-list';
 import { apiFetch, apiFetchPaginated, getApiErrorMessage } from '@/lib/api-client';
@@ -313,16 +319,18 @@ function MovimientosContent({
               ) : null}
             </div>
           ) : canCreate ? (
-            <form
-              onSubmit={handleSubmit}
-              className="space-y-4 rounded-3xl bg-surface p-4 shadow-sm ring-1 ring-black/5"
-            >
-              <p className="text-sm font-semibold text-muted">
-                {tab === 'ENTRADA' && 'Nueva entrada'}
-                {tab === 'SALIDA' && 'Nueva salida manual'}
-                {tab === 'AJUSTE' && 'Nuevo ajuste'}
-              </p>
+            <form onSubmit={handleSubmit} className={formShellClassName}>
+              <FormHeader
+                title={
+                  tab === 'ENTRADA'
+                    ? 'Nueva entrada'
+                    : tab === 'SALIDA'
+                      ? 'Nueva salida manual'
+                      : 'Nuevo ajuste'
+                }
+              />
               <FormRequiredLegend />
+              <div className="space-y-4">
               <Field
                 label="Tipo"
                 htmlFor="movimiento-tipo"
@@ -489,14 +497,13 @@ function MovimientosContent({
                   rows={2}
                 />
               </Field>
-              <div className="flex gap-2">
-                <Button type="button" variant="outline" fullWidth onClick={resetForm}>
-                  Cancelar
-                </Button>
-                <Button type="submit" fullWidth disabled={createMutation.isPending}>
-                  {createMutation.isPending ? 'Guardando...' : 'Registrar movimiento'}
-                </Button>
               </div>
+              <FormActions
+                onCancel={resetForm}
+                submitLabel="Registrar movimiento"
+                loadingLabel="Guardando..."
+                loading={createMutation.isPending}
+              />
             </form>
           ) : null}
         </div>
@@ -514,7 +521,7 @@ function MovimientosContent({
         {items.map((item) => (
           <article
             key={item.id}
-            className="space-y-2 rounded-2xl bg-surface p-4 shadow-sm ring-1 ring-black/5"
+            className="space-y-2 rounded-2xl bg-surface p-4 shadow-sm ring-1 ring-primary/10"
           >
             <div className="flex items-start justify-between gap-3">
               <div>
@@ -562,12 +569,11 @@ function MovimientosContent({
       />
 
       {pendingAnular ? (
-        <section className="space-y-4 rounded-3xl bg-surface p-4 shadow-sm ring-1 ring-warning/20">
-          <h2 className="text-lg font-semibold text-foreground">Anular movimiento</h2>
-          <p className="text-sm text-muted">
-            {pendingAnular.tipoMovimiento?.nombre} · {pendingAnular.alimento?.nombre} ·{' '}
-            {pendingAnular.fecha}
-          </p>
+        <section className={formPanelWarningClassName}>
+          <FormHeader
+            title="Anular movimiento"
+            description={`${pendingAnular.tipoMovimiento?.nombre} · ${pendingAnular.alimento?.nombre} · ${pendingAnular.fecha}`}
+          />
           <Field label="Motivo de anulacion" htmlFor="movimiento-motivo-anulacion" required>
             <input
               id="movimiento-motivo-anulacion"
@@ -577,7 +583,19 @@ function MovimientosContent({
               placeholder="Ej. Error de carga"
             />
           </Field>
-          <div className="flex gap-2">
+          <div className="flex gap-2 border-t border-warning/20 pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              fullWidth
+              onClick={() => {
+                setPendingAnular(null);
+                setMotivoAnulacion('');
+              }}
+              disabled={anularMutation.isPending}
+            >
+              Cancelar
+            </Button>
             <Button
               type="button"
               fullWidth
@@ -591,17 +609,6 @@ function MovimientosContent({
               }}
             >
               {anularMutation.isPending ? 'Anulando...' : 'Confirmar anulacion'}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              fullWidth
-              onClick={() => {
-                setPendingAnular(null);
-                setMotivoAnulacion('');
-              }}
-            >
-              Cancelar
             </Button>
           </div>
         </section>

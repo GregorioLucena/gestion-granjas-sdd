@@ -13,11 +13,11 @@ type ActionCardProps = {
 };
 
 const toneClasses: Record<ActionTone, string> = {
-  primary: 'bg-primary/10 text-primary',
-  secondary: 'bg-secondary/30 text-primary-dark',
-  accent: 'bg-accent/10 text-accent',
-  success: 'bg-success/10 text-success',
-  info: 'bg-info/10 text-info',
+  primary: 'bg-primary/10 text-primary ring-primary/15',
+  secondary: 'bg-secondary/35 text-primary-dark ring-secondary/40',
+  accent: 'bg-accent/10 text-accent ring-accent/20',
+  success: 'bg-success/10 text-success ring-success/20',
+  info: 'bg-info/10 text-info ring-info/20',
 };
 
 export function ActionCard({
@@ -30,19 +30,19 @@ export function ActionCard({
   return (
     <Link
       href={href}
-      className="group flex items-start gap-3 rounded-2xl bg-surface p-4 shadow-sm ring-1 ring-black/5 transition hover:-translate-y-0.5 hover:ring-primary/25"
+      className="group flex items-start gap-3 rounded-2xl bg-surface/90 p-4 shadow-sm ring-1 ring-primary/10 transition duration-200 hover:-translate-y-0.5 hover:shadow-md hover:shadow-primary/10 hover:ring-primary/25"
     >
       <span
-        className={`flex size-11 shrink-0 items-center justify-center rounded-xl ${toneClasses[tone]}`}
+        className={`flex size-11 shrink-0 items-center justify-center rounded-2xl ring-1 transition group-hover:scale-105 ${toneClasses[tone]}`}
       >
         <Icon className="size-5" aria-hidden />
       </span>
       <span className="min-w-0 flex-1">
         <span className="block font-semibold text-foreground">{title}</span>
-        <span className="mt-1 block text-sm text-muted">{description}</span>
+        <span className="mt-1 block text-sm leading-5 text-muted">{description}</span>
       </span>
       <ChevronRight
-        className="mt-2 size-5 shrink-0 text-muted transition group-hover:text-primary"
+        className="mt-2 size-5 shrink-0 text-muted transition group-hover:translate-x-0.5 group-hover:text-primary"
         aria-hidden
       />
     </Link>

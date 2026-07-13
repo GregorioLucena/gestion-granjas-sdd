@@ -9,8 +9,10 @@ import { PaginationBar } from '@/components/data-display/pagination-bar';
 import { RecordListItem } from '@/components/data-display/record-list-item';
 import { ConfirmDialog } from '@/components/feedback/confirm-dialog';
 import { useToast } from '@/components/feedback/toast';
-import { Field, FormRequiredLegend, getInputClassName } from '@/components/forms/field';
+import { Field, getInputClassName } from '@/components/forms/field';
+import { FormShell } from '@/components/forms/form-shell';
 import { ReactivateField } from '@/components/forms/reactivate-field';
+import { Button } from '@/components/ui/button';
 import { usePaginatedList } from '@/modules/configuracion/hooks/use-paginated-list';
 import { apiFetch, getApiErrorMessage } from '@/lib/api-client';
 import {
@@ -183,88 +185,70 @@ export function TiposAnimalAbm() {
         description="Especies o categorias productivas. Define si requieren raza."
       />
 
-      <div className="rounded-2xl bg-surface p-4 ring-1 ring-black/5">
+      <div className="rounded-2xl bg-surface/95 p-4 shadow-sm ring-1 ring-primary/10">
         <p className="text-xs font-semibold uppercase tracking-wide text-muted">Resultados</p>
         <p className="mt-1 text-2xl font-bold text-primary">{meta.total}</p>
       </div>
 
       <div ref={formSectionRef} className="scroll-mt-20">
         {!formMode ? (
-          <button
-            type="button"
-            onClick={openCreateForm}
-            className="min-h-11 w-full rounded-xl bg-primary text-sm font-semibold text-white"
-          >
+          <Button type="button" fullWidth onClick={openCreateForm}>
             Agregar tipo de animal
-          </button>
+          </Button>
         ) : (
-          <form onSubmit={onSubmit} className="space-y-4 rounded-2xl bg-surface p-4 ring-1 ring-black/5">
-          <p className="text-sm font-semibold text-muted">
-            {isEditing ? `Editar: ${editingItem?.nombre}` : 'Nuevo tipo de animal'}
-          </p>
-          <FormRequiredLegend />
-          <Field label="Nombre" htmlFor="tipo-nombre" required error={fieldErrors.nombre}>
-            <input
-              id="tipo-nombre"
-              className={getInputClassName(Boolean(fieldErrors.nombre))}
-              placeholder="Ej. Porcino"
-              value={nombre}
-              onChange={(e) => {
-                setNombre(e.target.value);
-                clearFieldError('nombre', setFieldErrors);
-              }}
-              aria-required="true"
-              aria-invalid={Boolean(fieldErrors.nombre)}
-            />
-          </Field>
-          <Field label="Descripcion" htmlFor="tipo-descripcion">
-            <input
-              id="tipo-descripcion"
-              className={getInputClassName()}
-              value={descripcion}
-              onChange={(e) => setDescripcion(e.target.value)}
-            />
-          </Field>
-          <label className="flex min-h-11 cursor-pointer items-center gap-3 rounded-xl border border-black/10 px-3">
-            <input
-              type="checkbox"
-              checked={requiereRaza}
-              onChange={(e) => setRequiereRaza(e.target.checked)}
-              className="size-4 accent-primary"
-            />
-            <span className="text-sm font-medium">Requiere raza</span>
-          </label>
-          <Field label="Duracion gestacion (dias)" htmlFor="tipo-gestacion">
-            <input
-              id="tipo-gestacion"
-              type="number"
-              min={1}
-              className={getInputClassName()}
-              placeholder="Ej. 114"
-              value={duracionGestacionDias}
-              onChange={(e) => setDuracionGestacionDias(e.target.value)}
-            />
-          </Field>
-          {isEditing && editingItem?.estadoRegistro === 'INACTIVO' ? (
-            <ReactivateField checked={reactivar} onChange={setReactivar} />
-          ) : null}
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={resetForm}
-              className="min-h-11 flex-1 rounded-xl border border-black/10 text-sm font-semibold"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              disabled={isSaving}
-              className="min-h-11 flex-1 rounded-xl bg-primary text-sm font-semibold text-white"
-            >
-              {isSaving ? 'Guardando...' : isEditing ? 'Guardar cambios' : 'Guardar'}
-            </button>
-          </div>
-        </form>
+          <FormShell
+            onSubmit={onSubmit}
+            title={isEditing ? `Editar: ${editingItem?.nombre}` : 'Nuevo tipo de animal'}
+            onCancel={resetForm}
+            submitLabel={isEditing ? 'Guardar cambios' : 'Guardar'}
+            loading={isSaving}
+          >
+            <Field label="Nombre" htmlFor="tipo-nombre" required error={fieldErrors.nombre}>
+              <input
+                id="tipo-nombre"
+                className={getInputClassName(Boolean(fieldErrors.nombre))}
+                placeholder="Ej. Porcino"
+                value={nombre}
+                onChange={(e) => {
+                  setNombre(e.target.value);
+                  clearFieldError('nombre', setFieldErrors);
+                }}
+                aria-required="true"
+                aria-invalid={Boolean(fieldErrors.nombre)}
+              />
+            </Field>
+            <Field label="Descripcion" htmlFor="tipo-descripcion">
+              <input
+                id="tipo-descripcion"
+                className={getInputClassName()}
+                value={descripcion}
+                onChange={(e) => setDescripcion(e.target.value)}
+              />
+            </Field>
+            <label className="flex min-h-11 cursor-pointer items-center gap-3 rounded-xl border border-primary/15 bg-background/60 px-3.5 transition hover:border-primary/25">
+              <input
+                type="checkbox"
+                checked={requiereRaza}
+                onChange={(e) => setRequiereRaza(e.target.checked)}
+                className="size-4 accent-primary"
+              />
+              <span className="text-sm font-semibold">Requiere raza</span>
+            </label>
+            <Field label="Duracion gestacion (dias)" htmlFor="tipo-gestacion">
+              <input
+                id="tipo-gestacion"
+                type="number"
+                min={1}
+                className={getInputClassName()}
+                placeholder="Ej. 114"
+                value={duracionGestacionDias}
+                onChange={(e) => setDuracionGestacionDias(e.target.value)}
+              />
+            </Field>
+            {isEditing && editingItem?.estadoRegistro === 'INACTIVO' ? (
+              <ReactivateField checked={reactivar} onChange={setReactivar} />
+            ) : null}
+          </FormShell>
         )}
       </div>
 
