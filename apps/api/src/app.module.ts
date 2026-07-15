@@ -13,6 +13,8 @@ import { PermisosModule } from './permisos/permisos.module';
 import { LotesModule } from './lotes/lotes.module';
 import { InventarioModule } from './inventario/inventario.module';
 import { ConsumoModule } from './consumo/consumo.module';
+import { EngordeModule } from './engorde/engorde.module';
+import { PesosModule } from './pesos/pesos.module';
 
 @Module({
   imports: [
@@ -35,6 +37,8 @@ import { ConsumoModule } from './consumo/consumo.module';
     LotesModule,
     InventarioModule,
     ConsumoModule,
+    EngordeModule,
+    PesosModule,
   ],
 })
 export class AppModule {}

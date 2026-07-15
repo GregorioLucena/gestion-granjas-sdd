@@ -21,6 +21,23 @@ export enum EstadoEngorde {
   ANULADO = 'ANULADO',
 }
 
+export enum MomentoControlPeso {
+  INICIAL = 'INICIAL',
+  INTERMEDIO = 'INTERMEDIO',
+  FINAL = 'FINAL',
+}
+
+export enum ModalidadControlPeso {
+  PROMEDIO_LOTE = 'PROMEDIO_LOTE',
+  MUESTRA = 'MUESTRA',
+}
+
+export enum OrigenControlPeso {
+  ENGORDE_INICIO = 'ENGORDE_INICIO',
+  MANUAL = 'MANUAL',
+  ENGORDE_CIERRE = 'ENGORDE_CIERRE',
+}
+
 export enum SignoMovimiento {
   ENTRADA = 'ENTRADA',
   SALIDA = 'SALIDA',

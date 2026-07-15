@@ -28,6 +28,7 @@ export {
   Alimento,
   Almacen,
   BajaEngorde,
+  CierreEngorde,
   ConsumoAlimento,
   ControlPeso,
   EngordeLote,
@@ -67,6 +68,7 @@ import {
   Alimento,
   Almacen,
   BajaEngorde,
+  CierreEngorde,
   ConsumoAlimento,
   ControlPeso,
   EngordeLote,
@@ -108,6 +110,7 @@ export const entities = [
   MovimientoInventario,
   ConsumoAlimento,
   EngordeLote,
+  CierreEngorde,
   BajaEngorde,
   ControlPeso,
 ];

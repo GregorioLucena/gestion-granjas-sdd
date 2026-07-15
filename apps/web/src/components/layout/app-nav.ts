@@ -1,4 +1,4 @@
-import { Home, Layers3, MoreHorizontal, PackageOpen, Wheat, type LucideIcon } from 'lucide-react';
+import { Home, Layers3, MoreHorizontal, PackageOpen, Scale, Wheat, type LucideIcon } from 'lucide-react';
 
 export type AppNavItem = {
   href: string;
@@ -10,7 +10,7 @@ export type AppNavItem = {
 export const APP_NAV_ITEMS: AppNavItem[] = [
   { href: '/dashboard', label: 'Inicio', icon: Home },
   { href: '/lotes', label: 'Lotes', icon: Layers3 },
-  { href: '/inventario', label: 'Inventario', icon: PackageOpen },
+  { href: '/engorde', label: 'Engorde', icon: Scale },
   { href: '/consumo', label: 'Consumo', icon: Wheat },
   { href: '/mas', label: 'Mas', icon: MoreHorizontal },
 ];

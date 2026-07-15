@@ -128,4 +128,77 @@ export class MaestrasController {
       .actualizarUbicacion(ctx, id, body as never)
       .then((data) => ({ data }));
   }
+
+  @Get('motivos-cierre-engorde')
+  listarMotivosCierre(@TenantCtx() ctx: TenantContext, @Query() query: Record<string, unknown>) {
+    return this.maestrasService
+      .listarMotivosCierreEngorde(ctx, parseListQuery(query))
+      .then((data) => ({ data }));
+  }
+
+  @Post('motivos-cierre-engorde')
+  crearMotivoCierre(@TenantCtx() ctx: TenantContext, @Body() body: unknown) {
+    return this.maestrasService
+      .crearMotivoCierreEngorde(ctx, body as never)
+      .then((data) => ({ data }));
+  }
+
+  @Patch('motivos-cierre-engorde/:id')
+  actualizarMotivoCierre(
+    @TenantCtx() ctx: TenantContext,
+    @Param('id') id: string,
+    @Body() body: unknown,
+  ) {
+    return this.maestrasService
+      .actualizarMotivoCierreEngorde(ctx, id, body as never)
+      .then((data) => ({ data }));
+  }
+
+  @Get('motivos-baja-engorde')
+  listarMotivosBaja(@TenantCtx() ctx: TenantContext, @Query() query: Record<string, unknown>) {
+    return this.maestrasService
+      .listarMotivosBajaEngorde(ctx, parseListQuery(query))
+      .then((data) => ({ data }));
+  }
+
+  @Post('motivos-baja-engorde')
+  crearMotivoBaja(@TenantCtx() ctx: TenantContext, @Body() body: unknown) {
+    return this.maestrasService
+      .crearMotivoBajaEngorde(ctx, body as never)
+      .then((data) => ({ data }));
+  }
+
+  @Patch('motivos-baja-engorde/:id')
+  actualizarMotivoBaja(
+    @TenantCtx() ctx: TenantContext,
+    @Param('id') id: string,
+    @Body() body: unknown,
+  ) {
+    return this.maestrasService
+      .actualizarMotivoBajaEngorde(ctx, id, body as never)
+      .then((data) => ({ data }));
+  }
+
+  @Get('metodos-pesaje')
+  listarMetodosPesaje(@TenantCtx() ctx: TenantContext, @Query() query: Record<string, unknown>) {
+    return this.maestrasService
+      .listarMetodosPesaje(ctx, parseListQuery(query))
+      .then((data) => ({ data }));
+  }
+
+  @Post('metodos-pesaje')
+  crearMetodoPesaje(@TenantCtx() ctx: TenantContext, @Body() body: unknown) {
+    return this.maestrasService.crearMetodoPesaje(ctx, body as never).then((data) => ({ data }));
+  }
+
+  @Patch('metodos-pesaje/:id')
+  actualizarMetodoPesaje(
+    @TenantCtx() ctx: TenantContext,
+    @Param('id') id: string,
+    @Body() body: unknown,
+  ) {
+    return this.maestrasService
+      .actualizarMetodoPesaje(ctx, id, body as never)
+      .then((data) => ({ data }));
+  }
 }

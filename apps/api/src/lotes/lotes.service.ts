@@ -22,14 +22,15 @@ import type {
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
+  EngordeLote,
   FinalidadProductiva,
   Granja,
   Lote,
   TipoAnimal,
   Ubicacion,
 } from '@gestion-granjas/database/entities';
-import { EstadoLote, EstadoRegistro } from '@gestion-granjas/database/enums';
-import { Repository } from 'typeorm';
+import { EstadoEngorde, EstadoLote, EstadoRegistro } from '@gestion-granjas/database/enums';
+import { Not, Repository } from 'typeorm';
 import { assertCantidadInicialValida } from './lotes.rules';
 
 @Injectable()
@@ -41,6 +42,7 @@ export class LotesService {
     @InjectRepository(FinalidadProductiva)
     private readonly finalidadRepo: Repository<FinalidadProductiva>,
     @InjectRepository(Ubicacion) private readonly ubicacionRepo: Repository<Ubicacion>,
+    @InjectRepository(EngordeLote) private readonly engordeRepo: Repository<EngordeLote>,
   ) {}
 
   async listar(
@@ -134,6 +136,34 @@ export class LotesService {
 
     if (parsed.codigo && parsed.codigo !== lote.codigo) {
       await this.assertCodigoDisponible(lote.granjaId, parsed.codigo, lote.id);
+    }
+
+    const engordeVigente = await this.engordeRepo.findOne({
+      where: { loteId: lote.id, estado: Not(EstadoEngorde.ANULADO) },
+    });
+
+    if (engordeVigente) {
+      const cambiaCantidad =
+        parsed.cantidadInicial !== undefined &&
+        parsed.cantidadInicial !== lote.cantidadInicial;
+      const cambiaFecha =
+        parsed.fechaInicio !== undefined && parsed.fechaInicio !== lote.fechaInicio;
+      if (cambiaCantidad || cambiaFecha) {
+        throw new ConflictError(
+          'LOTE_ENGORDE_ACTIVO',
+          'No puede cambiar cantidad o fecha porque el lote tiene un engorde.',
+        );
+      }
+
+      if (
+        parsed.estadoOperativo !== undefined &&
+        parsed.estadoOperativo !== lote.estadoOperativo
+      ) {
+        throw new ConflictError(
+          'LOTE_ESTADO_GESTIONADO_POR_ENGORDE',
+          'Cierre o reabra el lote desde el proceso de engorde.',
+        );
+      }
     }
 
     await this.assertReferenciasActivas(ctx, {

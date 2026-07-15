@@ -14,6 +14,9 @@ import {
   EstadoEngorde,
   EstadoLote,
   EstadoRegistro,
+  ModalidadControlPeso,
+  MomentoControlPeso,
+  OrigenControlPeso,
 } from '../enums';
 import { Compania, Granja } from './organizacion.entities';
 import {
@@ -25,7 +28,6 @@ import {
   PresentacionAlimento,
   TipoAlimento,
   TipoAnimal,
-  TipoControlPeso,
   TipoMovimientoInventario,
   Ubicacion,
   UnidadMedida,
@@ -517,28 +519,70 @@ export class EngordeLote {
   cantidadInicial!: number;
 
   @Column({ type: 'decimal', precision: 10, scale: 3, nullable: true })
-  pesoInicialPromedio?: string;
-
-  @Column({ type: 'decimal', precision: 10, scale: 3, nullable: true })
-  objetivoPeso?: string;
-
-  @Column({ type: 'date', nullable: true })
-  fechaCierre?: string;
-
-  @Column('int', { nullable: true })
-  cantidadFinal?: number;
-
-  @Column({ type: 'decimal', precision: 10, scale: 3, nullable: true })
-  pesoFinalPromedio?: string;
-
-  @Column('uuid', { nullable: true })
-  motivoCierreId?: string;
+  objetivoPesoKg?: string;
 
   @Column({ nullable: true })
   observaciones?: string;
 
   @Column({ type: 'enum', enum: EstadoEngorde, default: EstadoEngorde.EN_CURSO })
   estado!: EstadoEngorde;
+
+  @Column({ type: 'timestamptz', nullable: true })
+  anuladoAt?: Date;
+
+  @Column({ nullable: true })
+  anuladoById?: string;
+
+  @Column({ nullable: true })
+  motivoAnulacion?: string;
+
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @Column()
+  createdById!: string;
+
+  @ManyToOne(() => Compania)
+  @JoinColumn({ name: 'companiaId' })
+  compania!: Compania;
+
+  @ManyToOne(() => Granja)
+  @JoinColumn({ name: 'granjaId' })
+  granja!: Granja;
+
+  @ManyToOne(() => Lote)
+  @JoinColumn({ name: 'loteId' })
+  lote!: Lote;
+}
+
+@Entity('cierres_engorde')
+export class CierreEngorde {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
+
+  @Column('uuid')
+  companiaId!: string;
+
+  @Column('uuid')
+  granjaId!: string;
+
+  @Column('uuid')
+  engordeId!: string;
+
+  @Column('uuid')
+  loteId!: string;
+
+  @Column({ type: 'date' })
+  fechaCierre!: string;
+
+  @Column('int')
+  cantidadFinal!: number;
+
+  @Column('uuid')
+  motivoCierreId!: string;
+
+  @Column({ nullable: true })
+  observaciones?: string;
 
   @Column({ default: false })
   anulado!: boolean;
@@ -558,13 +602,25 @@ export class EngordeLote {
   @Column()
   createdById!: string;
 
+  @ManyToOne(() => Compania)
+  @JoinColumn({ name: 'companiaId' })
+  compania!: Compania;
+
+  @ManyToOne(() => Granja)
+  @JoinColumn({ name: 'granjaId' })
+  granja!: Granja;
+
+  @ManyToOne(() => EngordeLote)
+  @JoinColumn({ name: 'engordeId' })
+  engorde!: EngordeLote;
+
   @ManyToOne(() => Lote)
   @JoinColumn({ name: 'loteId' })
   lote!: Lote;
 
-  @ManyToOne(() => MotivoCierreEngorde, { nullable: true })
+  @ManyToOne(() => MotivoCierreEngorde)
   @JoinColumn({ name: 'motivoCierreId' })
-  motivoCierre?: MotivoCierreEngorde;
+  motivoCierre!: MotivoCierreEngorde;
 }
 
 @Entity('bajas_engorde')
@@ -573,13 +629,19 @@ export class BajaEngorde {
   id!: string;
 
   @Column('uuid')
+  companiaId!: string;
+
+  @Column('uuid')
+  granjaId!: string;
+
+  @Column('uuid')
   engordeId!: string;
 
   @Column('uuid')
   loteId!: string;
 
-  @Column('uuid', { nullable: true })
-  motivoId?: string;
+  @Column('uuid')
+  motivoId!: string;
 
   @Column({ type: 'date' })
   fecha!: string;
@@ -608,13 +670,25 @@ export class BajaEngorde {
   @Column()
   createdById!: string;
 
+  @ManyToOne(() => Compania)
+  @JoinColumn({ name: 'companiaId' })
+  compania!: Compania;
+
+  @ManyToOne(() => Granja)
+  @JoinColumn({ name: 'granjaId' })
+  granja!: Granja;
+
   @ManyToOne(() => EngordeLote)
   @JoinColumn({ name: 'engordeId' })
   engorde!: EngordeLote;
 
-  @ManyToOne(() => MotivoBajaEngorde, { nullable: true })
+  @ManyToOne(() => Lote)
+  @JoinColumn({ name: 'loteId' })
+  lote!: Lote;
+
+  @ManyToOne(() => MotivoBajaEngorde)
   @JoinColumn({ name: 'motivoId' })
-  motivo?: MotivoBajaEngorde;
+  motivo!: MotivoBajaEngorde;
 }
 
 @Entity('controles_peso')
@@ -631,26 +705,35 @@ export class ControlPeso {
   @Column('uuid')
   loteId!: string;
 
-  @Column('uuid', { nullable: true })
-  engordeId?: string;
+  @Column('uuid')
+  engordeId!: string;
+
+  @Column({ type: 'enum', enum: MomentoControlPeso })
+  momento!: MomentoControlPeso;
+
+  @Column({ type: 'enum', enum: ModalidadControlPeso })
+  modalidad!: ModalidadControlPeso;
+
+  @Column({ type: 'enum', enum: OrigenControlPeso })
+  origen!: OrigenControlPeso;
 
   @Column('uuid')
-  tipoControlId!: string;
-
-  @Column('uuid', { nullable: true })
-  metodoPesajeId?: string;
+  metodoPesajeId!: string;
 
   @Column({ type: 'date' })
   fecha!: string;
 
   @Column({ type: 'decimal', precision: 10, scale: 3 })
-  peso!: string;
+  pesoPromedioKg!: string;
 
   @Column('uuid')
   unidadMedidaId!: string;
 
   @Column('int', { nullable: true })
   cantidadMuestra?: number;
+
+  @Column('uuid', { nullable: true })
+  cierreEngordeId?: string;
 
   @Column({ nullable: true })
   observaciones?: string;
@@ -673,6 +756,10 @@ export class ControlPeso {
   @Column()
   createdById!: string;
 
+  @ManyToOne(() => Compania)
+  @JoinColumn({ name: 'companiaId' })
+  compania!: Compania;
+
   @ManyToOne(() => Granja)
   @JoinColumn({ name: 'granjaId' })
   granja!: Granja;
@@ -681,19 +768,19 @@ export class ControlPeso {
   @JoinColumn({ name: 'loteId' })
   lote!: Lote;
 
-  @ManyToOne(() => EngordeLote, { nullable: true })
+  @ManyToOne(() => EngordeLote)
   @JoinColumn({ name: 'engordeId' })
-  engorde?: EngordeLote;
+  engorde!: EngordeLote;
 
-  @ManyToOne(() => TipoControlPeso)
-  @JoinColumn({ name: 'tipoControlId' })
-  tipoControl!: TipoControlPeso;
-
-  @ManyToOne(() => MetodoPesaje, { nullable: true })
+  @ManyToOne(() => MetodoPesaje)
   @JoinColumn({ name: 'metodoPesajeId' })
-  metodoPesaje?: MetodoPesaje;
+  metodoPesaje!: MetodoPesaje;
 
   @ManyToOne(() => UnidadMedida)
   @JoinColumn({ name: 'unidadMedidaId' })
   unidadMedida!: UnidadMedida;
+
+  @ManyToOne(() => CierreEngorde, { nullable: true })
+  @JoinColumn({ name: 'cierreEngordeId' })
+  cierreEngorde?: CierreEngorde;
 }

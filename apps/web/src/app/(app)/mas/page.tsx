@@ -1,6 +1,6 @@
 'use client';
 
-import { Building2, Gauge, LogOut, Shield } from 'lucide-react';
+import { Building2, Gauge, LogOut, PackageOpen, Shield, Weight } from 'lucide-react';
 import { PERMISOS } from '@gestion-granjas/shared/permissions';
 import { ActionCard } from '@/components/data-display/action-card';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,22 @@ import { userHasAnyPermission } from '@/lib/tenant-context';
 import { SEGURIDAD_ACCESS_PERMISSIONS } from '@/modules/seguridad/catalog';
 
 const links = [
+  {
+    href: '/pesos',
+    title: 'Controles de peso',
+    description: 'Historial y controles intermedios del engorde.',
+    icon: Weight,
+    tone: 'secondary' as const,
+    permissions: [PERMISOS.PESOS_VER],
+  },
+  {
+    href: '/inventario',
+    title: 'Inventario',
+    description: 'Alimentos, almacenes, movimientos y existencias.',
+    icon: PackageOpen,
+    tone: 'secondary' as const,
+    permissions: [PERMISOS.INVENTARIO_VER],
+  },
   {
     href: '/configuracion',
     title: 'Configuracion',
