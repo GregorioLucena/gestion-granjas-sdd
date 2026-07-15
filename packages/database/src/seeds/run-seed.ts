@@ -7,6 +7,9 @@ import {
   Compania,
   FinalidadProductiva,
   Granja,
+  MetodoPesaje,
+  MotivoBajaEngorde,
+  MotivoCierreEngorde,
   MovimientoInventario,
   Perfil,
   PerfilPermiso,
@@ -109,8 +112,17 @@ const PERMISOS_CONFIG = [
   },
   { codigo: 'engorde.ver', nombre: 'Ver engorde', modulo: 'engorde', accion: 'ver' },
   { codigo: 'engorde.iniciar', nombre: 'Iniciar engorde', modulo: 'engorde', accion: 'iniciar' },
+  {
+    codigo: 'engorde.bajas.crear',
+    nombre: 'Registrar bajas de engorde',
+    modulo: 'engorde',
+    accion: 'bajas.crear',
+  },
+  { codigo: 'engorde.cerrar', nombre: 'Cerrar engorde', modulo: 'engorde', accion: 'cerrar' },
+  { codigo: 'engorde.anular', nombre: 'Anular engorde o eventos', modulo: 'engorde', accion: 'anular' },
   { codigo: 'pesos.ver', nombre: 'Ver controles de peso', modulo: 'pesos', accion: 'ver' },
   { codigo: 'pesos.crear', nombre: 'Registrar controles de peso', modulo: 'pesos', accion: 'crear' },
+  { codigo: 'pesos.anular', nombre: 'Anular controles de peso', modulo: 'pesos', accion: 'anular' },
   {
     codigo: 'reportes.alimentacion.ver',
     nombre: 'Ver reportes de alimentacion',
@@ -146,6 +158,16 @@ const PERFIL_ADMIN_COMPANIA = [
   'alimentacion.consumo.ver',
   'alimentacion.consumo.crear',
   'alimentacion.consumo.anular',
+  'engorde.ver',
+  'engorde.iniciar',
+  'engorde.bajas.crear',
+  'engorde.cerrar',
+  'engorde.anular',
+  'pesos.ver',
+  'pesos.crear',
+  'pesos.anular',
+  'reportes.alimentacion.ver',
+  'reportes.engorde.ver',
 ];
 
 const PERFIL_OPERADOR_GRANJA = [
@@ -166,8 +188,12 @@ const PERFIL_OPERADOR_GRANJA = [
   'alimentacion.consumo.anular',
   'engorde.ver',
   'engorde.iniciar',
+  'engorde.bajas.crear',
+  'engorde.cerrar',
+  'engorde.anular',
   'pesos.ver',
   'pesos.crear',
+  'pesos.anular',
   'reportes.alimentacion.ver',
   'reportes.engorde.ver',
 ];
@@ -478,11 +504,82 @@ async function runSeed() {
   }
 
   const finalidadRepo = AppDataSource.getRepository(FinalidadProductiva);
-  for (const nombre of ['Engorde', 'Reproduccion', 'Genetica']) {
-    const exists = await finalidadRepo.findOne({ where: { companiaId: compania.id, nombre } });
-    if (!exists) {
-      await finalidadRepo.save(
+  const finalidadesSeed: Array<{ nombre: string; codigoSistema?: string }> = [
+    { nombre: 'Engorde', codigoSistema: 'ENGORDE' },
+    { nombre: 'Reproduccion', codigoSistema: 'REPRODUCCION' },
+    { nombre: 'Genetica' },
+  ];
+  for (const item of finalidadesSeed) {
+    let finalidad = await finalidadRepo.findOne({
+      where: { companiaId: compania.id, nombre: item.nombre },
+    });
+    if (!finalidad) {
+      finalidad = await finalidadRepo.save(
         finalidadRepo.create({
+          companiaId: compania.id,
+          nombre: item.nombre,
+          codigoSistema: item.codigoSistema ?? null,
+          estadoRegistro: EstadoRegistro.ACTIVO,
+        }),
+      );
+    } else if (item.codigoSistema && !finalidad.codigoSistema) {
+      finalidad.codigoSistema = item.codigoSistema;
+      await finalidadRepo.save(finalidad);
+    }
+  }
+
+  const motivoCierreRepo = AppDataSource.getRepository(MotivoCierreEngorde);
+  for (const nombre of ['Venta', 'Sacrificio', 'Fin de ciclo', 'Otro']) {
+    const exists = await motivoCierreRepo.findOne({
+      where: { companiaId: compania.id, nombre },
+    });
+    if (!exists) {
+      await motivoCierreRepo.save(
+        motivoCierreRepo.create({
+          companiaId: compania.id,
+          nombre,
+          estadoRegistro: EstadoRegistro.ACTIVO,
+        }),
+      );
+    }
+  }
+
+  const motivoBajaRepo = AppDataSource.getRepository(MotivoBajaEngorde);
+  const motivosBajaSeed: Array<{ nombre: string; cuentaComoMortalidad: boolean }> = [
+    { nombre: 'Muerte', cuentaComoMortalidad: true },
+    { nombre: 'Descarte', cuentaComoMortalidad: false },
+    { nombre: 'Venta parcial', cuentaComoMortalidad: false },
+    { nombre: 'Otra salida', cuentaComoMortalidad: false },
+  ];
+  for (const item of motivosBajaSeed) {
+    const exists = await motivoBajaRepo.findOne({
+      where: { companiaId: compania.id, nombre: item.nombre },
+    });
+    if (!exists) {
+      await motivoBajaRepo.save(
+        motivoBajaRepo.create({
+          companiaId: compania.id,
+          nombre: item.nombre,
+          cuentaComoMortalidad: item.cuentaComoMortalidad,
+          estadoRegistro: EstadoRegistro.ACTIVO,
+        }),
+      );
+    }
+  }
+
+  const metodoPesajeRepo = AppDataSource.getRepository(MetodoPesaje);
+  for (const nombre of [
+    'Bascula individual',
+    'Bascula grupal',
+    'Bascula de corral',
+    'Estimacion visual',
+  ]) {
+    const exists = await metodoPesajeRepo.findOne({
+      where: { companiaId: compania.id, nombre },
+    });
+    if (!exists) {
+      await metodoPesajeRepo.save(
+        metodoPesajeRepo.create({
           companiaId: compania.id,
           nombre,
           estadoRegistro: EstadoRegistro.ACTIVO,

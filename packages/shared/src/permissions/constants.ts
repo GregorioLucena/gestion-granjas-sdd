@@ -23,6 +23,14 @@ export const PERMISOS = {
   ALIMENTACION_CONSUMO_VER: 'alimentacion.consumo.ver',
   ALIMENTACION_CONSUMO_CREAR: 'alimentacion.consumo.crear',
   ALIMENTACION_CONSUMO_ANULAR: 'alimentacion.consumo.anular',
+  ENGORDE_VER: 'engorde.ver',
+  ENGORDE_INICIAR: 'engorde.iniciar',
+  ENGORDE_BAJAS_CREAR: 'engorde.bajas.crear',
+  ENGORDE_CERRAR: 'engorde.cerrar',
+  ENGORDE_ANULAR: 'engorde.anular',
+  PESOS_VER: 'pesos.ver',
+  PESOS_CREAR: 'pesos.crear',
+  PESOS_ANULAR: 'pesos.anular',
 } as const;
 
 export type PermisoCodigo = (typeof PERMISOS)[keyof typeof PERMISOS];

@@ -23,6 +23,12 @@ import {
   type CrearTipoAnimalInput,
   type CrearUbicacionInput,
 } from '@gestion-granjas/shared/schemas/configuracion.schemas';
+import {
+  actualizarMotivoBajaEngordeSchema,
+  crearMotivoBajaEngordeSchema,
+  type ActualizarMotivoBajaEngordeInput,
+  type CrearMotivoBajaEngordeInput,
+} from '@gestion-granjas/shared/schemas/engorde.schemas';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -30,6 +36,9 @@ import {
   FinalidadProductiva,
   Granja,
   Lote,
+  MetodoPesaje,
+  MotivoBajaEngorde,
+  MotivoCierreEngorde,
   Raza,
   TipoAnimal,
   TipoUbicacion,
@@ -53,6 +62,12 @@ export class MaestrasService {
     private readonly finalidadRepo: Repository<FinalidadProductiva>,
     @InjectRepository(TipoUbicacion) private readonly tipoUbicacionRepo: Repository<TipoUbicacion>,
     @InjectRepository(Ubicacion) private readonly ubicacionRepo: Repository<Ubicacion>,
+    @InjectRepository(MotivoCierreEngorde)
+    private readonly motivoCierreRepo: Repository<MotivoCierreEngorde>,
+    @InjectRepository(MotivoBajaEngorde)
+    private readonly motivoBajaRepo: Repository<MotivoBajaEngorde>,
+    @InjectRepository(MetodoPesaje)
+    private readonly metodoPesajeRepo: Repository<MetodoPesaje>,
     @InjectRepository(Granja) private readonly granjaRepo: Repository<Granja>,
     @InjectRepository(Lote) private readonly loteRepo: Repository<Lote>,
   ) {}
@@ -323,6 +338,114 @@ export class MaestrasService {
 
     Object.assign(entity, parsed, { updatedById: ctx.userId });
     return this.ubicacionRepo.save(entity);
+  }
+
+  listarMotivosCierreEngorde(ctx: TenantContext, query: ListQuery) {
+    this.assertMaestras(ctx);
+    const qb = this.motivoCierreRepo
+      .createQueryBuilder('motivo')
+      .where('motivo.companiaId = :companiaId', { companiaId: ctx.companiaId });
+    return paginate(qb, query, 'motivo');
+  }
+
+  async crearMotivoCierreEngorde(ctx: TenantContext, input: unknown) {
+    this.assertMaestras(ctx);
+    const parsed = maestraCompaniaBaseSchema.parse(input);
+    await this.assertNombreUnico(this.motivoCierreRepo, ctx.companiaId, parsed.nombre);
+    return this.motivoCierreRepo.save(
+      this.motivoCierreRepo.create({
+        ...parsed,
+        companiaId: ctx.companiaId,
+        estadoRegistro: EstadoRegistro.ACTIVO,
+      }),
+    );
+  }
+
+  async actualizarMotivoCierreEngorde(
+    ctx: TenantContext,
+    id: string,
+    input: ActualizarMaestraCompaniaInput,
+  ) {
+    this.assertMaestras(ctx);
+    const parsed = actualizarMaestraCompaniaSchema.parse(input);
+    const entity = await this.findCompaniaEntity(this.motivoCierreRepo, ctx, id);
+    if (parsed.nombre && parsed.nombre !== entity.nombre) {
+      await this.assertNombreUnico(this.motivoCierreRepo, ctx.companiaId, parsed.nombre);
+    }
+    Object.assign(entity, parsed);
+    return this.motivoCierreRepo.save(entity);
+  }
+
+  listarMotivosBajaEngorde(ctx: TenantContext, query: ListQuery) {
+    this.assertMaestras(ctx);
+    const qb = this.motivoBajaRepo
+      .createQueryBuilder('motivo')
+      .where('motivo.companiaId = :companiaId', { companiaId: ctx.companiaId });
+    return paginate(qb, query, 'motivo');
+  }
+
+  async crearMotivoBajaEngorde(ctx: TenantContext, input: CrearMotivoBajaEngordeInput) {
+    this.assertMaestras(ctx);
+    const parsed = crearMotivoBajaEngordeSchema.parse(input);
+    await this.assertNombreUnico(this.motivoBajaRepo, ctx.companiaId, parsed.nombre);
+    return this.motivoBajaRepo.save(
+      this.motivoBajaRepo.create({
+        ...parsed,
+        companiaId: ctx.companiaId,
+        estadoRegistro: EstadoRegistro.ACTIVO,
+      }),
+    );
+  }
+
+  async actualizarMotivoBajaEngorde(
+    ctx: TenantContext,
+    id: string,
+    input: ActualizarMotivoBajaEngordeInput,
+  ) {
+    this.assertMaestras(ctx);
+    const parsed = actualizarMotivoBajaEngordeSchema.parse(input);
+    const entity = await this.findCompaniaEntity(this.motivoBajaRepo, ctx, id);
+    if (parsed.nombre && parsed.nombre !== entity.nombre) {
+      await this.assertNombreUnico(this.motivoBajaRepo, ctx.companiaId, parsed.nombre);
+    }
+    Object.assign(entity, parsed);
+    return this.motivoBajaRepo.save(entity);
+  }
+
+  listarMetodosPesaje(ctx: TenantContext, query: ListQuery) {
+    this.assertMaestras(ctx);
+    const qb = this.metodoPesajeRepo
+      .createQueryBuilder('metodo')
+      .where('metodo.companiaId = :companiaId', { companiaId: ctx.companiaId });
+    return paginate(qb, query, 'metodo');
+  }
+
+  async crearMetodoPesaje(ctx: TenantContext, input: unknown) {
+    this.assertMaestras(ctx);
+    const parsed = maestraCompaniaBaseSchema.parse(input);
+    await this.assertNombreUnico(this.metodoPesajeRepo, ctx.companiaId, parsed.nombre);
+    return this.metodoPesajeRepo.save(
+      this.metodoPesajeRepo.create({
+        ...parsed,
+        companiaId: ctx.companiaId,
+        estadoRegistro: EstadoRegistro.ACTIVO,
+      }),
+    );
+  }
+
+  async actualizarMetodoPesaje(
+    ctx: TenantContext,
+    id: string,
+    input: ActualizarMaestraCompaniaInput,
+  ) {
+    this.assertMaestras(ctx);
+    const parsed = actualizarMaestraCompaniaSchema.parse(input);
+    const entity = await this.findCompaniaEntity(this.metodoPesajeRepo, ctx, id);
+    if (parsed.nombre && parsed.nombre !== entity.nombre) {
+      await this.assertNombreUnico(this.metodoPesajeRepo, ctx.companiaId, parsed.nombre);
+    }
+    Object.assign(entity, parsed);
+    return this.metodoPesajeRepo.save(entity);
   }
 
   private assertMaestras(ctx: TenantContext) {

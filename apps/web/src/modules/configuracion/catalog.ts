@@ -4,9 +4,11 @@ import {
   Factory,
   MapPin,
   PawPrint,
+  Scale,
   Shapes,
   Sparkles,
   Target,
+  Weight,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -85,6 +87,33 @@ export const maestrasCatalogGroups: ConfigNavGroup[] = [
         description: 'Engorde, reproduccion, cria y mas.',
         icon: Target,
         accentClass: 'bg-success/10 text-success',
+      },
+    ],
+  },
+  {
+    title: 'Engorde',
+    description: 'Motivos operativos del ciclo de engorde.',
+    items: [
+      {
+        href: '/configuracion/maestras/motivos-cierre-engorde',
+        title: 'Motivos de cierre',
+        description: 'Venta, sacrificio, fin de ciclo...',
+        icon: Scale,
+        accentClass: 'bg-primary/10 text-primary',
+      },
+      {
+        href: '/configuracion/maestras/motivos-baja-engorde',
+        title: 'Motivos de baja',
+        description: 'Muerte, descarte, venta parcial...',
+        icon: Scale,
+        accentClass: 'bg-warning/15 text-warning',
+      },
+      {
+        href: '/configuracion/maestras/metodos-pesaje',
+        title: 'Metodos de pesaje',
+        description: 'Bascula, estimacion visual y mas.',
+        icon: Weight,
+        accentClass: 'bg-info/10 text-info',
       },
     ],
   },

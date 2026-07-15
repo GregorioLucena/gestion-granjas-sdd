@@ -152,6 +152,10 @@ export class FinalidadProductiva {
   @Column({ nullable: true })
   descripcion?: string;
 
+  /** Codigo inmutable de sistema; ej. ENGORDE. Nulo si no aplica regla. */
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  codigoSistema?: string | null;
+
   @Column({ type: 'enum', enum: EstadoRegistro, default: EstadoRegistro.ACTIVO })
   estadoRegistro!: EstadoRegistro;
 
@@ -328,6 +332,9 @@ export class MotivoBajaEngorde {
 
   @Column({ nullable: true })
   descripcion?: string;
+
+  @Column({ type: 'boolean', default: false })
+  cuentaComoMortalidad!: boolean;
 
   @Column({ type: 'enum', enum: EstadoRegistro, default: EstadoRegistro.ACTIVO })
   estadoRegistro!: EstadoRegistro;

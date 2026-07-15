@@ -36,6 +36,10 @@
       "types": "./dist/schemas/consumo.schemas.d.ts",
       "default": "./dist/schemas/consumo.schemas.js"
     },
+    "./schemas/engorde.schemas": {
+      "types": "./dist/schemas/engorde.schemas.d.ts",
+      "default": "./dist/schemas/engorde.schemas.js"
+    },
     "./schemas/inventario.schemas": {
       "types": "./dist/schemas/inventario.schemas.d.ts",
       "default": "./dist/schemas/inventario.schemas.js"
@@ -47,6 +51,10 @@
     "./schemas/pagination.schemas": {
       "types": "./dist/schemas/pagination.schemas.d.ts",
       "default": "./dist/schemas/pagination.schemas.js"
+    },
+    "./schemas/pesos.schemas": {
+      "types": "./dist/schemas/pesos.schemas.d.ts",
+      "default": "./dist/schemas/pesos.schemas.js"
     },
     "./schemas/seguridad.schemas": {
       "types": "./dist/schemas/seguridad.schemas.d.ts",
@@ -70,6 +78,9 @@
       "schemas/consumo.schemas": [
         "dist/schemas/consumo.schemas.d.ts"
       ],
+      "schemas/engorde.schemas": [
+        "dist/schemas/engorde.schemas.d.ts"
+      ],
       "schemas/inventario.schemas": [
         "dist/schemas/inventario.schemas.d.ts"
       ],
@@ -78,6 +89,9 @@
       ],
       "schemas/pagination.schemas": [
         "dist/schemas/pagination.schemas.d.ts"
+      ],
+      "schemas/pesos.schemas": [
+        "dist/schemas/pesos.schemas.d.ts"
       ],
       "schemas/seguridad.schemas": [
         "dist/schemas/seguridad.schemas.d.ts"
