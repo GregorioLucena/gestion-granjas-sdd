@@ -56,6 +56,8 @@ export type ReportEnvelope<TData, TSummary = unknown> = {
     periodo?: { desde: string; hasta: string };
     filtros?: Record<string, string | undefined>;
     fechaConsulta?: string;
+    formulas?: Record<string, string>;
+    datosFaltantes?: string[];
     page?: number;
     limit?: number;
     total?: number;

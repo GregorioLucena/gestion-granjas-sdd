@@ -60,6 +60,10 @@
       "types": "./dist/schemas/reportes-alimentacion.schemas.d.ts",
       "default": "./dist/schemas/reportes-alimentacion.schemas.js"
     },
+    "./schemas/reportes-engorde.schemas": {
+      "types": "./dist/schemas/reportes-engorde.schemas.d.ts",
+      "default": "./dist/schemas/reportes-engorde.schemas.js"
+    },
     "./schemas/seguridad.schemas": {
       "types": "./dist/schemas/seguridad.schemas.d.ts",
       "default": "./dist/schemas/seguridad.schemas.js"
@@ -99,6 +103,9 @@
       ],
       "schemas/reportes-alimentacion.schemas": [
         "dist/schemas/reportes-alimentacion.schemas.d.ts"
+      ],
+      "schemas/reportes-engorde.schemas": [
+        "dist/schemas/reportes-engorde.schemas.d.ts"
       ],
       "schemas/seguridad.schemas": [
         "dist/schemas/seguridad.schemas.d.ts"

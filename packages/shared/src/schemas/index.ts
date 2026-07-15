@@ -6,4 +6,5 @@ export * from './lotes.schemas';
 export * from './pagination.schemas';
 export * from './pesos.schemas';
 export * from './reportes-alimentacion.schemas';
+export * from './reportes-engorde.schemas';
 export * from './seguridad.schemas';

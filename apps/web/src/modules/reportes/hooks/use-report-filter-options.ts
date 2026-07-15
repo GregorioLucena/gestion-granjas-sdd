@@ -42,6 +42,17 @@ export function useReportFilterOptions(granjaId: string) {
       }),
   });
 
+  const tiposAnimalQuery = useQuery({
+    queryKey: ['tipos-animal', 'reportes-select'],
+    enabled: !!granjaId,
+    queryFn: () =>
+      apiFetchPaginated<Named>('/tipos-animal', {
+        page: 1,
+        limit: 100,
+        estadoRegistro: 'ACTIVO',
+      }),
+  });
+
   return {
     lotes: (lotesQuery.data?.items ?? []).map((item) => ({
       id: item.id,
@@ -52,6 +63,10 @@ export function useReportFilterOptions(granjaId: string) {
       label: item.nombre,
     })),
     almacenes: (almacenesQuery.data?.items ?? []).map((item) => ({
+      id: item.id,
+      label: item.nombre,
+    })),
+    tiposAnimal: (tiposAnimalQuery.data?.items ?? []).map((item) => ({
       id: item.id,
       label: item.nombre,
     })),

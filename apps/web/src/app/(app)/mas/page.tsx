@@ -1,6 +1,15 @@
 'use client';
 
-import { Building2, ChartPie, Gauge, LogOut, PackageOpen, Shield, Weight } from 'lucide-react';
+import {
+  Building2,
+  ChartBar,
+  ChartPie,
+  Gauge,
+  LogOut,
+  PackageOpen,
+  Shield,
+  Weight,
+} from 'lucide-react';
 import { PERMISOS } from '@gestion-granjas/shared/permissions';
 import { ActionCard } from '@/components/data-display/action-card';
 import { Button } from '@/components/ui/button';
@@ -24,6 +33,14 @@ const links = [
     icon: ChartPie,
     tone: 'info' as const,
     permissions: [PERMISOS.REPORTES_ALIMENTACION_VER],
+  },
+  {
+    href: '/reportes/engorde',
+    title: 'Reportes de engorde',
+    description: 'Procesos, mortalidad, conversion y resumen por lote.',
+    icon: ChartBar,
+    tone: 'success' as const,
+    permissions: [PERMISOS.REPORTES_ENGORDE_VER],
   },
   {
     href: '/inventario',
