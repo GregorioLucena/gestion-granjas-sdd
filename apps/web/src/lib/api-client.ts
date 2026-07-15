@@ -49,6 +49,52 @@ export async function apiFetchPaginated<T>(
   return apiFetch<PaginatedResponse<T>>(`${path}${qs}`);
 }
 
+export type ReportEnvelope<TData, TSummary = unknown> = {
+  data: TData;
+  summary: TSummary;
+  meta: {
+    periodo?: { desde: string; hasta: string };
+    filtros?: Record<string, string | undefined>;
+    fechaConsulta?: string;
+    page?: number;
+    limit?: number;
+    total?: number;
+    totalPages?: number;
+  };
+};
+
+/** Lee reportes con envelope { data, summary, meta } (no solo data). */
+export async function apiFetchReport<TData, TSummary = unknown>(
+  path: string,
+  query?: Record<string, string | number | undefined>,
+  options?: ApiFetchOptions,
+): Promise<ReportEnvelope<TData, TSummary>> {
+  const { skipAuth, ...requestOptions } = options ?? {};
+  const token = skipAuth ? null : getAccessToken();
+  const qs = query ? toListQueryString(query) : '';
+
+  const res = await fetch(`${API_URL}${path}${qs}`, {
+    ...requestOptions,
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...requestOptions.headers,
+    },
+  });
+
+  const body = await res.json();
+  if (!res.ok) {
+    throw body;
+  }
+
+  return {
+    data: body.data as TData,
+    summary: body.summary as TSummary,
+    meta: (body.meta ?? {}) as ReportEnvelope<TData, TSummary>['meta'],
+  };
+}
+
 export function getApiErrorMessage(error: unknown, fallback: string): string {
   if (!error || typeof error !== 'object') {
     return fallback;
