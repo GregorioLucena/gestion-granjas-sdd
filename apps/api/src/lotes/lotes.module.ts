@@ -5,6 +5,7 @@ import {
   FinalidadProductiva,
   Granja,
   Lote,
+  MovimientoUbicacion,
   TipoAnimal,
   Ubicacion,
 } from '@gestion-granjas/database/entities';
@@ -20,6 +21,7 @@ import { LotesService } from './lotes.service';
       FinalidadProductiva,
       Ubicacion,
       EngordeLote,
+      MovimientoUbicacion,
     ]),
   ],
   controllers: [LotesController],

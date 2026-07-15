@@ -26,6 +26,7 @@ import {
   FinalidadProductiva,
   Granja,
   Lote,
+  MovimientoUbicacion,
   TipoAnimal,
   Ubicacion,
 } from '@gestion-granjas/database/entities';
@@ -43,6 +44,8 @@ export class LotesService {
     private readonly finalidadRepo: Repository<FinalidadProductiva>,
     @InjectRepository(Ubicacion) private readonly ubicacionRepo: Repository<Ubicacion>,
     @InjectRepository(EngordeLote) private readonly engordeRepo: Repository<EngordeLote>,
+    @InjectRepository(MovimientoUbicacion)
+    private readonly movimientoUbicacionRepo: Repository<MovimientoUbicacion>,
   ) {}
 
   async listar(
@@ -115,6 +118,7 @@ export class LotesService {
 
     const lote = this.loteRepo.create({
       ...parsed,
+      ubicacionInicialId: parsed.ubicacionId,
       estadoOperativo: parsed.estadoOperativo as EstadoLote,
       companiaId: ctx.companiaId,
       estadoRegistro: EstadoRegistro.ACTIVO,
@@ -164,6 +168,19 @@ export class LotesService {
           'Cierre o reabra el lote desde el proceso de engorde.',
         );
       }
+    }
+
+    if (parsed.ubicacionId !== undefined && parsed.ubicacionId !== lote.ubicacionId) {
+      const tieneMovimientos = await this.movimientoUbicacionRepo.exists({
+        where: { loteId: lote.id, anulado: false },
+      });
+      if (tieneMovimientos) {
+        throw new ConflictError(
+          'MOV_UBICACION_EDICION_DIRECTA',
+          'Registre un movimiento para cambiar la ubicacion del lote.',
+        );
+      }
+      // Sin movimientos vigentes: la ubicacion inicial permanece inmutable.
     }
 
     await this.assertReferenciasActivas(ctx, {

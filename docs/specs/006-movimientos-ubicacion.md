@@ -2,7 +2,7 @@
 
 ## Estado
 
-Lista para implementar MVP v1 opcional (2026-07-13)
+Implementado MVP v1 (2026-07-14)
 
 ## Objetivo
 

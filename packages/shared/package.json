@@ -48,6 +48,10 @@
       "types": "./dist/schemas/lotes.schemas.d.ts",
       "default": "./dist/schemas/lotes.schemas.js"
     },
+    "./schemas/movimientos-ubicacion.schemas": {
+      "types": "./dist/schemas/movimientos-ubicacion.schemas.d.ts",
+      "default": "./dist/schemas/movimientos-ubicacion.schemas.js"
+    },
     "./schemas/pagination.schemas": {
       "types": "./dist/schemas/pagination.schemas.d.ts",
       "default": "./dist/schemas/pagination.schemas.js"
@@ -94,6 +98,9 @@
       ],
       "schemas/lotes.schemas": [
         "dist/schemas/lotes.schemas.d.ts"
+      ],
+      "schemas/movimientos-ubicacion.schemas": [
+        "dist/schemas/movimientos-ubicacion.schemas.d.ts"
       ],
       "schemas/pagination.schemas": [
         "dist/schemas/pagination.schemas.d.ts"

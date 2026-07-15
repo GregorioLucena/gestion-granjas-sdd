@@ -10,6 +10,7 @@ import {
   MetodoPesaje,
   MotivoBajaEngorde,
   MotivoCierreEngorde,
+  MotivoMovimientoUbicacion,
   MovimientoInventario,
   Perfil,
   PerfilPermiso,
@@ -124,6 +125,24 @@ const PERMISOS_CONFIG = [
   { codigo: 'pesos.crear', nombre: 'Registrar controles de peso', modulo: 'pesos', accion: 'crear' },
   { codigo: 'pesos.anular', nombre: 'Anular controles de peso', modulo: 'pesos', accion: 'anular' },
   {
+    codigo: 'ubicaciones.movimientos.ver',
+    nombre: 'Ver movimientos de ubicacion',
+    modulo: 'ubicaciones',
+    accion: 'movimientos.ver',
+  },
+  {
+    codigo: 'ubicaciones.movimientos.crear',
+    nombre: 'Crear movimientos de ubicacion',
+    modulo: 'ubicaciones',
+    accion: 'movimientos.crear',
+  },
+  {
+    codigo: 'ubicaciones.movimientos.anular',
+    nombre: 'Anular movimientos de ubicacion',
+    modulo: 'ubicaciones',
+    accion: 'movimientos.anular',
+  },
+  {
     codigo: 'reportes.alimentacion.ver',
     nombre: 'Ver reportes de alimentacion',
     modulo: 'reportes',
@@ -166,6 +185,9 @@ const PERFIL_ADMIN_COMPANIA = [
   'pesos.ver',
   'pesos.crear',
   'pesos.anular',
+  'ubicaciones.movimientos.ver',
+  'ubicaciones.movimientos.crear',
+  'ubicaciones.movimientos.anular',
   'reportes.alimentacion.ver',
   'reportes.engorde.ver',
 ];
@@ -194,6 +216,9 @@ const PERFIL_OPERADOR_GRANJA = [
   'pesos.ver',
   'pesos.crear',
   'pesos.anular',
+  'ubicaciones.movimientos.ver',
+  'ubicaciones.movimientos.crear',
+  'ubicaciones.movimientos.anular',
   'reportes.alimentacion.ver',
   'reportes.engorde.ver',
 ];
@@ -561,6 +586,28 @@ async function runSeed() {
           companiaId: compania.id,
           nombre: item.nombre,
           cuentaComoMortalidad: item.cuentaComoMortalidad,
+          estadoRegistro: EstadoRegistro.ACTIVO,
+        }),
+      );
+    }
+  }
+
+  const motivoMovUbicacionRepo = AppDataSource.getRepository(MotivoMovimientoUbicacion);
+  for (const nombre of [
+    'Cambio productivo',
+    'Limpieza',
+    'Manejo sanitario',
+    'Reorganizacion',
+    'Otro',
+  ]) {
+    const exists = await motivoMovUbicacionRepo.findOne({
+      where: { companiaId: compania.id, nombre },
+    });
+    if (!exists) {
+      await motivoMovUbicacionRepo.save(
+        motivoMovUbicacionRepo.create({
+          companiaId: compania.id,
+          nombre,
           estadoRegistro: EstadoRegistro.ACTIVO,
         }),
       );

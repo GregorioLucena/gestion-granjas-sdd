@@ -11,6 +11,7 @@ import { UsuariosModule } from './usuarios/usuarios.module';
 import { PerfilesModule } from './perfiles/perfiles.module';
 import { PermisosModule } from './permisos/permisos.module';
 import { LotesModule } from './lotes/lotes.module';
+import { MovimientosUbicacionModule } from './movimientos-ubicacion/movimientos-ubicacion.module';
 import { InventarioModule } from './inventario/inventario.module';
 import { ConsumoModule } from './consumo/consumo.module';
 import { EngordeModule } from './engorde/engorde.module';
@@ -37,6 +38,7 @@ import { ReportesEngordeModule } from './reportes/reportes-engorde.module';
     PerfilesModule,
     PermisosModule,
     LotesModule,
+    MovimientosUbicacionModule,
     InventarioModule,
     ConsumoModule,
     EngordeModule,

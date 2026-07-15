@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { FormEvent, useState } from 'react';
 import { Layers3 } from 'lucide-react';
@@ -290,6 +291,13 @@ function LotesContent({ canCreate, canEdit }: { canCreate: boolean; canEdit: boo
         description="Gestiona grupos productivos por granja: cantidad inicial, ubicacion y estado operativo."
       />
 
+      <Link
+        href="/movimientos-ubicacion"
+        className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-secondary/35 px-4 text-sm font-semibold text-primary-dark ring-1 ring-secondary/40"
+      >
+        Movimientos de ubicacion
+      </Link>
+
       <section className="rounded-3xl bg-surface/95 p-4 shadow-sm ring-1 ring-primary/10">
         <div className="flex items-start gap-3">
           <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary ring-1 ring-primary/15">
@@ -461,6 +469,11 @@ function LotesContent({ canCreate, canEdit }: { canCreate: boolean; canEdit: boo
                         </option>
                       ))}
                     </select>
+                    {isEditing ? (
+                      <p className="mt-1 text-xs text-muted">
+                        Si el lote ya tiene movimientos, cambia la ubicacion desde Movimientos.
+                      </p>
+                    ) : null}
                   </Field>
 
                   <Field label="Estado operativo" htmlFor="lote-estado">
