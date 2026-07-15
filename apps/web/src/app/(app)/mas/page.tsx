@@ -6,6 +6,7 @@ import {
   ChartPie,
   Gauge,
   LogOut,
+  MapPinned,
   PackageOpen,
   Shield,
   Weight,
@@ -18,6 +19,14 @@ import { userHasAnyPermission } from '@/lib/tenant-context';
 import { SEGURIDAD_ACCESS_PERMISSIONS } from '@/modules/seguridad/catalog';
 
 const links = [
+  {
+    href: '/movimientos-ubicacion',
+    title: 'Movimientos de ubicacion',
+    description: 'Trasladar lotes entre ubicaciones de la granja.',
+    icon: MapPinned,
+    tone: 'accent' as const,
+    permissions: [PERMISOS.UBICACIONES_MOVIMIENTOS_VER],
+  },
   {
     href: '/pesos',
     title: 'Controles de peso',

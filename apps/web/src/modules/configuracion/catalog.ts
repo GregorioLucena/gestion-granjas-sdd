@@ -135,6 +135,13 @@ export const maestrasCatalogGroups: ConfigNavGroup[] = [
         icon: MapPin,
         accentClass: 'bg-primary/10 text-primary',
       },
+      {
+        href: '/configuracion/maestras/motivos-movimiento-ubicacion',
+        title: 'Motivos de movimiento',
+        description: 'Cambio productivo, limpieza, reorganizacion...',
+        icon: MapPin,
+        accentClass: 'bg-secondary/30 text-primary-dark',
+      },
     ],
   },
 ];

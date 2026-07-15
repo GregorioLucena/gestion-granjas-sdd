@@ -3,6 +3,7 @@ export * from './consumo.schemas';
 export * from './engorde.schemas';
 export * from './inventario.schemas';
 export * from './lotes.schemas';
+export * from './movimientos-ubicacion.schemas';
 export * from './pagination.schemas';
 export * from './pesos.schemas';
 export * from './reportes-alimentacion.schemas';

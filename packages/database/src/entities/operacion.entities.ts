@@ -63,6 +63,10 @@ export class Lote {
   @Column('uuid', { nullable: true })
   ubicacionId?: string;
 
+  /** Ubicacion asignada al crear el lote; no genera movimiento y no se edita. */
+  @Column('uuid', { nullable: true })
+  ubicacionInicialId?: string;
+
   @Column({ type: 'enum', enum: EstadoLote, default: EstadoLote.ACTIVO })
   estadoOperativo!: EstadoLote;
 
@@ -103,6 +107,10 @@ export class Lote {
   @ManyToOne(() => Ubicacion, { nullable: true })
   @JoinColumn({ name: 'ubicacionId' })
   ubicacion?: Ubicacion;
+
+  @ManyToOne(() => Ubicacion, { nullable: true })
+  @JoinColumn({ name: 'ubicacionInicialId' })
+  ubicacionInicial?: Ubicacion;
 }
 
 @Entity('movimientos_ubicacion')

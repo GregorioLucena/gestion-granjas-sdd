@@ -219,8 +219,7 @@ No incluye en MVP v1:
 
 ## Estado de implementacion MVP v1
 
-Actualizado tras la refinacion SDD de `012-engorde-lotes.md` y
-`013-controles-peso.md` (2026-07-13).
+Actualizado al cerrar el backlog MVP v1 (2026-07-14).
 
 | Modulo | Spec | Estado |
 |--------|------|--------|
@@ -229,15 +228,14 @@ Actualizado tras la refinacion SDD de `012-engorde-lotes.md` y
 | Lotes | `003` | Implementado |
 | Inventario de alimentos | `005` | Implementado |
 | Consumo por lote | `007` | Implementado |
-| Movimientos de ubicacion | `006` | Spec lista; implementacion opcional pendiente |
-| Engorde de lotes | `012` | Spec lista; implementacion pendiente |
-| Controles de peso | `013` | Spec lista; implementacion pendiente |
-| Reportes alimentacion | `015` | Spec lista; implementacion pendiente |
-| Reportes engorde | `017` | Spec lista; implementacion pendiente |
+| Movimientos de ubicacion | `006` | Implementado |
+| Engorde de lotes | `012` | Implementado |
+| Controles de peso | `013` | Implementado |
+| Reportes alimentacion | `015` | Implementado |
+| Reportes engorde | `017` | Implementado |
 
-**Siguiente paso recomendado:** implementar `012-engorde-lotes.md`, luego
-`013-controles-peso.md`, `015-reportes-alimentacion.md` y `017-reportes-engorde.md`. El
-modulo `006` es opcional y no bloquea esa secuencia.
+**MVP v1 cerrado en alcance funcional.** Siguiente fase recomendada: MVP v2
+(reproduccion y sanidad), segun `15-diseno-tecnico-mvp-v2.md`.
 
 ## Modulos fuera de MVP v1
 

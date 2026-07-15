@@ -179,6 +179,34 @@ export class MaestrasController {
       .then((data) => ({ data }));
   }
 
+  @Get('motivos-movimiento-ubicacion')
+  listarMotivosMovUbicacion(
+    @TenantCtx() ctx: TenantContext,
+    @Query() query: Record<string, unknown>,
+  ) {
+    return this.maestrasService
+      .listarMotivosMovimientoUbicacion(ctx, parseListQuery(query))
+      .then((data) => ({ data }));
+  }
+
+  @Post('motivos-movimiento-ubicacion')
+  crearMotivoMovUbicacion(@TenantCtx() ctx: TenantContext, @Body() body: unknown) {
+    return this.maestrasService
+      .crearMotivoMovimientoUbicacion(ctx, body as never)
+      .then((data) => ({ data }));
+  }
+
+  @Patch('motivos-movimiento-ubicacion/:id')
+  actualizarMotivoMovUbicacion(
+    @TenantCtx() ctx: TenantContext,
+    @Param('id') id: string,
+    @Body() body: unknown,
+  ) {
+    return this.maestrasService
+      .actualizarMotivoMovimientoUbicacion(ctx, id, body as never)
+      .then((data) => ({ data }));
+  }
+
   @Get('metodos-pesaje')
   listarMetodosPesaje(@TenantCtx() ctx: TenantContext, @Query() query: Record<string, unknown>) {
     return this.maestrasService

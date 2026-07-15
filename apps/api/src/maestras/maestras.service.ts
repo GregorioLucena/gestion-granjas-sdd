@@ -39,6 +39,7 @@ import {
   MetodoPesaje,
   MotivoBajaEngorde,
   MotivoCierreEngorde,
+  MotivoMovimientoUbicacion,
   Raza,
   TipoAnimal,
   TipoUbicacion,
@@ -66,6 +67,8 @@ export class MaestrasService {
     private readonly motivoCierreRepo: Repository<MotivoCierreEngorde>,
     @InjectRepository(MotivoBajaEngorde)
     private readonly motivoBajaRepo: Repository<MotivoBajaEngorde>,
+    @InjectRepository(MotivoMovimientoUbicacion)
+    private readonly motivoMovUbicacionRepo: Repository<MotivoMovimientoUbicacion>,
     @InjectRepository(MetodoPesaje)
     private readonly metodoPesajeRepo: Repository<MetodoPesaje>,
     @InjectRepository(Granja) private readonly granjaRepo: Repository<Granja>,
@@ -410,6 +413,42 @@ export class MaestrasService {
     }
     Object.assign(entity, parsed);
     return this.motivoBajaRepo.save(entity);
+  }
+
+  listarMotivosMovimientoUbicacion(ctx: TenantContext, query: ListQuery) {
+    this.assertMaestras(ctx);
+    const qb = this.motivoMovUbicacionRepo
+      .createQueryBuilder('motivo')
+      .where('motivo.companiaId = :companiaId', { companiaId: ctx.companiaId });
+    return paginate(qb, query, 'motivo');
+  }
+
+  async crearMotivoMovimientoUbicacion(ctx: TenantContext, input: unknown) {
+    this.assertMaestras(ctx);
+    const parsed = maestraCompaniaBaseSchema.parse(input);
+    await this.assertNombreUnico(this.motivoMovUbicacionRepo, ctx.companiaId, parsed.nombre);
+    return this.motivoMovUbicacionRepo.save(
+      this.motivoMovUbicacionRepo.create({
+        ...parsed,
+        companiaId: ctx.companiaId,
+        estadoRegistro: EstadoRegistro.ACTIVO,
+      }),
+    );
+  }
+
+  async actualizarMotivoMovimientoUbicacion(
+    ctx: TenantContext,
+    id: string,
+    input: ActualizarMaestraCompaniaInput,
+  ) {
+    this.assertMaestras(ctx);
+    const parsed = actualizarMaestraCompaniaSchema.parse(input);
+    const entity = await this.findCompaniaEntity(this.motivoMovUbicacionRepo, ctx, id);
+    if (parsed.nombre && parsed.nombre !== entity.nombre) {
+      await this.assertNombreUnico(this.motivoMovUbicacionRepo, ctx.companiaId, parsed.nombre);
+    }
+    Object.assign(entity, parsed);
+    return this.motivoMovUbicacionRepo.save(entity);
   }
 
   listarMetodosPesaje(ctx: TenantContext, query: ListQuery) {
