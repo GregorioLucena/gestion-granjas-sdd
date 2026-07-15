@@ -56,6 +56,10 @@
       "types": "./dist/schemas/pesos.schemas.d.ts",
       "default": "./dist/schemas/pesos.schemas.js"
     },
+    "./schemas/reportes-alimentacion.schemas": {
+      "types": "./dist/schemas/reportes-alimentacion.schemas.d.ts",
+      "default": "./dist/schemas/reportes-alimentacion.schemas.js"
+    },
     "./schemas/seguridad.schemas": {
       "types": "./dist/schemas/seguridad.schemas.d.ts",
       "default": "./dist/schemas/seguridad.schemas.js"
@@ -92,6 +96,9 @@
       ],
       "schemas/pesos.schemas": [
         "dist/schemas/pesos.schemas.d.ts"
+      ],
+      "schemas/reportes-alimentacion.schemas": [
+        "dist/schemas/reportes-alimentacion.schemas.d.ts"
       ],
       "schemas/seguridad.schemas": [
         "dist/schemas/seguridad.schemas.d.ts"

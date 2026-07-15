@@ -1,6 +1,6 @@
 'use client';
 
-import { Building2, Gauge, LogOut, PackageOpen, Shield, Weight } from 'lucide-react';
+import { Building2, ChartPie, Gauge, LogOut, PackageOpen, Shield, Weight } from 'lucide-react';
 import { PERMISOS } from '@gestion-granjas/shared/permissions';
 import { ActionCard } from '@/components/data-display/action-card';
 import { Button } from '@/components/ui/button';
@@ -16,6 +16,14 @@ const links = [
     icon: Weight,
     tone: 'secondary' as const,
     permissions: [PERMISOS.PESOS_VER],
+  },
+  {
+    href: '/reportes/alimentacion',
+    title: 'Reportes de alimentacion',
+    description: 'Consumos, existencias, movimientos y costos conocidos.',
+    icon: ChartPie,
+    tone: 'info' as const,
+    permissions: [PERMISOS.REPORTES_ALIMENTACION_VER],
   },
   {
     href: '/inventario',

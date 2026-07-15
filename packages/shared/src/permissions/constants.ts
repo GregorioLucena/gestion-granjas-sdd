@@ -31,6 +31,8 @@ export const PERMISOS = {
   PESOS_VER: 'pesos.ver',
   PESOS_CREAR: 'pesos.crear',
   PESOS_ANULAR: 'pesos.anular',
+  REPORTES_ALIMENTACION_VER: 'reportes.alimentacion.ver',
+  REPORTES_ENGORDE_VER: 'reportes.engorde.ver',
 } as const;
 
 export type PermisoCodigo = (typeof PERMISOS)[keyof typeof PERMISOS];
