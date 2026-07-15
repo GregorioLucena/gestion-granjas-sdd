@@ -15,6 +15,37 @@ export type ReporteNavItem = {
   accentClass: string;
 };
 
+export const reportesEngordeItems: ReporteNavItem[] = [
+  {
+    href: '/reportes/engorde/en-curso',
+    title: 'Engordes en curso',
+    description: 'Cantidades, ultimo peso, dias y consumo acumulado.',
+    icon: Layers3,
+    accentClass: 'bg-primary/10 text-primary',
+  },
+  {
+    href: '/reportes/engorde/cerrados',
+    title: 'Engordes cerrados',
+    description: 'Ganancia, mortalidad, conversion y motivo de cierre.',
+    icon: Package,
+    accentClass: 'bg-secondary/30 text-primary-dark',
+  },
+  {
+    href: '/reportes/engorde/bajas',
+    title: 'Bajas y mortalidad',
+    description: 'Detalle de salidas y porcentaje de mortalidad.',
+    icon: Scale,
+    accentClass: 'bg-warning/15 text-warning',
+  },
+  {
+    href: '/reportes/engorde/lotes',
+    title: 'Resumen por lote',
+    description: 'Controles, bajas, consumos e indicadores del engorde.',
+    icon: ChartPie,
+    accentClass: 'bg-info/10 text-info',
+  },
+];
+
 export const reportesAlimentacionItems: ReporteNavItem[] = [
   {
     href: '/reportes/alimentacion/consumo-lotes',

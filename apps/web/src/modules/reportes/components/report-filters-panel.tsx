@@ -12,6 +12,7 @@ export type ReportFilters = {
   loteId: string;
   alimentoId: string;
   almacenId: string;
+  tipoAnimalId: string;
 };
 
 type Option = { id: string; label: string };
@@ -19,11 +20,13 @@ type Option = { id: string; label: string };
 type ReportFiltersPanelProps = {
   title: string;
   description: string;
+  backHref?: string;
   showPeriodo?: boolean;
   applied: ReportFilters;
   lotes?: Option[];
   alimentos?: Option[];
   almacenes?: Option[];
+  tiposAnimal?: Option[];
   onApply: (filters: ReportFilters) => void;
   children?: ReactNode;
 };
@@ -45,17 +48,20 @@ export function defaultReportFilters(): ReportFilters {
     loteId: '',
     alimentoId: '',
     almacenId: '',
+    tipoAnimalId: '',
   };
 }
 
 export function ReportFiltersPanel({
   title,
   description,
+  backHref = '/reportes/alimentacion',
   showPeriodo = true,
   applied,
   lotes = [],
   alimentos = [],
   almacenes = [],
+  tiposAnimal = [],
   onApply,
   children,
 }: ReportFiltersPanelProps) {
@@ -74,7 +80,7 @@ export function ReportFiltersPanel({
   return (
     <div className="space-y-5 pb-24">
       <PageHeader
-        backHref="/reportes/alimentacion"
+        backHref={backHref}
         backLabel="Reportes"
         title={title}
         description={description}
@@ -136,6 +142,25 @@ export function ReportFiltersPanel({
                 </select>
               </Field>
             ) : null}
+            {tiposAnimal.length > 0 ? (
+              <Field label="Tipo de animal" htmlFor="tipoAnimalId">
+                <select
+                  id="tipoAnimalId"
+                  className={getInputClassName()}
+                  value={draft.tipoAnimalId}
+                  onChange={(e) =>
+                    setDraft((prev) => ({ ...prev, tipoAnimalId: e.target.value }))
+                  }
+                >
+                  <option value="">Todos</option>
+                  {tiposAnimal.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.label}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+            ) : null}
             {alimentos.length > 0 ? (
               <Field label="Alimento" htmlFor="alimentoId">
                 <select
@@ -181,10 +206,7 @@ export function ReportFiltersPanel({
 
       {children}
 
-      <Link
-        href="/reportes/alimentacion"
-        className="inline-flex text-sm font-semibold text-primary"
-      >
+      <Link href={backHref} className="inline-flex text-sm font-semibold text-primary">
         Volver al hub de reportes
       </Link>
     </div>
