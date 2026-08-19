@@ -154,6 +154,18 @@ const PERMISOS_CONFIG = [
     modulo: 'reportes',
     accion: 'engorde.ver',
   },
+  {
+    codigo: 'asistente.recomendaciones.ver',
+    nombre: 'Ver recomendaciones del asistente',
+    modulo: 'asistente',
+    accion: 'recomendaciones.ver',
+  },
+  {
+    codigo: 'asistente.recomendaciones.decidir',
+    nombre: 'Decidir recomendaciones del asistente',
+    modulo: 'asistente',
+    accion: 'recomendaciones.decidir',
+  },
 ];
 
 const PERFIL_ADMIN_SISTEMA = PERMISOS_CONFIG.map((p) => p.codigo);
@@ -190,6 +202,8 @@ const PERFIL_ADMIN_COMPANIA = [
   'ubicaciones.movimientos.anular',
   'reportes.alimentacion.ver',
   'reportes.engorde.ver',
+  'asistente.recomendaciones.ver',
+  'asistente.recomendaciones.decidir',
 ];
 
 const PERFIL_OPERADOR_GRANJA = [
@@ -221,6 +235,8 @@ const PERFIL_OPERADOR_GRANJA = [
   'ubicaciones.movimientos.anular',
   'reportes.alimentacion.ver',
   'reportes.engorde.ver',
+  'asistente.recomendaciones.ver',
+  'asistente.recomendaciones.decidir',
 ];
 
 const ANIMALES_SEED: Array<{
@@ -663,7 +679,12 @@ async function runSeed() {
   }
 
   const adminEmail = process.env.DEV_USER_EMAIL ?? 'admin@demo.local';
-  const adminPassword = process.env.SEED_ADMIN_PASSWORD ?? 'Admin123!';
+  const adminPassword = process.env.SEED_ADMIN_PASSWORD?.trim();
+  if (!adminPassword) {
+    throw new Error(
+      'SEED_ADMIN_PASSWORD es obligatorio para el seed. Definilo en el entorno (local: .env.development; cloud: Variables de Railway).',
+    );
+  }
 
   let usuario = await usuarioRepo.findOne({ where: { email: adminEmail } });
   if (!usuario) {
@@ -861,7 +882,7 @@ async function runSeed() {
   console.log(
     `Inventario demo: ${TIPOS_ALIMENTO_SEED.length} tipos, ${PRESENTACIONES_ALIMENTO_SEED.length} presentaciones, ${proveedores.length} proveedores, 1 almacen, ${alimentosCreados.length} alimentos, ${movimientosNuevos} entradas nuevas`,
   );
-  console.log(`Usuario dev: ${adminEmail} / ${adminPassword}`);
+  console.log(`Usuario seed: ${adminEmail}`);
 
   await AppDataSource.destroy();
 }

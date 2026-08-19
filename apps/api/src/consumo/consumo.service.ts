@@ -41,6 +41,7 @@ import {
   assertLoteMismaGranja,
   assertStockSuficienteConsumo,
 } from './consumo.rules';
+import { AsistenteService } from '../asistente/asistente.service';
 
 @Injectable()
 export class ConsumoService {
@@ -56,6 +57,7 @@ export class ConsumoService {
     @InjectRepository(MovimientoInventario)
     private readonly movimientoRepo: Repository<MovimientoInventario>,
     @InjectDataSource() private readonly dataSource: DataSource,
+    private readonly asistenteService: AsistenteService,
   ) {}
 
   async listar(
@@ -173,7 +175,7 @@ export class ConsumoService {
     );
     assertStockSuficienteConsumo(existencia, parsed.cantidad);
 
-    return this.dataSource.transaction(async (manager) => {
+    const consumoCreado = await this.dataSource.transaction(async (manager) => {
       const movimiento = await manager.save(
         manager.create(MovimientoInventario, {
           companiaId: ctx.companiaId,
@@ -220,6 +222,12 @@ export class ConsumoService {
         },
       });
     });
+
+    if (consumoCreado) {
+      await this.asistenteService.evaluarConsumoDesvio(ctx, consumoCreado);
+    }
+
+    return consumoCreado;
   }
 
   async anular(ctx: TenantContext, id: string, input: AnularConsumoAlimentoInput) {

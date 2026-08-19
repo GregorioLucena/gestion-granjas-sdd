@@ -37,6 +37,8 @@ export {
   MovimientoUbicacion,
   Proveedor,
 } from './operacion.entities';
+export { FeedbackRecomendacion, Recomendacion } from './asistente.entities';
+export type { HipotesisRecomendacion } from './asistente.entities';
 
 import { Compania, Granja } from './organizacion.entities';
 import {
@@ -77,6 +79,7 @@ import {
   MovimientoUbicacion,
   Proveedor,
 } from './operacion.entities';
+import { FeedbackRecomendacion, Recomendacion } from './asistente.entities';
 
 export const entities = [
   Compania,
@@ -113,4 +116,6 @@ export const entities = [
   CierreEngorde,
   BajaEngorde,
   ControlPeso,
+  Recomendacion,
+  FeedbackRecomendacion,
 ];

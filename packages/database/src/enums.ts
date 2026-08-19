@@ -42,3 +42,43 @@ export enum SignoMovimiento {
   ENTRADA = 'ENTRADA',
   SALIDA = 'SALIDA',
 }
+
+export enum TipoRecomendacion {
+  CONSUMO_DESVIO = 'CONSUMO_DESVIO',
+  STOCK_REPOSICION = 'STOCK_REPOSICION',
+  EVALUACION_CIERRE = 'EVALUACION_CIERRE',
+}
+
+export enum CicloRecomendacion {
+  OPERATIVO = 'OPERATIVO',
+  TACTICO = 'TACTICO',
+  ESTRATEGICO = 'ESTRATEGICO',
+}
+
+export enum SeveridadRecomendacion {
+  INFO = 'INFO',
+  ADVERTENCIA = 'ADVERTENCIA',
+  CRITICA = 'CRITICA',
+}
+
+export enum EstadoRecomendacion {
+  PENDIENTE = 'PENDIENTE',
+  EN_COLA = 'EN_COLA',
+  ACEPTADA = 'ACEPTADA',
+  DESCARTADA = 'DESCARTADA',
+  ACEPTADA_EN_EVALUACION = 'ACEPTADA_EN_EVALUACION',
+  CERRADA = 'CERRADA',
+  SUPERSEDED = 'SUPERSEDED',
+}
+
+export enum DecisionFeedback {
+  ACEPTADA = 'ACEPTADA',
+  DESCARTADA = 'DESCARTADA',
+}
+
+/** Origen del texto "por que lo sugerimos". El calculo nunca sale del modelo. */
+export enum FuenteMensaje {
+  PLANTILLA = 'PLANTILLA',
+  OLLAMA = 'OLLAMA',
+  OPENAI = 'OPENAI',
+}

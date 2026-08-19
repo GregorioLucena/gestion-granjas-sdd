@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { postgresSslOption } from '@gestion-granjas/database';
 import { entities } from '@gestion-granjas/database/entities';
 import { HealthModule } from './health/health.module';
 import { CommonModule } from './common/common.module';
@@ -18,12 +19,14 @@ import { EngordeModule } from './engorde/engorde.module';
 import { PesosModule } from './pesos/pesos.module';
 import { ReportesAlimentacionModule } from './reportes/reportes-alimentacion.module';
 import { ReportesEngordeModule } from './reportes/reportes-engorde.module';
+import { AsistenteModule } from './asistente/asistente.module';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
       url: process.env.DATABASE_URL,
+      ssl: postgresSslOption(),
       entities,
       synchronize: false,
       logging: process.env.NODE_ENV === 'development',
@@ -45,6 +48,7 @@ import { ReportesEngordeModule } from './reportes/reportes-engorde.module';
     PesosModule,
     ReportesAlimentacionModule,
     ReportesEngordeModule,
+    AsistenteModule,
   ],
 })
 export class AppModule {}

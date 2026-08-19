@@ -37,10 +37,18 @@ COPY packages/shared/package.json ./packages/shared/
 RUN pnpm install --frozen-lockfile --prod || pnpm install --prod
 
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
-COPY --from=builder /app/packages ./packages
+COPY --from=builder /app/packages/database/dist ./packages/database/dist
+COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
+COPY scripts/docker-entrypoint-api-prod.sh /app/scripts/docker-entrypoint-api-prod.sh
+COPY scripts/docker-entrypoint-api-testing.sh /app/scripts/docker-entrypoint-api-testing.sh
+
+RUN chmod +x /app/scripts/docker-entrypoint-api-prod.sh \
+    /app/scripts/docker-entrypoint-api-testing.sh \
+  && sed -i 's/\r$//' /app/scripts/docker-entrypoint-api-prod.sh \
+    /app/scripts/docker-entrypoint-api-testing.sh
 
 WORKDIR /app/apps/api
 
 EXPOSE 3001
 
-CMD ["node", "dist/main.js"]
+CMD ["/app/scripts/docker-entrypoint-api-testing.sh"]

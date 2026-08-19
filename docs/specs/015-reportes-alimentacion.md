@@ -41,7 +41,8 @@ No incluye:
 - Graficos.
 - Exportacion Excel/PDF.
 - Costeo promedio, FIFO o contabilidad.
-- Predicciones, alertas o comparativas entre companias.
+- Predicciones o comparativas entre companias.
+- Alertas accionables con feedback (ver `018-asistente-recomendaciones.md`).
 
 ## Fuente de datos
 

@@ -28,6 +28,10 @@
       "types": "./dist/permissions/index.d.ts",
       "default": "./dist/permissions/index.js"
     },
+    "./schemas/asistente.schemas": {
+      "types": "./dist/schemas/asistente.schemas.d.ts",
+      "default": "./dist/schemas/asistente.schemas.js"
+    },
     "./schemas/configuracion.schemas": {
       "types": "./dist/schemas/configuracion.schemas.d.ts",
       "default": "./dist/schemas/configuracion.schemas.js"
@@ -83,6 +87,9 @@
       ],
       "permissions": [
         "dist/permissions/index.d.ts"
+      ],
+      "schemas/asistente.schemas": [
+        "dist/schemas/asistente.schemas.d.ts"
       ],
       "schemas/configuracion.schemas": [
         "dist/schemas/configuracion.schemas.d.ts"

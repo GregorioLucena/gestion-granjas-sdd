@@ -4,7 +4,7 @@ import { Public } from '../common/decorators/public.decorator';
 import { TenantCtx } from '../common/tenant/tenant-context.decorator';
 import type { TenantContext } from '@gestion-granjas/shared';
 import { AuthService } from './auth.service';
-import { REFRESH_COOKIE_NAME, REFRESH_COOKIE_PATH, getRefreshTokenTtlMs } from './auth.crypto';
+import { REFRESH_COOKIE_NAME, getRefreshCookieOptions } from './auth.crypto';
 
 @Controller('auth')
 export class AuthController {
@@ -46,21 +46,11 @@ export class AuthController {
   }
 
   private setRefreshCookie(res: Response, refreshToken: string) {
-    res.cookie(REFRESH_COOKIE_NAME, refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: REFRESH_COOKIE_PATH,
-      maxAge: getRefreshTokenTtlMs(),
-    });
+    res.cookie(REFRESH_COOKIE_NAME, refreshToken, getRefreshCookieOptions());
   }
 
   private clearRefreshCookie(res: Response) {
-    res.clearCookie(REFRESH_COOKIE_NAME, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: REFRESH_COOKIE_PATH,
-    });
+    const { maxAge: _maxAge, ...options } = getRefreshCookieOptions();
+    res.clearCookie(REFRESH_COOKIE_NAME, options);
   }
 }

@@ -9,6 +9,7 @@ import {
   MapPinned,
   PackageOpen,
   Shield,
+  Sparkles,
   Weight,
 } from 'lucide-react';
 import { PERMISOS } from '@gestion-granjas/shared/permissions';
@@ -19,6 +20,14 @@ import { userHasAnyPermission } from '@/lib/tenant-context';
 import { SEGURIDAD_ACCESS_PERMISSIONS } from '@/modules/seguridad/catalog';
 
 const links = [
+  {
+    href: '/asistente',
+    title: 'Asistente',
+    description: 'Recomendaciones de consumo: revisar, aceptar o descartar.',
+    icon: Sparkles,
+    tone: 'accent' as const,
+    permissions: [PERMISOS.ASISTENTE_RECOMENDACIONES_VER],
+  },
   {
     href: '/movimientos-ubicacion',
     title: 'Movimientos de ubicacion',

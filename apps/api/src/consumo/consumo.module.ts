@@ -11,6 +11,7 @@ import {
 } from '@gestion-granjas/database/entities';
 import { ConsumoController } from './consumo.controller';
 import { ConsumoService } from './consumo.service';
+import { AsistenteModule } from '../asistente/asistente.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { ConsumoService } from './consumo.service';
       TipoMovimientoInventario,
       MovimientoInventario,
     ]),
+    AsistenteModule,
   ],
   controllers: [ConsumoController],
   providers: [ConsumoService],

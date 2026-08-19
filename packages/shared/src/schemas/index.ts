@@ -1,3 +1,4 @@
+export * from './asistente.schemas';
 export * from './configuracion.schemas';
 export * from './consumo.schemas';
 export * from './engorde.schemas';
