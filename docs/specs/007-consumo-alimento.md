@@ -41,7 +41,7 @@ No incluye en esta version:
 - Formulacion de raciones.
 - Recetas o mezclas automaticas de alimento.
 - Planificacion automatica de alimentacion.
-- Alertas de consumo fuera de rango.
+- Alertas de consumo fuera de rango (cubiertas por `018-asistente-recomendaciones.md`).
 - Integracion con balanzas o sensores.
 - Costeo avanzado por conversion alimenticia.
 - Consumo masivo por multiples lotes a la vez.

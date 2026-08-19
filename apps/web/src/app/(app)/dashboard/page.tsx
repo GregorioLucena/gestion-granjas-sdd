@@ -8,6 +8,7 @@ import {
   PackageOpen,
   Scale,
   Shield,
+  Sparkles,
   TrendingUp,
   Users,
   Wheat,
@@ -77,6 +78,13 @@ const operationalLinks: QuickLink[] = [
     description: 'Descuenta alimento por lote en pocos toques.',
     icon: Wheat,
     tone: 'accent',
+  },
+  {
+    href: '/asistente',
+    title: 'Revisar asistente',
+    description: 'Alertas de consumo y sugerencias para actuar.',
+    icon: Sparkles,
+    tone: 'info',
   },
   {
     href: '/lotes',
@@ -177,9 +185,24 @@ export default function DashboardPage() {
           <p className="text-sm text-muted">Atajos del flujo principal del MVP.</p>
         </div>
         <div className="grid gap-3 md:grid-cols-2">
-          {operationalLinks.map((link) => (
-            <ActionCard key={link.title} {...link} tone={link.tone} />
-          ))}
+          {operationalLinks
+            .filter((link) => {
+              if (link.href !== '/asistente') return true;
+              if (!user) return false;
+              return hasPermission(
+                {
+                  userId: user.id,
+                  companiaId: user.companiaId,
+                  granjaIds: user.granjaIds,
+                  permisos: user.permisos,
+                  granjaActivaId: user.granjaActivaId,
+                },
+                PERMISOS.ASISTENTE_RECOMENDACIONES_VER,
+              );
+            })
+            .map((link) => (
+              <ActionCard key={link.title} {...link} tone={link.tone} />
+            ))}
         </div>
       </section>
 
@@ -200,12 +223,13 @@ export default function DashboardPage() {
       <section className="rounded-2xl bg-secondary/20 p-4 ring-1 ring-secondary/35">
         <div className="flex items-start gap-3">
           <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-secondary/40 text-primary-dark">
-            <TrendingUp className="size-5" aria-hidden />
+            <Sparkles className="size-5" aria-hidden />
           </span>
           <div>
-            <h2 className="font-semibold text-foreground">Siguiente hito</h2>
+            <h2 className="font-semibold text-foreground">Asistente operativo</h2>
             <p className="mt-1 text-sm leading-6 text-muted">
-              Controles de peso y engorde para cerrar el ciclo productivo del MVP v1.
+              Al registrar consumos fuera de lo habitual, el asistente propone causas y una
+              accion concreta para revisar en campo.
             </p>
           </div>
         </div>

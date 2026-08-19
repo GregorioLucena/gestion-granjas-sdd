@@ -35,6 +35,8 @@ services:
       PORT: 3001
       NODE_ENV: development
       CHOKIDAR_USEPOLLING: 'true'
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
     ports:
       - '${API_PORT:-3001}:3001'
     volumes:

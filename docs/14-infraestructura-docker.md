@@ -100,6 +100,9 @@ Variables:
 | `PORT` | `3001` |
 | `CORS_ORIGIN` | `http://localhost:3000` |
 | `NODE_ENV` | `development` |
+| `LLM_PROVIDER` | `none` (o `ollama` / `openai`) |
+| `OLLAMA_BASE_URL` | `http://localhost:11434` (en Docker: `http://host.docker.internal:11434`) |
+| `OLLAMA_MODEL` | `llama3.2` |
 
 ### web
 

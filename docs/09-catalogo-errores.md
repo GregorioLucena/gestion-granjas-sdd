@@ -267,6 +267,16 @@ NestJS (`AppError`) y en el filtro global `AppErrorFilter`.
 | `REPORTE_UNIDADES_INCOMPATIBLES` | 422 | No se pueden sumar cantidades con unidades incompatibles. |
 | `REPORTE_SIN_DATOS` | 200 | No es error; retornar `{ data: [], meta: { total: 0 } }` |
 
+## Asistente de recomendaciones
+
+| Codigo | HTTP | Mensaje al usuario |
+|--------|------|-------------------|
+| `NOT_FOUND` | 404 | No encontramos esa recomendacion. |
+| `RECOMENDACION_NO_PENDIENTE` | 409 | Esa recomendacion ya fue resuelta. |
+
+Umbrales configurables (`UMBRAL_FUERA_DE_RANGO`, `UMBRAL_NO_ENCONTRADO`) corresponden al
+alcance ampliado; no se implementan en la v1 minima.
+
 ## Implementacion en codigo
 
 ### Clases de error (`packages/shared/src/errors`)

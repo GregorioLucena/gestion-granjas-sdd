@@ -76,6 +76,14 @@ Objetivo: convertir los registros en informacion util para decisiones.
 - `017-reportes-engorde.md`: ganancia, conversion y mortalidad. **Lista para implementar MVP
   v1 (2026-07-13).**
 
+## Fase 8: Asistente de recomendaciones (post MVP v1)
+
+Objetivo: alertas accionables y memoria de decisiones sobre datos productivos reales, sin
+abrir MVP v2 (reproduccion/sanidad).
+
+- `018-asistente-recomendaciones.md`: desvio de consumo, stock de reposicion, feedback y
+  umbrales por granja. **Especificado — pendiente de implementacion (2026-08-16).**
+
 ## Regla de avance
 
 Una especificacion puede pasar de borrador a lista para implementar cuando tenga:

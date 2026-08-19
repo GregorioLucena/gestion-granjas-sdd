@@ -45,6 +45,7 @@ Construir un sistema modular para la gestion productiva de granjas, comenzando c
 - `docs/specs/015-reportes-alimentacion.md`: reportes de consumo, costos, existencias e inventario.
 - `docs/specs/016-reportes-sanidad.md`: reportes de vacunaciones, enfermedades, tratamientos y controles sanitarios.
 - `docs/specs/017-reportes-engorde.md`: reportes de ganancia de peso, consumo, bajas y conversion alimenticia.
+- `docs/specs/018-asistente-recomendaciones.md`: asistente de recomendaciones (consumo/stock, feedback y umbrales).
 - `docs/decisions/0001-modelo-seguridad-multicompania.md`: decision de seguridad multi-compania.
 - `docs/decisions/0002-modelo-sanidad-veterinario-tratante.md`: decision sanitaria y veterinario tratante.
 - `docs/decisions/0003-alcance-maestras.md`: decision sobre alcance global, por compania y por granja de las maestras.
@@ -102,3 +103,49 @@ pnpm docker:dev
 Para detener todo: `pnpm docker:down`
 
 El mismo `.env.development` sirve para ambos flujos: local usa `DATABASE_URL` con `localhost`, y Docker sobrescribe esa variable dentro del contenedor API para usar el hostname `postgres`.
+
+### Asistente con LLM (opcional)
+
+Por defecto el texto de la alerta sale de una plantilla de reglas. Para enriquecerlo:
+
+```bash
+# En .env.development
+LLM_PROVIDER=ollama
+OLLAMA_MODEL=llama3.2
+```
+
+Si la API corre en Docker y Ollama en el host, usa `OLLAMA_BASE_URL=http://host.docker.internal:11434`.
+Si Ollama no está o falla, la app sigue con la plantilla.
+
+### Deploy en Railway (API, rama `testing`)
+
+El flujo git sigue siendo `feature/*` → MR a `testing` → Railway despliega `testing`.
+
+1. MR de esta feature a `testing` y push (Railway construye desde GitHub).
+2. En el mismo proyecto que Postgres: **New** → GitHub repo → este repositorio.
+3. **Branch:** `testing`. **Builder:** Dockerfile. **Dockerfile path:** `apps/api/Dockerfile`.
+4. El contenedor arranca con `scripts/docker-entrypoint-api-testing.sh` (migraciones + seed demo + Nest).
+   Produccion (`master`) puede usar `scripts/docker-entrypoint-api-prod.sh` como start command.
+5. Variables (ver `.env.testing.example`):
+
+```text
+DATABASE_URL=${{Postgres.DATABASE_URL}}
+DATABASE_SSL=true
+NODE_ENV=production
+PORT=3001
+JWT_SECRET=<secreto largo>
+CORS_ORIGIN=https://TU-WEB.up.railway.app
+COOKIE_SAMESITE=none
+LLM_PROVIDER=none
+RUN_SEED=true
+DEV_USER_EMAIL=admin@demo.local
+SEED_ADMIN_PASSWORD=<definir solo en Railway, no en git>
+```
+
+`DATABASE_URL` debe terminar en `/gestion_granjas` si esa es la base que creaste.
+`SEED_ADMIN_PASSWORD` es obligatorio: sin esa variable el seed no crea el admin.
+
+6. Public networking, puerto `3001`.
+7. Probar: `https://<api>.up.railway.app/api/health`
+
+El email demo por defecto es `admin@demo.local`. La clave la definís vos en Railway y se la pasás al docente por fuera del repo.

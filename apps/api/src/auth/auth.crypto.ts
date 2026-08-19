@@ -33,3 +33,21 @@ export function getRefreshTokenTtlMs(): number {
 export function getRefreshExpiresAt(): Date {
   return new Date(Date.now() + getRefreshTokenTtlMs());
 }
+
+export function getRefreshCookieOptions(): {
+  httpOnly: true;
+  secure: boolean;
+  sameSite: 'lax' | 'strict' | 'none';
+  path: string;
+  maxAge: number;
+} {
+  const raw = (process.env.COOKIE_SAMESITE ?? 'lax').trim().toLowerCase();
+  const sameSite = raw === 'none' ? 'none' : raw === 'strict' ? 'strict' : 'lax';
+  return {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production' || sameSite === 'none',
+    sameSite,
+    path: REFRESH_COOKIE_PATH,
+    maxAge: getRefreshTokenTtlMs(),
+  };
+}
