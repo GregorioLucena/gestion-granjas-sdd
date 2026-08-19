@@ -17,6 +17,10 @@ RUN pnpm install --frozen-lockfile || pnpm install
 
 COPY . .
 
+# Next incrusta NEXT_PUBLIC_* en el build. Railway inyecta la variable como ARG.
+ARG NEXT_PUBLIC_API_URL=http://localhost:3001/api
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
 RUN pnpm --filter @gestion-granjas/web build
 
 FROM node:22-alpine AS runner
